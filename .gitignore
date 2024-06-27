@@ -2,5 +2,6 @@
 miniRT
 *.o
 *.a
+Makefile
 
 

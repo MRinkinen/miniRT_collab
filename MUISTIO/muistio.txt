@@ -1,0 +1,27 @@
+Program name: miniRT
+
+Turn in files: All your files
+
+Makefile: all, clean, fclean, re, bonus
+
+Arguments: a scene in format *.rt
+
+External functs:
+• open, close, read, write,
+printf, malloc, free, perror,
+strerror, exit
+
+• All functions of the math
+library (-lm man man 3 math)
+
+• All functions of the MinilibX
+
+Libft authorized Yes
+
+Description:
+The goal of your program is to generate
+images using the Raytracing protocol. Those
+computer-generated images will each represent a
+scene, as seen from a specific angle and position,
+defined by simple geometric objects, and each with
+its own lighting system.

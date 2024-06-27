@@ -9,8 +9,13 @@
 #include "../libft/libft.h"
 #include "../MLX42/include/MLX42/MLX42.h"
 
-#define SCREEN_HEIGHT 1000
-#define SCREEN_WIDHT 1000
+#define SCREEN_HEIGHT 600
+#define SCREEN_WIDHT 600
+
+typedef struct s_color
+{
+    double e[3];
+} t_color;
 
 typedef struct s_vec
 {
@@ -61,9 +66,34 @@ typedef struct s_var
 
 int32_t ft_pixel(int32_t r, int32_t g, int32_t b, int32_t a);
 void write_color(t_vec3 vec, t_var *var, int x, int y);
+//void write_color(FILE* out, const t_vec3* pixel_color);
+
 
 /*Vector 3*/
 t_vec3 t_vec3_create(double e0, double e1, double e2);
 t_vec3 t_vec3_multiply_scalar(const t_vec3 *v, double t);
 t_vec3 t_vec3_add_vectors(const t_vec3 *u, const t_vec3 *v);
+t_vec3 t_vec3_divide_scalar(const t_vec3 *v, double t);
+t_vec3 t_vec3_multiply_vectors(const t_vec3 *u, const t_vec3 *v);
+t_vec3 t_vec3_subtract_vectors(const t_vec3 *u, const t_vec3 *v);
+double t_vec3_length_squared(const t_vec3 *v);
+double t_vec3_length(const t_vec3 *v);
+t_vec3 *t_vec3_divide(t_vec3 *v, double t);
+t_vec3 *t_vec3_multiply(t_vec3 *v, double t);
+t_vec3 *t_vec3_add(t_vec3 *v, const t_vec3 *u);
+
+double t_vec3_dot(const t_vec3 *u, const t_vec3 *v);
+t_vec3 t_vec3_cross(const t_vec3 *u, const t_vec3 *v);
+t_vec3 t_vec3_unit_vector(const t_vec3 *v);
+
+/* Ray */
+
+t_ray ray_create(const t_vec3 *origin, const t_vec3 *direction);
+t_vec3 ray_origin(const t_ray *r);
+t_vec3 ray_direction(const t_ray *r);
+t_vec3 ray_at(const t_ray *r, double t);
+
+/*Sphere*/
+bool hit_sphere(const t_vec3 center, double radius, const t_ray r);
+
 #endif

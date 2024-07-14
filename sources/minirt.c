@@ -14,17 +14,17 @@ void ft_hook(void *param)
 	if (mlx_is_key_down(var->mlx, MLX_KEY_ESCAPE))
 		mlx_close_window(var->mlx);
 	if (mlx_is_key_down(var->mlx, MLX_KEY_W) && mlx_is_key_down(var->mlx, MLX_KEY_LEFT_SHIFT))
-		var->camreraz += 1;
-	else if (mlx_is_key_down(var->mlx, MLX_KEY_W))
-		var->camrerax -= 1;
-	if (mlx_is_key_down(var->mlx, MLX_KEY_S) && mlx_is_key_down(var->mlx, MLX_KEY_LEFT_SHIFT))
 		var->camreraz -= 1;
-	else if (mlx_is_key_down(var->mlx, MLX_KEY_S))
+	else if (mlx_is_key_down(var->mlx, MLX_KEY_W))
 		var->camrerax += 1;
+	if (mlx_is_key_down(var->mlx, MLX_KEY_S) && mlx_is_key_down(var->mlx, MLX_KEY_LEFT_SHIFT))
+		var->camreraz += 1;
+	else if (mlx_is_key_down(var->mlx, MLX_KEY_S))
+		var->camrerax -= 1;
 	if (mlx_is_key_down(var->mlx, MLX_KEY_A))
-		var->camreray += 1;
-	if (mlx_is_key_down(var->mlx, MLX_KEY_D))
 		var->camreray -= 1;
+	if (mlx_is_key_down(var->mlx, MLX_KEY_D))
+		var->camreray += 1;
 }
 
 t_vec3 color_add(t_vec3 c1, t_vec3 c2)
@@ -46,11 +46,10 @@ t_vec3 color_multiply_scalar(t_vec3 c, double s)
 	return result;
 }
 
-t_vec3 ray_color(t_var *var, const t_ray *r, const t_hittable *world)
+t_vec3 ray_color(const t_ray *r, const hittable_list *world)
 {
-	(void)var;
 	t_hit rec;
-	if (world->hit(world, r, 0.001, INFINITY, &rec))
+	if (hittable_list_hit(world, r, 0.001, INFINITY, &rec))
 	{
 		t_vec3 temp = t_vec3_create(rec.normal.e[0] + 1, rec.normal.e[1] + 1, rec.normal.e[2] + 1);
 		return t_vec3_multiply_scalar(&temp, 0.5);
@@ -65,16 +64,75 @@ t_vec3 ray_color(t_var *var, const t_ray *r, const t_hittable *world)
 	return t_vec3_add_vectors(&temp_white, &temp_blue);
 }
 
-void testifunk(t_var *var)
-{
-	// t_var *var;
-	// var = param;
+// t_vec3 ray_color(t_var *var, const t_ray *r, const hittable_list *world)
+// {
+// 	(void)var;
+// 	t_hit rec;
+// 	if (world->hit(world, r, 0.001, INFINITY, &rec))
+// 	{
+// 		t_vec3 temp = t_vec3_create(rec.normal.e[0] + 1, rec.normal.e[1] + 1, rec.normal.e[2] + 1);
+// 		return t_vec3_multiply_scalar(&temp, 0.5);
+// 	}
 
-	t_sphere s = sphere_create(t_vec3_create(0, 0, -30), 20);
-	t_hittable *world = (t_hittable *)&s;
+// 	t_vec3 unit_direction = t_vec3_unit_vector(&r->dir);
+// 	double t = 0.5 * (unit_direction.e[1] + 1.0);
+// 	t_vec3 white = t_vec3_create(1.0, 1.0, 1.0);
+// 	t_vec3 blue = t_vec3_create(0.5, 0.7, 1.0);
+// 	t_vec3 temp_white = t_vec3_multiply_scalar(&white, 1.0 - t);
+// 	t_vec3 temp_blue = t_vec3_multiply_scalar(&blue, t);
+// 	return t_vec3_add_vectors(&temp_white, &temp_blue);
+// }
+
+// void initobjects(hittable_list objects)
+// {
+// 	// hittable_list objects;
+
+// 	t_sphere s1 = sphere_create(t_vec3_create(-10, -10, -50), 5);
+// 	t_sphere s2 = sphere_create(t_vec3_create(10, 10, -50), 5);
+// 	t_sphere s3 = sphere_create(t_vec3_create(-10, 10, -50), 5);
+// 	t_sphere s4 = sphere_create(t_vec3_create(10, -10, -50), 5);
+
+// 	hittable_list_add(&objects, (t_hittable *)&s1);
+// 	hittable_list_add(&objects, (t_hittable *)&s2);
+// 	hittable_list_add(&objects, (t_hittable *)&s3);
+// 	hittable_list_add(&objects, (t_hittable *)&s4);
+// 	// return objects;
+// }
+void testifunk(void *param)
+{
+	t_var *var;
+	var = param;
+
+	// hittable_list objects;
+	// hittable_list_init(&objects);
+
+	// initobjects(objects);
+	// t_sphere s = sphere_create(t_vec3_create(0, 0, -30), 20);
+	// t_hittable *world = (t_hittable *)&s;
+
+	hittable_list world;
+	hittable_list_init(&world);
+
+	t_sphere s1 = sphere_create(t_vec3_create(-10, -10, -60), 5);
+	t_sphere s2 = sphere_create(t_vec3_create(10, 10, -60), 5);
+	t_sphere s3 = sphere_create(t_vec3_create(-10, 10, -60), 5);
+	t_sphere s4 = sphere_create(t_vec3_create(10, -10, -60), 5);
+	t_sphere s1b = sphere_create(t_vec3_create(-10, -10, -100), 5);
+	t_sphere s2b = sphere_create(t_vec3_create(10, 10, -100), 5);
+	t_sphere s3b = sphere_create(t_vec3_create(-10, 10, -100), 5);
+	t_sphere s4b = sphere_create(t_vec3_create(10, -10, -100), 5);
+
+	hittable_list_add(&world, (t_hittable *)&s1);
+	hittable_list_add(&world, (t_hittable *)&s2);
+	hittable_list_add(&world, (t_hittable *)&s3);
+	hittable_list_add(&world, (t_hittable *)&s4);
+	hittable_list_add(&world, (t_hittable *)&s1b);
+	hittable_list_add(&world, (t_hittable *)&s2b);
+	hittable_list_add(&world, (t_hittable *)&s3b);
+	hittable_list_add(&world, (t_hittable *)&s4b);
 
 	double focal_length = 1.0;
-	double viewport_height = 3.0;
+	double viewport_height = 1.0;
 	double viewport_width = viewport_height * ((double)SCREEN_WIDHT / var->image_height);
 	t_vec3 camera_center = t_vec3_create(var->camrerax, var->camreray, var->camreraz);
 
@@ -114,7 +172,7 @@ void testifunk(t_var *var)
 			t_vec3 ray_direction = t_vec3_subtract_vectors(&pixel_center, &camera_center);
 			t_ray r = ray_create(&camera_center, &ray_direction);
 
-			t_vec3 pixel_color = ray_color(var, &r, world);
+			t_vec3 pixel_color = ray_color(&r, &world);
 			write_color(pixel_color, var, j, i);
 		}
 	}
@@ -124,7 +182,7 @@ void testifunk(t_var *var)
 
 void hooks(t_var *var)
 {
-	// mlx_loop_hook(var->mlx, testifunk, var); // If here. Can move camera while program is running
+	mlx_loop_hook(var->mlx, testifunk, var); // If here. Can move camera while program is running
 	mlx_loop_hook(var->mlx, ft_hook, var);
 }
 
@@ -156,7 +214,7 @@ int main(void)
 		ft_printf("%s", mlx_strerror(mlx_errno));
 		return (EXIT_FAILURE);
 	}
-	testifunk(&var); // If here. Cannot move camera while program is running
+	// testifunk(&var); // If here. Cannot move camera while program is running
 	hooks(&var);
 
 	mlx_loop(var.mlx);

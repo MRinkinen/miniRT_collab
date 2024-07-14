@@ -11,6 +11,7 @@
 
 #define SCREEN_HEIGHT 400 // Not in use
 #define SCREEN_WIDHT 1000
+#define MAX_OBJECTS 100
 
 typedef struct s_color
 {
@@ -33,16 +34,28 @@ typedef struct s_hit
 	t_vec3 p;
 	t_vec3 normal;
 	double t;
+	bool front_face;
 } t_hit;
 
 struct hittable;
-
+void set_face_normal(t_hit *rec, const t_ray *r, const t_vec3 *outward_normal);
 typedef bool (*hit_func)(const struct hittable *, const t_ray *, double, double, t_hit *);
 
 typedef struct hittable
 {
 	hit_func hit;
 } t_hittable;
+
+typedef struct
+{
+	t_hittable *objects[MAX_OBJECTS];
+	int size;
+} hittable_list;
+
+void hittable_list_init(hittable_list *list);
+void hittable_list_clear(hittable_list *list);
+void hittable_list_add(hittable_list *list, t_hittable *object);
+bool hittable_list_hit(const hittable_list *list, const t_ray *r, double tmin, double tmax, t_hit *rec);
 
 typedef struct
 {

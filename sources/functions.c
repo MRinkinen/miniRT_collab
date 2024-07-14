@@ -18,42 +18,6 @@ void write_color(t_vec3 vec, t_var *var, int x, int y)
     mlx_put_pixel(var->testimage, x, y, color);
 }
 
-// Assuming t_color is defined similar to t_vec3 for color representation
-
-// Utility functions for vector operations, assuming these are defined elsewhere
-// t_vec3 vec3_subtract(t_vec3 a, t_vec3 b);
-// double vec3_dot(t_vec3 a, t_vec3 b);
-// t_vec3 vec3_multiply_scalar(t_vec3 v, double s);
-// t_vec3 vec3_unit_vector(t_vec3 v);
-// t_color color(double r, double g, double b);
-
-// bool hit_sphere2(const t_vec3 center, double radius, const t_ray r)
-// {
-
-//     t_vec3 oc = t_vec3_subtract_vectors(&r.orig, &center);
-//     double a = t_vec3_dot(&r.dir, &r.dir);
-//     double b = 2.0 * t_vec3_dot(&r.dir, &oc);
-//     double c = t_vec3_dot(&oc, &oc) - radius * radius;
-//     double discriminant = b * b - 4 * a * c;
-//     return (discriminant >= 0);
-// }
-
-// double hit_sphere(const t_vec3 *center, double radius, const t_ray *r)
-// {
-//     t_vec3 oc = t_vec3_subtract_vectors(center, &r->orig);
-//     double a = t_vec3_dot(&r->dir, &r->dir);
-//     double b = -2.0 * t_vec3_dot(&r->dir, &oc);
-//     double c = t_vec3_dot(&oc, &oc) - radius * radius;
-//     double discriminant = b * b - 4 * a * c;
-//     if (discriminant < 0)
-//     {
-//         return -1.0;
-//     }
-//     else
-//     {
-//         return (-b - sqrt(discriminant)) / (2.0 * a);
-//     }
-// }
 void hittable_init(t_hittable *h, hit_func func)
 {
     h->hit = func;
@@ -84,11 +48,43 @@ bool sphere_hit(const t_hittable *self, const t_ray *r, double tmin, double tmax
 
     rec->t = root;
     rec->p = ray_at(r, rec->t);
-    t_vec3 temp = t_vec3_subtract_vectors(&rec->p, &s->center);
-    rec->normal = t_vec3_multiply_scalar(&temp, 1.0 / s->radius);
+    t_vec3 outward_normal = t_vec3_subtract_vectors(&rec->p, &s->center);
+    outward_normal = t_vec3_multiply_scalar(&outward_normal, 1.0 / s->radius);
+    set_face_normal(rec, r, &outward_normal);
 
     return true;
 }
+// bool sphere_hit(const t_hittable *self, const t_ray *r, double tmin, double tmax, t_hit *rec)
+// {
+//     const t_sphere *s = (const t_sphere *)self;
+//     t_vec3 oc = t_vec3_subtract_vectors(&r->orig, &s->center);
+//     double a = t_vec3_dot(&r->dir, &r->dir);
+//     double h = t_vec3_dot(&oc, &r->dir);
+//     double c = t_vec3_dot(&oc, &oc) - s->radius * s->radius;
+
+//     double discriminant = h * h - a * c;
+//     if (discriminant < 0)
+//         return false;
+
+//     double sqrtd = sqrt(discriminant);
+
+//     // Find the nearest root that lies in the acceptable range.
+//     double root = (h - sqrtd) / a;
+//     if (root < tmin || tmax < root)
+//     {
+//         root = (h + sqrtd) / a;
+//         if (root < tmin || tmax < root)
+//             return false;
+//     }
+
+//     rec->t = root;
+//     rec->p = ray_at(r, rec->t);
+//     t_vec3 outward_normal = t_vec3_subtract_vectors(&rec->p, &s->center);
+//     outward_normal = t_vec3_multiply_scalar(&outward_normal, 1.0 / s->radius);
+//     set_face_normal(rec, r, &outward_normal);
+
+//     return true;
+// }
 
 t_sphere sphere_create(t_vec3 center, double radius)
 {
@@ -98,4 +94,58 @@ t_sphere sphere_create(t_vec3 center, double radius)
     s.center = center;
     s.radius = fmax(0, radius);
     return s;
+}
+
+void set_face_normal(t_hit *rec, const t_ray *r, const t_vec3 *outward_normal)
+{
+    // Compute whether the ray hits the front face
+    rec->front_face = t_vec3_dot(&r->dir, outward_normal) < 0;
+
+    // Set the normal to point against the ray direction if front face, otherwise with it
+    if (rec->front_face)
+    {
+        rec->normal = *outward_normal;
+    }
+    else
+    {
+        t_vec3 neg_outward_normal = t_vec3_multiply_scalar(outward_normal, -1.0);
+        rec->normal = neg_outward_normal;
+    }
+}
+
+void hittable_list_init(hittable_list *list)
+{
+    list->size = 0;
+}
+
+void hittable_list_clear(hittable_list *list)
+{
+    list->size = 0;
+}
+
+void hittable_list_add(hittable_list *list, t_hittable *object)
+{
+    if (list->size < MAX_OBJECTS)
+    {
+        list->objects[list->size++] = object;
+    }
+}
+
+bool hittable_list_hit(const hittable_list *list, const t_ray *r, double tmin, double tmax, t_hit *rec)
+{
+    t_hit temp_rec;
+    bool hit_anything = false;
+    double closest_so_far = tmax;
+
+    for (int i = 0; i < list->size; i++)
+    {
+        if (list->objects[i]->hit(list->objects[i], r, tmin, closest_so_far, &temp_rec))
+        {
+            hit_anything = true;
+            closest_so_far = temp_rec.t;
+            *rec = temp_rec;
+        }
+    }
+
+    return hit_anything;
 }

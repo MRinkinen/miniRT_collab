@@ -6,6 +6,8 @@
 #include <stdlib.h>
 #include <fcntl.h>
 #include <math.h>
+#include <limits.h>
+#include <float.h>
 #include "../libft/libft.h"
 #include "../MLX42/include/MLX42/MLX42.h"
 
@@ -13,6 +15,15 @@
 #define SCREEN_WIDHT 1000
 #define MAX_OBJECTS 100
 
+// Constants
+#define INFINITY DBL_MAX
+#define PI 3.1415926535897932385
+
+// Utility Functions
+static inline double degrees_to_radians(double degrees) // Ei varmaan saa jäädä tänne!!
+{
+	return degrees * PI / 180.0;
+}
 typedef struct s_color
 {
 	double e[3];

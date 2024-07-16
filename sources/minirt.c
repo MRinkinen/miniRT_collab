@@ -113,23 +113,23 @@ void testifunk(void *param)
 	hittable_list world;
 	hittable_list_init(&world);
 
-	t_sphere s1 = sphere_create(t_vec3_create(-10, -10, -60), 5);
-	t_sphere s2 = sphere_create(t_vec3_create(10, 10, -60), 5);
-	t_sphere s3 = sphere_create(t_vec3_create(-10, 10, -60), 5);
-	t_sphere s4 = sphere_create(t_vec3_create(10, -10, -60), 5);
-	t_sphere s1b = sphere_create(t_vec3_create(-10, -10, -100), 5);
-	t_sphere s2b = sphere_create(t_vec3_create(10, 10, -100), 5);
-	t_sphere s3b = sphere_create(t_vec3_create(-10, 10, -100), 5);
-	t_sphere s4b = sphere_create(t_vec3_create(10, -10, -100), 5);
+	t_sphere s1 = sphere_create(t_vec3_create(0, 0, -1), 0.5);
+	t_sphere s2 = sphere_create(t_vec3_create(0, -100.5, -200), 100);
+	// t_sphere s3 = sphere_create(t_vec3_create(-10, 10, -60), 5);
+	// t_sphere s4 = sphere_create(t_vec3_create(10, -10, -60), 5);
+	// t_sphere s1b = sphere_create(t_vec3_create(-10, -10, -100), 5);
+	// t_sphere s2b = sphere_create(t_vec3_create(10, 10, -100), 5);
+	// t_sphere s3b = sphere_create(t_vec3_create(-10, 10, -100), 5);
+	// t_sphere s4b = sphere_create(t_vec3_create(10, -10, -100), 5);
 
 	hittable_list_add(&world, (t_hittable *)&s1);
 	hittable_list_add(&world, (t_hittable *)&s2);
-	hittable_list_add(&world, (t_hittable *)&s3);
-	hittable_list_add(&world, (t_hittable *)&s4);
-	hittable_list_add(&world, (t_hittable *)&s1b);
-	hittable_list_add(&world, (t_hittable *)&s2b);
-	hittable_list_add(&world, (t_hittable *)&s3b);
-	hittable_list_add(&world, (t_hittable *)&s4b);
+	// hittable_list_add(&world, (t_hittable *)&s3);
+	// hittable_list_add(&world, (t_hittable *)&s4);
+	// hittable_list_add(&world, (t_hittable *)&s1b);
+	// hittable_list_add(&world, (t_hittable *)&s2b);
+	// hittable_list_add(&world, (t_hittable *)&s3b);
+	// hittable_list_add(&world, (t_hittable *)&s4b);
 
 	double focal_length = 1.0;
 	double viewport_height = 1.0;

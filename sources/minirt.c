@@ -115,26 +115,26 @@ void testifunk(void *param)
 	hittable_list world;
 	hittable_list_init(&world);
 
-	t_sphere s1 = sphere_create(t_vec3_create(0, 0, -100), 0.5);
-	t_sphere s2 = sphere_create(t_vec3_create(0, 100.5, -100), 100);
-	// t_sphere s3 = sphere_create(t_vec3_create(-10, 10, -60), 10);
-	// t_sphere s4 = sphere_create(t_vec3_create(10, -10, -60), 10);
-	// t_sphere s1b = sphere_create(t_vec3_create(-10, -10, -100), 10);
-	// t_sphere s2b = sphere_create(t_vec3_create(10, 10, -100), 10);
-	// t_sphere s3b = sphere_create(t_vec3_create(-10, 10, -100), 10);
-	// t_sphere s4b = sphere_create(t_vec3_create(10, -10, -100), 10);
+	t_sphere s1 = sphere_create(t_vec3_create(0, -100.5, -80), 100);
+	// t_sphere s2 = sphere_create(t_vec3_create(0, 0, -100), 100);
+	//  t_sphere s3 = sphere_create(t_vec3_create(-10, 10, -60), 10);
+	//  t_sphere s4 = sphere_create(t_vec3_create(10, -10, -60), 10);
+	//  t_sphere s1b = sphere_create(t_vec3_create(-10, -10, -100), 10);
+	//  t_sphere s2b = sphere_create(t_vec3_create(10, 10, -100), 10);
+	//  t_sphere s3b = sphere_create(t_vec3_create(-10, 10, -100), 10);
+	//  t_sphere s4b = sphere_create(t_vec3_create(10, -10, -100), 10);
 
 	hittable_list_add(&world, (t_hittable *)&s1);
-	hittable_list_add(&world, (t_hittable *)&s2);
-	// hittable_list_add(&world, (t_hittable *)&s3);
-	// hittable_list_add(&world, (t_hittable *)&s4);
-	// hittable_list_add(&world, (t_hittable *)&s1b);
-	// hittable_list_add(&world, (t_hittable *)&s2b);
-	// hittable_list_add(&world, (t_hittable *)&s3b);
-	// hittable_list_add(&world, (t_hittable *)&s4b);
+	// hittable_list_add(&world, (t_hittable *)&s2);
+	//  hittable_list_add(&world, (t_hittable *)&s3);
+	//  hittable_list_add(&world, (t_hittable *)&s4);
+	//  hittable_list_add(&world, (t_hittable *)&s1b);
+	//  hittable_list_add(&world, (t_hittable *)&s2b);
+	//  hittable_list_add(&world, (t_hittable *)&s3b);
+	//  hittable_list_add(&world, (t_hittable *)&s4b);
 
 	double focal_length = 1.0;
-	double viewport_height = 2.0;
+	double viewport_height = 1.0; // Jos ei 1, niin pallukat soikeita
 	double viewport_width = viewport_height * ((double)SCREEN_WIDHT / var->image_height);
 	t_vec3 camera_center = t_vec3_create(var->camrerax, var->camreray, var->camreraz);
 
@@ -161,21 +161,17 @@ void testifunk(void *param)
 
 	for (int j = 0; j < var->image_height; j++)
 	{
-		// fprintf(stderr, "\rScanlines remaining: %d ", var->image_height - j);
-		// fflush(stderr);
 		for (int i = 0; i < SCREEN_WIDHT; i++)
 		{
-			t_vec3 temp1 = t_vec3_multiply_scalar(&pixel_delta_u, i);
-			t_vec3 temp2 = t_vec3_multiply_scalar(&pixel_delta_v, j);
-			// Step 1: Add pixel00_loc and temp1, store the result in a temporary variable.
-			t_vec3 temp_result = t_vec3_add_vectors(&pixel00_loc, &temp1);
-			// Step 2: Add the result of step 1 (temp_result) to temp2.
-			t_vec3 pixel_center = t_vec3_add_vectors(&temp_result, &temp2);
+			t_vec3 temp_u = t_vec3_multiply_scalar(&pixel_delta_u, i);
+			t_vec3 temp_v = t_vec3_multiply_scalar(&pixel_delta_v, j);
+			t_vec3 pixel_center = t_vec3_add_vectors(&pixel00_loc, &temp_u);
+			pixel_center = t_vec3_add_vectors(&pixel_center, &temp_v);
 			t_vec3 ray_direction = t_vec3_subtract_vectors(&pixel_center, &camera_center);
-			t_ray r = ray_create(&camera_center, &ray_direction);
+			t_ray r = {camera_center, ray_direction};
 
 			t_vec3 pixel_color = ray_color(&r, &world);
-			write_color(pixel_color, var, i, j);
+			write_color(pixel_color, var, j, i);
 		}
 	}
 

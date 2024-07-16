@@ -49,10 +49,12 @@ t_vec3 color_multiply_scalar(t_vec3 c, double s)
 t_vec3 ray_color(const t_ray *r, const hittable_list *world)
 {
 	t_hit rec;
-	if (hittable_list_hit(world, r, 0.001, INFINITY, &rec))
+	if (hittable_list_hit(world, r, 0, INFINITY, &rec)) // Muuteltu rajusti!!
 	{
+
 		t_vec3 temp = t_vec3_create(rec.normal.e[0] + 1, rec.normal.e[1] + 1, rec.normal.e[2] + 1);
-		return t_vec3_multiply_scalar(&temp, 0.5);
+		// t_vec3 temp = t_vec3_create(255, 45, 68);
+		return t_vec3_multiply_scalar(&temp, 0.01);
 	}
 
 	t_vec3 unit_direction = t_vec3_unit_vector(&r->dir);
@@ -113,14 +115,14 @@ void testifunk(void *param)
 	hittable_list world;
 	hittable_list_init(&world);
 
-	t_sphere s1 = sphere_create(t_vec3_create(0, 0, -1), 0.5);
-	t_sphere s2 = sphere_create(t_vec3_create(0, -100.5, -200), 100);
-	// t_sphere s3 = sphere_create(t_vec3_create(-10, 10, -60), 5);
-	// t_sphere s4 = sphere_create(t_vec3_create(10, -10, -60), 5);
-	// t_sphere s1b = sphere_create(t_vec3_create(-10, -10, -100), 5);
-	// t_sphere s2b = sphere_create(t_vec3_create(10, 10, -100), 5);
-	// t_sphere s3b = sphere_create(t_vec3_create(-10, 10, -100), 5);
-	// t_sphere s4b = sphere_create(t_vec3_create(10, -10, -100), 5);
+	t_sphere s1 = sphere_create(t_vec3_create(0, 0, -100), 0.5);
+	t_sphere s2 = sphere_create(t_vec3_create(0, 100.5, -100), 100);
+	// t_sphere s3 = sphere_create(t_vec3_create(-10, 10, -60), 10);
+	// t_sphere s4 = sphere_create(t_vec3_create(10, -10, -60), 10);
+	// t_sphere s1b = sphere_create(t_vec3_create(-10, -10, -100), 10);
+	// t_sphere s2b = sphere_create(t_vec3_create(10, 10, -100), 10);
+	// t_sphere s3b = sphere_create(t_vec3_create(-10, 10, -100), 10);
+	// t_sphere s4b = sphere_create(t_vec3_create(10, -10, -100), 10);
 
 	hittable_list_add(&world, (t_hittable *)&s1);
 	hittable_list_add(&world, (t_hittable *)&s2);
@@ -132,7 +134,7 @@ void testifunk(void *param)
 	// hittable_list_add(&world, (t_hittable *)&s4b);
 
 	double focal_length = 1.0;
-	double viewport_height = 1.0;
+	double viewport_height = 2.0;
 	double viewport_width = viewport_height * ((double)SCREEN_WIDHT / var->image_height);
 	t_vec3 camera_center = t_vec3_create(var->camrerax, var->camreray, var->camreraz);
 
@@ -173,7 +175,7 @@ void testifunk(void *param)
 			t_ray r = ray_create(&camera_center, &ray_direction);
 
 			t_vec3 pixel_color = ray_color(&r, &world);
-			write_color(pixel_color, var, j, i);
+			write_color(pixel_color, var, i, j);
 		}
 	}
 

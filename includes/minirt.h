@@ -12,11 +12,11 @@
 #include "../MLX42/include/MLX42/MLX42.h"
 
 #define SCREEN_HEIGHT 400 // Not in use
-#define SCREEN_WIDHT 1000
+#define SCREEN_WIDHT 1500
 #define MAX_OBJECTS 100
 
 // Constants
-#define INFINITY DBL_MAX
+// #define INFINITY DBL_MAX
 #define PI 3.1415926535897932385
 
 // Utility Functions

@@ -13,8 +13,12 @@ void write_color(t_vec3 vec, t_var *var, int x, int y)
     int ir = (int)(255.999 * r);
     int ig = (int)(255.999 * g);
     int ib = (int)(255.999 * b);
+    // printf("[0] %i [1] %i [2]%i\n", ir, ig, ib);
 
     int color = ft_pixel(ir, ig, ib, 255);
+    if (color < 0)
+        color = color * 1;
+    // printf("Color = %i", color);
     mlx_put_pixel(var->testimage, x, y, color);
 }
 

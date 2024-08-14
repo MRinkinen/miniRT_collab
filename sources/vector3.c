@@ -1,22 +1,22 @@
 #include "../includes/minirt.h"
 
-t_vec3 t_vec3_create(double e0, double e1, double e2)
+t_vec3 t_vec3_create(float e0, float e1, float e2)
 {
     t_vec3 result = {{e0, e1, e2}};
     return result;
 }
 
-double t_vec3_x(const t_vec3 *v)
+float t_vec3_x(const t_vec3 *v)
 {
     return v->e[0];
 }
 
-double t_vec3_y(const t_vec3 *v)
+float t_vec3_y(const t_vec3 *v)
 {
     return v->e[1];
 }
 
-double t_vec3_z(const t_vec3 *v)
+float t_vec3_z(const t_vec3 *v)
 {
     return v->e[2];
 }
@@ -26,12 +26,12 @@ t_vec3 t_vec3_negate(const t_vec3 *v)
     return t_vec3_create(-v->e[0], -v->e[1], -v->e[2]);
 }
 
-double t_vec3_get(const t_vec3 *v, int i)
+float t_vec3_get(const t_vec3 *v, int i)
 {
     return v->e[i];
 }
 
-void t_vec3_set(t_vec3 *v, int i, double value)
+void t_vec3_set(t_vec3 *v, int i, float value)
 {
     v->e[i] = value;
 }
@@ -44,7 +44,7 @@ t_vec3 *t_vec3_add(t_vec3 *v, const t_vec3 *u)
     return v;
 }
 
-t_vec3 *t_vec3_multiply(t_vec3 *v, double t)
+t_vec3 *t_vec3_multiply(t_vec3 *v, float t)
 {
     v->e[0] *= t;
     v->e[1] *= t;
@@ -52,17 +52,17 @@ t_vec3 *t_vec3_multiply(t_vec3 *v, double t)
     return v;
 }
 
-t_vec3 *t_vec3_divide(t_vec3 *v, double t)
+t_vec3 *t_vec3_divide(t_vec3 *v, float t)
 {
     return t_vec3_multiply(v, 1 / t);
 }
 
-double t_vec3_length(const t_vec3 *v)
+float t_vec3_length(const t_vec3 *v)
 {
     return sqrt(v->e[0] * v->e[0] + v->e[1] * v->e[1] + v->e[2] * v->e[2]);
 }
 
-double t_vec3_length_squared(const t_vec3 *v)
+float t_vec3_length_squared(const t_vec3 *v)
 {
     return v->e[0] * v->e[0] + v->e[1] * v->e[1] + v->e[2] * v->e[2];
 }
@@ -87,17 +87,17 @@ t_vec3 t_vec3_multiply_vectors(const t_vec3 *u, const t_vec3 *v)
     return t_vec3_create(u->e[0] * v->e[0], u->e[1] * v->e[1], u->e[2] * v->e[2]);
 }
 
-t_vec3 t_vec3_multiply_scalar(const t_vec3 *v, double t)
+t_vec3 t_vec3_multiply_scalar(const t_vec3 *v, float t)
 {
     return t_vec3_create(t * v->e[0], t * v->e[1], t * v->e[2]);
 }
 
-t_vec3 t_vec3_divide_scalar(const t_vec3 *v, double t)
+t_vec3 t_vec3_divide_scalar(const t_vec3 *v, float t)
 {
     return t_vec3_multiply_scalar(v, 1 / t);
 }
 
-double t_vec3_dot(const t_vec3 *u, const t_vec3 *v)
+float t_vec3_dot(const t_vec3 *u, const t_vec3 *v)
 {
     return u->e[0] * v->e[0] + u->e[1] * v->e[1] + u->e[2] * v->e[2];
 }

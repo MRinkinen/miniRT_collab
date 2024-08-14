@@ -18,7 +18,7 @@ t_vec3 ray_direction(const t_ray *r)
     return r->dir;
 }
 
-t_vec3 ray_at(const t_ray *r, double t)
+t_vec3 ray_at(const t_ray *r, float t)
 {
     t_vec3 scaled_dir = t_vec3_multiply_scalar(&r->dir, t);
     return t_vec3_add_vectors(&r->orig, &scaled_dir);

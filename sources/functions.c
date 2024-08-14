@@ -5,9 +5,9 @@
 void write_color(t_vec3 vec, t_var *var, int x, int y)
 {
     // int color = ft_pixel(vector3->e[0],vector3->e[1],vector3->e[2],255);
-    double r = vec.e[0];
-    double g = vec.e[1];
-    double b = vec.e[2];
+    float r = vec.e[0];
+    float g = vec.e[1];
+    float b = vec.e[2];
 
     // Translate the [0,1] component values to the byte range [0,255].
     int ir = (int)(255.999 * r);
@@ -27,22 +27,22 @@ void hittable_init(t_hittable *h, hit_func func)
     h->hit = func;
 }
 
-bool sphere_hit(const t_hittable *self, const t_ray *r, double tmin, double tmax, t_hit *rec)
+bool sphere_hit(const t_hittable *self, const t_ray *r, float tmin, float tmax, t_hit *rec)
 {
     const t_sphere *s = (const t_sphere *)self;
     t_vec3 oc = t_vec3_subtract_vectors(&r->orig, &s->center);
-    double a = t_vec3_dot(&r->dir, &r->dir);
-    double h = t_vec3_dot(&oc, &r->dir);
-    double c = t_vec3_dot(&oc, &oc) - s->radius * s->radius;
+    float a = t_vec3_dot(&r->dir, &r->dir);
+    float h = t_vec3_dot(&oc, &r->dir);
+    float c = t_vec3_dot(&oc, &oc) - s->radius * s->radius;
 
-    double discriminant = h * h - a * c;
+    float discriminant = h * h - a * c;
     if (discriminant < 0)
         return false;
 
-    double sqrtd = sqrt(discriminant);
+    float sqrtd = sqrt(discriminant);
 
     // Find the nearest root that lies in the acceptable range.
-    double root = (h - sqrtd) / a;
+    float root = (h - sqrtd) / a;
     if (root < tmin || tmax < root)
     {
         root = (h + sqrtd) / a;
@@ -58,22 +58,22 @@ bool sphere_hit(const t_hittable *self, const t_ray *r, double tmin, double tmax
 
     return true;
 }
-// bool sphere_hit(const t_hittable *self, const t_ray *r, double tmin, double tmax, t_hit *rec)
+// bool sphere_hit(const t_hittable *self, const t_ray *r, float tmin, float tmax, t_hit *rec)
 // {
 //     const t_sphere *s = (const t_sphere *)self;
 //     t_vec3 oc = t_vec3_subtract_vectors(&r->orig, &s->center);
-//     double a = t_vec3_dot(&r->dir, &r->dir);
-//     double h = t_vec3_dot(&oc, &r->dir);
-//     double c = t_vec3_dot(&oc, &oc) - s->radius * s->radius;
+//     float a = t_vec3_dot(&r->dir, &r->dir);
+//     float h = t_vec3_dot(&oc, &r->dir);
+//     float c = t_vec3_dot(&oc, &oc) - s->radius * s->radius;
 
-//     double discriminant = h * h - a * c;
+//     float discriminant = h * h - a * c;
 //     if (discriminant < 0)
 //         return false;
 
-//     double sqrtd = sqrt(discriminant);
+//     float sqrtd = sqrt(discriminant);
 
 //     // Find the nearest root that lies in the acceptable range.
-//     double root = (h - sqrtd) / a;
+//     float root = (h - sqrtd) / a;
 //     if (root < tmin || tmax < root)
 //     {
 //         root = (h + sqrtd) / a;
@@ -90,7 +90,7 @@ bool sphere_hit(const t_hittable *self, const t_ray *r, double tmin, double tmax
 //     return true;
 // }
 
-t_sphere sphere_create(t_vec3 center, double radius)
+t_sphere sphere_create(t_vec3 center, float radius)
 {
     t_sphere s;
 
@@ -135,11 +135,11 @@ void hittable_list_add(hittable_list *list, t_hittable *object)
     }
 }
 
-bool hittable_list_hit(const hittable_list *list, const t_ray *r, double tmin, double tmax, t_hit *rec)
+bool hittable_list_hit(const hittable_list *list, const t_ray *r, float tmin, float tmax, t_hit *rec)
 {
     t_hit temp_rec;
     bool hit_anything = false;
-    double closest_so_far = tmax;
+    float closest_so_far = tmax;
 
     for (int i = 0; i < list->size; i++)
     {

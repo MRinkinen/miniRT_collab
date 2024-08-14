@@ -37,7 +37,7 @@ t_vec3 color_add(t_vec3 c1, t_vec3 c2)
 }
 
 // Multiplies each component of a color (vector) by a scalar
-t_vec3 color_multiply_scalar(t_vec3 c, double s)
+t_vec3 color_multiply_scalar(t_vec3 c, float s)
 {
 	t_vec3 result;
 	result.e[0] = c.e[0] * s;
@@ -54,11 +54,11 @@ t_vec3 ray_color(const t_ray *r, const hittable_list *world)
 
 		t_vec3 temp = t_vec3_create(rec.normal.e[0] + 1, rec.normal.e[1] + 1, rec.normal.e[2] + 1);
 		// t_vec3 temp = t_vec3_create(255, 45, 68);
-		return t_vec3_multiply_scalar(&temp, 0.01);
+		return t_vec3_multiply_scalar(&temp, 0.05); // Ei loydy hyvaa lukua!!!
 	}
 
 	t_vec3 unit_direction = t_vec3_unit_vector(&r->dir);
-	double t = 0.5 * (unit_direction.e[1] + 1.0);
+	float t = 0.5 * (unit_direction.e[1] + 1.0);
 	t_vec3 white = t_vec3_create(1.0, 1.0, 1.0);
 	t_vec3 blue = t_vec3_create(0.5, 0.7, 1.0);
 	t_vec3 temp_white = t_vec3_multiply_scalar(&white, 1.0 - t);
@@ -77,7 +77,7 @@ t_vec3 ray_color(const t_ray *r, const hittable_list *world)
 // 	}
 
 // 	t_vec3 unit_direction = t_vec3_unit_vector(&r->dir);
-// 	double t = 0.5 * (unit_direction.e[1] + 1.0);
+// 	float t = 0.5 * (unit_direction.e[1] + 1.0);
 // 	t_vec3 white = t_vec3_create(1.0, 1.0, 1.0);
 // 	t_vec3 blue = t_vec3_create(0.5, 0.7, 1.0);
 // 	t_vec3 temp_white = t_vec3_multiply_scalar(&white, 1.0 - t);
@@ -115,27 +115,27 @@ void testifunk(void *param)
 	hittable_list world;
 	hittable_list_init(&world);
 
-	t_sphere s1 = sphere_create(t_vec3_create(0, -100.5, -80), 100);
-	// t_sphere s2 = sphere_create(t_vec3_create(0, 0, -100), 100);
-	//  t_sphere s3 = sphere_create(t_vec3_create(-10, 10, -60), 10);
-	//  t_sphere s4 = sphere_create(t_vec3_create(10, -10, -60), 10);
+	t_sphere s1 = sphere_create(t_vec3_create(0, 20, -220), 20);
+	t_sphere s2 = sphere_create(t_vec3_create(0, -20, -180), 20);
+	t_sphere s3 = sphere_create(t_vec3_create(-20, -20, -60), 10);
+	t_sphere s4 = sphere_create(t_vec3_create(-20, 20, -60), 10);
 	//  t_sphere s1b = sphere_create(t_vec3_create(-10, -10, -100), 10);
 	//  t_sphere s2b = sphere_create(t_vec3_create(10, 10, -100), 10);
 	//  t_sphere s3b = sphere_create(t_vec3_create(-10, 10, -100), 10);
 	//  t_sphere s4b = sphere_create(t_vec3_create(10, -10, -100), 10);
 
 	hittable_list_add(&world, (t_hittable *)&s1);
-	// hittable_list_add(&world, (t_hittable *)&s2);
-	//  hittable_list_add(&world, (t_hittable *)&s3);
-	//  hittable_list_add(&world, (t_hittable *)&s4);
+	hittable_list_add(&world, (t_hittable *)&s2);
+	hittable_list_add(&world, (t_hittable *)&s3);
+	hittable_list_add(&world, (t_hittable *)&s4);
 	//  hittable_list_add(&world, (t_hittable *)&s1b);
 	//  hittable_list_add(&world, (t_hittable *)&s2b);
 	//  hittable_list_add(&world, (t_hittable *)&s3b);
 	//  hittable_list_add(&world, (t_hittable *)&s4b);
 
-	double focal_length = 1.0;
-	double viewport_height = 1.0; // Jos ei 1, niin pallukat soikeita
-	double viewport_width = viewport_height * ((double)SCREEN_WIDHT / var->image_height);
+	float focal_length = 1.0;
+	float viewport_height = 1.0; // Jos ei 1, niin pallukat soikeita
+	float viewport_width = viewport_height * ((float)SCREEN_WIDHT / var->image_height);
 	t_vec3 camera_center = t_vec3_create(var->camrerax, var->camreray, var->camreraz);
 
 	t_vec3 viewport_u = t_vec3_create(viewport_width, 0, 0);

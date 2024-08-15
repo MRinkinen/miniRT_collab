@@ -1,9 +1,16 @@
-#include "../includes/minirt.h"
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   minirt.c                                           :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: mrinkine <mrinkine@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/08/15 12:02:26 by mrinkine          #+#    #+#             */
+/*   Updated: 2024/08/15 13:34:51 by mrinkine         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
-int32_t ft_pixel(int32_t r, int32_t g, int32_t b, int32_t a)
-{
-	return (r << 24 | g << 16 | b << 8 | a);
-}
+#include "../includes/minirt.h"
 
 void ft_hook(void *param)
 {
@@ -27,43 +34,69 @@ void ft_hook(void *param)
 		var->camreray += 1;
 }
 
-t_vec3 color_add(t_vec3 c1, t_vec3 c2)
+t_color color_add(t_color c1, t_color c2)
 {
-	t_vec3 result;
-	result.e[0] = c1.e[0] + c2.e[0];
-	result.e[1] = c1.e[1] + c2.e[1];
-	result.e[2] = c1.e[2] + c2.e[2];
-	return result;
+	t_color result;
+
+	result.r = c1.r + c2.r;
+	result.b = c1.b + c2.b;
+	result.g = c1.g + c2.g;
+	return (result);
 }
 
 // Multiplies each component of a color (vector) by a scalar
-t_vec3 color_multiply_scalar(t_vec3 c, float s)
+t_color color_multiply_scalar(t_color c, float s)
 {
-	t_vec3 result;
-	result.e[0] = c.e[0] * s;
-	result.e[1] = c.e[1] * s;
-	result.e[2] = c.e[2] * s;
-	return result;
+	t_color result;
+
+	result.r = c.r * s;
+	result.b = c.b * s;
+	result.g = c.g * s;
+	return (result);
 }
 
-t_vec3 ray_color(const t_ray *r, const hittable_list *world)
+t_color t_color_create(float x, float y, float z)
+{
+	t_color result;
+
+	result.r = x;
+	result.b = y;
+	result.g = z;
+	return (result);
+}
+
+t_color ray_color(const t_ray *r, const hittable_list *world, t_vec3 camera_pos)
 {
 	t_hit rec;
+
 	if (hittable_list_hit(world, r, 0, INFINITY, &rec)) // Muuteltu rajusti!!
 	{
+		float distance = calculate_distance(camera_pos, r->dir);
 
-		t_vec3 temp = t_vec3_create(rec.normal.e[0] + 1, rec.normal.e[1] + 1, rec.normal.e[2] + 1);
-		// t_vec3 temp = t_vec3_create(255, 45, 68);
-		return t_vec3_multiply_scalar(&temp, 0.05); // Ei loydy hyvaa lukua!!!
+		// Define attenuation factors
+		float constant = 1.0;
+		float linear = 0.09;
+		float quadratic = 0.032;
+
+		// Calculate the attenuation based on the distance
+		float attenuation = 1.0 / (constant + linear * distance + quadratic * (distance * distance));
+
+		// Apply the attenuation to the object's color
+		t_color temp = t_color_create(rec.normal.x, rec.normal.y, rec.normal.z);
+		t_color final_color = color_multiply_scalar(temp, attenuation);
+		//  printf("%f\n", temp.e[0]);
+		//   t_vec3 temp = t_vec3_create(255, 45, 68);
+		return (final_color);
+		// return (color_multiply_scalar(temp, t_vec3_magnitude(&r->dir) * 0.50)); // Ei loydy hyvaa lukua!!!
 	}
 
 	t_vec3 unit_direction = t_vec3_unit_vector(&r->dir);
-	float t = 0.5 * (unit_direction.e[1] + 1.0);
-	t_vec3 white = t_vec3_create(1.0, 1.0, 1.0);
-	t_vec3 blue = t_vec3_create(0.5, 0.7, 1.0);
-	t_vec3 temp_white = t_vec3_multiply_scalar(&white, 1.0 - t);
-	t_vec3 temp_blue = t_vec3_multiply_scalar(&blue, t);
-	return t_vec3_add_vectors(&temp_white, &temp_blue);
+	float t = 0.5 * (unit_direction.y + 1.0);
+	t_color white = t_color_create(1.0, 1.0, 1.0);
+	t_color blue = t_color_create(0.5, 0.7, 1.0);
+	t_color temp_white = color_multiply_scalar(white, 1.0 - t);
+	t_color temp_blue = color_multiply_scalar(blue, t);
+	return color_add(temp_white, temp_blue);
 }
 
 // t_vec3 ray_color(t_var *var, const t_ray *r, const hittable_list *world)
@@ -115,10 +148,10 @@ void testifunk(void *param)
 	hittable_list world;
 	hittable_list_init(&world);
 
-	t_sphere s1 = sphere_create(t_vec3_create(0, 20, -220), 20);
-	t_sphere s2 = sphere_create(t_vec3_create(0, -20, -180), 20);
-	t_sphere s3 = sphere_create(t_vec3_create(-20, -20, -60), 10);
-	t_sphere s4 = sphere_create(t_vec3_create(-20, 20, -60), 10);
+	t_sphere s1 = sphere_create(t_vec3_create(20, 20, -220), 20, t_color_create(100, 100, 100));
+	t_sphere s2 = sphere_create(t_vec3_create(20, -20, -180), 20, t_color_create(100, 100, 100));
+	t_sphere s3 = sphere_create(t_vec3_create(-20, -20, -160), 20, t_color_create(100, 100, 100));
+	t_sphere s4 = sphere_create(t_vec3_create(-20, 20, -100), 20, t_color_create(100, 100, 100));
 	//  t_sphere s1b = sphere_create(t_vec3_create(-10, -10, -100), 10);
 	//  t_sphere s2b = sphere_create(t_vec3_create(10, 10, -100), 10);
 	//  t_sphere s3b = sphere_create(t_vec3_create(-10, 10, -100), 10);
@@ -170,7 +203,7 @@ void testifunk(void *param)
 			t_vec3 ray_direction = t_vec3_subtract_vectors(&pixel_center, &camera_center);
 			t_ray r = {camera_center, ray_direction};
 
-			t_vec3 pixel_color = ray_color(&r, &world);
+			t_color pixel_color = ray_color(&r, &world, camera_center);
 			write_color(pixel_color, var, j, i);
 		}
 	}

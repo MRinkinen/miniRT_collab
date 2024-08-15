@@ -26,12 +26,16 @@ static inline float degrees_to_radians(float degrees) // Ei varmaan saa jäädä
 }
 typedef struct s_color
 {
-	float e[3];
+	float r;
+	float b;
+	float g;
 } t_color;
 
 typedef struct s_vec
 {
-	float e[3];
+	float x;
+	float y;
+	float z;
 } t_vec3;
 
 typedef struct s_ray
@@ -73,6 +77,7 @@ typedef struct
 	t_hittable base;
 	t_vec3 center;
 	float radius;
+	t_color color;
 } t_sphere;
 
 typedef struct s_var
@@ -95,25 +100,26 @@ typedef struct s_var
 
 bool sphere_hit(const t_hittable *self, const t_ray *r, float tmin, float tmax, t_hit *rec);
 
-t_sphere sphere_create(t_vec3 center, float radius);
+t_sphere sphere_create(t_vec3 center, float radius, t_color col);
 void hittable_init(t_hittable *h, hit_func func);
 bool sphere_hit(const t_hittable *self, const t_ray *r, float tmin, float tmax, t_hit *rec);
 
-t_sphere sphere_create(t_vec3 center, float radius);
+// t_sphere sphere_create(t_vec3 center, float radius);
 
 int32_t ft_pixel(int32_t r, int32_t g, int32_t b, int32_t a);
-void write_color(t_vec3 vec, t_var *var, int x, int y);
+void write_color(t_color col, t_var *var, int x, int y);
 // void write_color(FILE* out, const t_vec3* pixel_color);
 
 /*Vector 3*/
+float calculate_distance(t_vec3 vec_a, t_vec3 vec_b);
 t_vec3 t_vec3_create(float e0, float e1, float e2);
 t_vec3 t_vec3_multiply_scalar(const t_vec3 *v, float t);
 t_vec3 t_vec3_add_vectors(const t_vec3 *u, const t_vec3 *v);
 t_vec3 t_vec3_divide_scalar(const t_vec3 *v, float t);
 t_vec3 t_vec3_multiply_vectors(const t_vec3 *u, const t_vec3 *v);
 t_vec3 t_vec3_subtract_vectors(const t_vec3 *u, const t_vec3 *v);
-float t_vec3_length_squared(const t_vec3 *v);
-float t_vec3_length(const t_vec3 *v);
+float t_vec3_magnitude_squared(const t_vec3 *v);
+float t_vec3_magnitude(const t_vec3 *v);
 
 t_vec3 *t_vec3_divide(t_vec3 *v, float t);
 t_vec3 *t_vec3_multiply(t_vec3 *v, float t);

@@ -1,115 +1,152 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   vector3.c                                          :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: mrinkine <mrinkine@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/08/15 11:15:10 by mrinkine          #+#    #+#             */
+/*   Updated: 2024/08/15 13:31:13 by mrinkine         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "../includes/minirt.h"
 
-t_vec3 t_vec3_create(float e0, float e1, float e2)
+t_vec3 t_vec3_create(float x, float y, float z)
 {
-    t_vec3 result = {{e0, e1, e2}};
-    return result;
+    t_vec3 result;
+
+    result.x = x;
+    result.y = y;
+    result.z = z;
+    return (result);
 }
 
-float t_vec3_x(const t_vec3 *v)
+float calculate_distance(t_vec3 vec_a, t_vec3 vec_b)
 {
-    return v->e[0];
+    return sqrtf((vec_b.x - vec_a.x) * (vec_b.x - vec_a.x) +
+                 (vec_b.y - vec_a.y) * (vec_b.y - vec_a.y) +
+                 (vec_b.z - vec_a.z) * (vec_b.z - vec_a.z));
 }
 
-float t_vec3_y(const t_vec3 *v)
+float t_vec3_x(const t_vec3 *vec)
 {
-    return v->e[1];
+    return (vec->x);
 }
 
-float t_vec3_z(const t_vec3 *v)
+float t_vec3_y(const t_vec3 *vec)
 {
-    return v->e[2];
+    return (vec->y);
 }
 
-t_vec3 t_vec3_negate(const t_vec3 *v)
+float t_vec3_z(const t_vec3 *vec)
 {
-    return t_vec3_create(-v->e[0], -v->e[1], -v->e[2]);
+    return (vec->z);
 }
 
-float t_vec3_get(const t_vec3 *v, int i)
+t_vec3 t_vec3_negate(const t_vec3 *vec)
 {
-    return v->e[i];
+    return (t_vec3_create(-vec->x, -vec->y, -vec->z));
 }
 
-void t_vec3_set(t_vec3 *v, int i, float value)
+float t_vec3_get(const t_vec3 *vec, char i)
 {
-    v->e[i] = value;
+    if (i == 'x')
+        return (vec->x);
+    else if (i == 'y')
+        return (vec->y);
+    else
+        return (vec->z);
 }
 
-t_vec3 *t_vec3_add(t_vec3 *v, const t_vec3 *u)
+void t_vec3_set(t_vec3 *vec, char i, float value)
 {
-    v->e[0] += u->e[0];
-    v->e[1] += u->e[1];
-    v->e[2] += u->e[2];
-    return v;
+    if (i == 'x')
+        vec->x = value;
+    if (i == 'y')
+        vec->y = value;
+    if (i == 'z')
+        vec->z = value;
 }
 
-t_vec3 *t_vec3_multiply(t_vec3 *v, float t)
+t_vec3 *t_vec3_add(t_vec3 *vec, const t_vec3 *u)
 {
-    v->e[0] *= t;
-    v->e[1] *= t;
-    v->e[2] *= t;
-    return v;
+    vec->x += u->x;
+    vec->y += u->y;
+    vec->z += u->z;
+    return (vec);
 }
 
-t_vec3 *t_vec3_divide(t_vec3 *v, float t)
+t_vec3 *t_vec3_multiply(t_vec3 *vec, float t)
 {
-    return t_vec3_multiply(v, 1 / t);
+    vec->x *= t;
+    vec->y *= t;
+    vec->z *= t;
+    return (vec);
 }
 
-float t_vec3_length(const t_vec3 *v)
+t_vec3 *t_vec3_divide(t_vec3 *vec, float t)
 {
-    return sqrt(v->e[0] * v->e[0] + v->e[1] * v->e[1] + v->e[2] * v->e[2]);
+    return (t_vec3_multiply(vec, 1 / t));
+}
+/*
+Returns the length of this vector
+*/
+float t_vec3_magnitude(const t_vec3 *vec)
+{
+    return (sqrt(vec->x * vec->x + vec->y * vec->y + vec->z * vec->z));
+}
+/*
+Returns the squared length of this vector
+*/
+float t_vec3_magnitude_squared(const t_vec3 *vec)
+{
+    return (vec->x * vec->x + vec->y * vec->y + vec->z * vec->z);
 }
 
-float t_vec3_length_squared(const t_vec3 *v)
+void t_vec3_print(const t_vec3 *vec)
 {
-    return v->e[0] * v->e[0] + v->e[1] * v->e[1] + v->e[2] * v->e[2];
-}
-
-void t_vec3_print(const t_vec3 *v)
-{
-    printf("%f %f %f\n", v->e[0], v->e[1], v->e[2]);
+    printf("%f %f %f\n", vec->x, vec->y, vec->x);
 }
 
 t_vec3 t_vec3_add_vectors(const t_vec3 *u, const t_vec3 *v)
 {
-    return t_vec3_create(u->e[0] + v->e[0], u->e[1] + v->e[1], u->e[2] + v->e[2]);
+    return (t_vec3_create(u->x + v->x, u->y + v->y, u->z + v->z));
 }
 
 t_vec3 t_vec3_subtract_vectors(const t_vec3 *u, const t_vec3 *v)
 {
-    return t_vec3_create(u->e[0] - v->e[0], u->e[1] - v->e[1], u->e[2] - v->e[2]);
+    return (t_vec3_create(u->x - v->x, u->y - v->y, u->z - v->z));
 }
 
 t_vec3 t_vec3_multiply_vectors(const t_vec3 *u, const t_vec3 *v)
 {
-    return t_vec3_create(u->e[0] * v->e[0], u->e[1] * v->e[1], u->e[2] * v->e[2]);
+    return (t_vec3_create(u->x * v->x, u->y * v->y, u->z * v->z));
 }
 
 t_vec3 t_vec3_multiply_scalar(const t_vec3 *v, float t)
 {
-    return t_vec3_create(t * v->e[0], t * v->e[1], t * v->e[2]);
+    return (t_vec3_create(t * v->x, t * v->y, t * v->z));
 }
 
 t_vec3 t_vec3_divide_scalar(const t_vec3 *v, float t)
 {
-    return t_vec3_multiply_scalar(v, 1 / t);
+    return (t_vec3_multiply_scalar(v, 1 / t));
 }
 
 float t_vec3_dot(const t_vec3 *u, const t_vec3 *v)
 {
-    return u->e[0] * v->e[0] + u->e[1] * v->e[1] + u->e[2] * v->e[2];
+    return (u->x * v->x + u->y * v->y + u->z * v->z);
 }
 
 t_vec3 t_vec3_cross(const t_vec3 *u, const t_vec3 *v)
 {
-    return t_vec3_create(u->e[1] * v->e[2] - u->e[2] * v->e[1],
-                         u->e[2] * v->e[0] - u->e[0] * v->e[2],
-                         u->e[0] * v->e[1] - u->e[1] * v->e[0]);
+    return (t_vec3_create(u->y * v->z - u->z * v->y,
+                          u->z * v->x - u->x * v->z,
+                          u->x * v->y - u->y * v->x));
 }
 
-t_vec3 t_vec3_unit_vector(const t_vec3 *v)
+t_vec3 t_vec3_unit_vector(const t_vec3 *vec)
 {
-    return t_vec3_divide_scalar(v, t_vec3_length(v));
+    return (t_vec3_divide_scalar(vec, t_vec3_magnitude(vec)));
 }

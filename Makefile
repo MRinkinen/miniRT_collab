@@ -1,6 +1,6 @@
 NAME = miniRT
 SOURCES = $(addprefix $(SRC_DIR)/, \
-minirt.c vector3.c functions.c ray.c)
+minirt.c vector3.c functions.c ray.c color.c mlxfunctions.c)
 #SOURCES_BONUS = $(addprefix $(SRC_BON_DIR)/, \
 #sz_long_bonus.c checkfunctions_bonus.c enemy_bonus.c enemymove_bonus.c vortex_bonus.c input_bonus.c moveplayer_bonus.c world_functions_bonus.c help_functions_bonus.c player_functions_bonus.c wall_functions_bonus.c collectable_functions_bonus.c ground_functions_bonus.c levelend_functions_bonus.c)
 

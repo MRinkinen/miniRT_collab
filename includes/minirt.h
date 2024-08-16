@@ -17,13 +17,13 @@
 
 // Constants
 // #define INFINITY DBL_MAX
-#define PI 3.1415926535897932385
+// #define PI 3.1415926535897932385
 
-// Utility Functions
-static inline float degrees_to_radians(float degrees) // Ei varmaan saa jäädä tänne!!
-{
-	return degrees * PI / 180.0;
-}
+// // Utility Functions
+// static inline float degrees_to_radians(float degrees) // Ei varmaan saa jäädä tänne!!
+// {
+// 	return degrees * PI / 180.0;
+// }
 typedef struct s_color
 {
 	float r;
@@ -94,9 +94,21 @@ typedef struct s_var
 	float camrerax;
 	float camreray;
 	float camreraz;
+	t_vec3 camera_center;
+
+	t_vec3 pixel_delta_u;
+	t_vec3 pixel_delta_v;
+	t_vec3 pixel00_loc;
 	mlx_image_t *testimage;
+	hittable_list hittables;
 
 } t_var;
+
+/*MLX*/
+void ft_hook(void *param);
+void hooks(t_var *var);
+
+void printimage(void *param);
 
 bool sphere_hit(const t_hittable *self, const t_ray *r, float tmin, float tmax, t_hit *rec);
 
@@ -140,5 +152,11 @@ t_vec3 ray_at(const t_ray *r, float t);
 float hit_sphere(const t_vec3 *center, float radius, const t_ray *r);
 
 bool hit_sphere2(const t_vec3 center, float radius, const t_ray r);
+
+/*Color*/
+
+t_color t_color_create(float x, float y, float z);
+t_color color_multiply_scalar(t_color c, float s);
+t_color color_add(t_color c1, t_color c2);
 
 #endif

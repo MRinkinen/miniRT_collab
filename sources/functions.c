@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   functions.c                                        :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: mrinkine <mrinkine@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/08/16 09:33:18 by mrinkine          #+#    #+#             */
+/*   Updated: 2024/08/16 11:35:09 by mrinkine         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "../includes/minirt.h"
 
 // using color = t_vec3;
@@ -12,6 +24,19 @@ void write_color(t_color col, t_var *var, int x, int y)
     // float r = col.r;
     // float g = vec.y;
     // float b = vec.z;
+    // if (col.r < 0)
+    //     col.r = col.r * 1;
+    // if (col.b < 0)
+    //     col.b = col.b * 1;
+    // if (col.g < 0)
+    //     col.g = col.g * 1;
+
+    // if (col.r > 255)
+    //     col.r = 255;
+    // if (col.b > 255)
+    //     col.b = 255;
+    // if (col.g > 255)
+    //     col.g = 255;
 
     // Translate the [0,1] component values to the byte range [0,255].
     int ir = (int)(255.999 * col.r);
@@ -20,6 +45,8 @@ void write_color(t_color col, t_var *var, int x, int y)
     // printf("[0] %i [1] %i [2]%i\n", ir, ig, ib);
 
     int color = ft_pixel(ir, ig, ib, 255);
+    // int color = ft_pixel((int)col.r, (int)col.b, (int)col.g, 255);
+
     // if (color < 0)
     //     color = color * 1;
 
@@ -97,13 +124,13 @@ bool sphere_hit(const t_hittable *self, const t_ray *r, float tmin, float tmax, 
 
 t_sphere sphere_create(t_vec3 center, float radius, t_color col)
 {
-    t_sphere s;
+    t_sphere sphere;
 
-    hittable_init(&s.base, sphere_hit);
-    s.color = col;
-    s.center = center;
-    s.radius = fmax(0, radius);
-    return s;
+    hittable_init(&sphere.base, sphere_hit);
+    sphere.color = col;
+    sphere.center = center;
+    sphere.radius = fmax(0, radius);
+    return (sphere);
 }
 
 void set_face_normal(t_hit *rec, const t_ray *r, const t_vec3 *outward_normal)
@@ -141,7 +168,7 @@ void hittable_list_add(hittable_list *list, t_hittable *object)
     }
 }
 
-bool hittable_list_hit(const hittable_list *list, const t_ray *r, float tmin, float tmax, t_hit *rec)
+bool hittable_list_hit(const hittable_list *list, const t_ray *ray, float tmin, float tmax, t_hit *rec)
 {
     t_hit temp_rec;
     bool hit_anything = false;
@@ -149,7 +176,7 @@ bool hittable_list_hit(const hittable_list *list, const t_ray *r, float tmin, fl
 
     for (int i = 0; i < list->size; i++)
     {
-        if (list->objects[i]->hit(list->objects[i], r, tmin, closest_so_far, &temp_rec))
+        if (list->objects[i]->hit(list->objects[i], ray, tmin, closest_so_far, &temp_rec))
         {
             hit_anything = true;
             closest_so_far = temp_rec.t;

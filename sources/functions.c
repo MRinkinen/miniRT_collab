@@ -6,7 +6,7 @@
 /*   By: mrinkine <mrinkine@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/16 09:33:18 by mrinkine          #+#    #+#             */
-/*   Updated: 2024/08/16 11:35:09 by mrinkine         ###   ########.fr       */
+/*   Updated: 2024/08/19 12:56:29 by mrinkine         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,6 +59,101 @@ void hittable_init(t_hittable *h, hit_func func)
     h->hit = func;
 }
 
+// bool ray_intersects_sphere(const t_hittable *self, const t_ray *ray, float tmin, float tmax, t_hit *rec)
+// {
+//     const t_sphere *sphere = (const t_sphere *)self;
+//     t_vec3 oc = t_vec3_subtract_vectors(&ray.orig, &sphere.center);
+
+//     float a = t_vec3_dot(&ray.dir, &ray.dir);
+//     float b = 2.0f * t_vec3_dot(&oc, &ray.dir);
+//     float c = t_vec3_dot(&oc, &oc) - sphere.radius * sphere.radius;
+
+//     float discriminant = b * b - 4 * a * c;
+
+//     if (discriminant < 0)
+//     {
+//         return false; // No intersection
+//     }
+//     else
+//     {
+//         float sqrt_discriminant = sqrtf(discriminant);
+
+//         // Find the nearest point of intersection
+//         float t0 = (-b - sqrt_discriminant) / (2.0f * a);
+//         float t1 = (-b + sqrt_discriminant) / (2.0f * a);
+
+//         if (t0 > t1)
+//             t0 = t1;
+
+//         // If t0 is negative, t1 could be the solution
+//         if (t0 < 0.0f)
+//         {
+//             t0 = t1;
+//             if (t0 < 0.0f)
+//                 return false; // Both t0 and t1 are negative
+//         }
+
+//         *t = t0;
+//         return true; // Intersection found
+//     }
+// }
+
+// bool sphere_hit(const t_hittable *self, const t_ray *ray, t_hit *rec, t_vec3 *intersection_point)
+// {
+//     const t_sphere *s = (const t_sphere *)self;
+
+//     t_vec3 oc = t_vec3_subtract_vectors(&ray->orig, &s->center);
+
+//     float a = t_vec3_dot(&ray->dir, &ray->dir);
+//     float b = t_vec3_dot(&oc, &ray->dir);
+//     float c = t_vec3_dot(&oc, &oc) - s->radius * s->radius;
+
+//     float discriminant = b * b - a * c;
+//     if (discriminant < 0)
+//         return false;
+//     else
+//     {
+//         float sqrt_discriminant = sqrtf(discriminant);
+
+//         // Find the nearest point of intersection
+//         float t0 = (-b - sqrt_discriminant) / (2.0f * a);
+//         float t1 = (-b + sqrt_discriminant) / (2.0f * a);
+
+//         if (t0 > t1)
+//             t0 = t1;
+
+//         // If t0 is negative, t1 could be the solution
+//         if (t0 < 0.0f)
+//         {
+//             t0 = t1;
+//             if (t0 < 0.0f)
+//                 return false; // Both t0 and t1 are negative
+//         }
+
+//         // Calculate the intersection point using the smallest positive t
+//         *intersection_point = calculate_intersection_point(*ray, t0);
+//         return true; // Intersection found
+//     }
+
+//     // float sqrtd = sqrt(discriminant);
+
+//     // // Find the nearest root that lies in the acceptable range.
+//     // float root = (b - sqrtd) / a;
+//     // if (root < tmin || tmax < root)
+//     // {
+//     //     root = (b + sqrtd) / a;
+//     //     if (root < tmin || tmax < root)
+//     //         return false;
+//     // }
+//     // rec->t = root;
+//     // rec->p = ray_at(r, rec->t);
+//     // t_vec3 outward_normal = t_vec3_subtract_vectors(&rec->p, &s->center);
+//     // outward_normal = t_vec3_multiply_scalar(&outward_normal, 1.0 / s->radius);
+//     // set_face_normal(rec, r, &outward_normal);
+
+//     // return true;
+// }
+
 bool sphere_hit(const t_hittable *self, const t_ray *r, float tmin, float tmax, t_hit *rec)
 {
     const t_sphere *s = (const t_sphere *)self;
@@ -68,17 +163,18 @@ bool sphere_hit(const t_hittable *self, const t_ray *r, float tmin, float tmax, 
     float c = t_vec3_dot(&oc, &oc) - s->radius * s->radius;
 
     float discriminant = h * h - a * c;
+    // if (discriminant > 0)
+    //     printf("Discriminant: %f\n", discriminant);
+
     if (discriminant < 0)
         return false;
 
-    float sqrtd = sqrt(discriminant);
-
-    // Find the nearest root that lies in the acceptable range.
-    float root = (h - sqrtd) / a;
-    if (root < tmin || tmax < root)
+    float sqrtd = sqrtf(discriminant);
+    float root = (-h - sqrtd) / a;
+    if (root < tmin || root > tmax)
     {
-        root = (h + sqrtd) / a;
-        if (root < tmin || tmax < root)
+        root = (-h + sqrtd) / a;
+        if (root < tmin || root > tmax)
             return false;
     }
 
@@ -88,8 +184,51 @@ bool sphere_hit(const t_hittable *self, const t_ray *r, float tmin, float tmax, 
     outward_normal = t_vec3_multiply_scalar(&outward_normal, 1.0 / s->radius);
     set_face_normal(rec, r, &outward_normal);
 
+    rec->color = s->color;
+    // printf("Hit at t = %f, Point = (%f, %f, %f)\n", rec->t, rec->p.x, rec->p.y, rec->p.z);
+
     return true;
 }
+
+// bool sphere_hit(const t_hittable *self, const t_ray *r, float tmin, float tmax, t_hit *rec)
+// {
+//     const t_sphere *s = (const t_sphere *)self;
+
+//     // oc is the vector from the ray's origin to the center of the sphere
+//     t_vec3 oc = t_vec3_subtract_vectors(&r->orig, &s->center);
+
+//     float a = t_vec3_dot(&r->dir, &r->dir);                 // Dot product of direction with itself (should be 1 if dir is normalized)
+//     float h = t_vec3_dot(&oc, &r->dir);                     // Dot product of oc and direction
+//     float c = t_vec3_dot(&oc, &oc) - s->radius * s->radius; // Length squared minus radius squared
+
+//     float discriminant = h * h - a * c;
+//     if (discriminant < 0)
+//         return false; // No intersection, ray misses the sphere
+
+//     float sqrtd = sqrtf(discriminant);
+
+//     // Find the nearest root that lies within the acceptable range
+//     float root = (-h - sqrtd) / a; // The closer intersection
+//     if (root < tmin || root > tmax)
+//     {
+//         root = (-h + sqrtd) / a; // The farther intersection
+//         if (root < tmin || root > tmax)
+//             return false; // Both intersections are out of bounds
+//     }
+
+//     rec->t = root;
+//     rec->p = ray_at(r, rec->t); // Calculate the hit point using the ray equation
+
+//     // Calculate the outward normal and normalize it
+//     t_vec3 outward_normal = t_vec3_subtract_vectors(&rec->p, &s->center);
+//     outward_normal = t_vec3_multiply_scalar(&outward_normal, 1.0 / s->radius);
+
+//     // Set the normal and determine if the ray is hitting the front face or inside
+//     set_face_normal(rec, r, &outward_normal);
+
+//     return true;
+// }
+
 // bool sphere_hit(const t_hittable *self, const t_ray *r, float tmin, float tmax, t_hit *rec)
 // {
 //     const t_sphere *s = (const t_sphere *)self;

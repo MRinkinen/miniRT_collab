@@ -50,6 +50,7 @@ typedef struct s_hit
 	t_vec3 normal;
 	float t;
 	bool front_face;
+	t_color color;
 } t_hit;
 
 struct hittable;
@@ -70,6 +71,7 @@ typedef struct
 void hittable_list_init(hittable_list *list);
 void hittable_list_clear(hittable_list *list);
 void hittable_list_add(hittable_list *list, t_hittable *object);
+// bool hittable_list_hit(const hittable_list *list, const t_ray *r, float tmin, float tmax, t_hit *rec);
 bool hittable_list_hit(const hittable_list *list, const t_ray *r, float tmin, float tmax, t_hit *rec);
 
 typedef struct
@@ -110,11 +112,10 @@ void hooks(t_var *var);
 
 void printimage(void *param);
 
-bool sphere_hit(const t_hittable *self, const t_ray *r, float tmin, float tmax, t_hit *rec);
+// bool sphere_hit(const t_hittable *self, const t_ray *r, float tmin, float tmax, t_hit *rec);
 
 t_sphere sphere_create(t_vec3 center, float radius, t_color col);
 void hittable_init(t_hittable *h, hit_func func);
-bool sphere_hit(const t_hittable *self, const t_ray *r, float tmin, float tmax, t_hit *rec);
 
 // t_sphere sphere_create(t_vec3 center, float radius);
 
@@ -149,14 +150,21 @@ t_vec3 ray_direction(const t_ray *r);
 t_vec3 ray_at(const t_ray *r, float t);
 
 /*Sphere*/
-float hit_sphere(const t_vec3 *center, float radius, const t_ray *r);
+bool sphere_hit(const t_hittable *self, const t_ray *r, float tmin, float tmax, t_hit *rec);
+// bool sphere_hit(const t_hittable *self, const t_ray *ray, t_hit *rec, t_vec3 *intersection_point);
 
-bool hit_sphere2(const t_vec3 center, float radius, const t_ray r);
+// float hit_sphere(const t_vec3 *center, float radius, const t_ray *r);
+
+// bool hit_sphere2(const t_vec3 center, float radius, const t_ray r);
 
 /*Color*/
 
 t_color t_color_create(float x, float y, float z);
 t_color color_multiply_scalar(t_color c, float s);
 t_color color_add(t_color c1, t_color c2);
+
+bool ray_intersects_sphere(t_ray ray, t_sphere sphere, float *t);
+
+t_vec3 calculate_intersection_point(t_ray ray, float t);
 
 #endif

@@ -6,7 +6,7 @@
 /*   By: mrinkine <mrinkine@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/15 11:15:10 by mrinkine          #+#    #+#             */
-/*   Updated: 2024/08/15 13:31:13 by mrinkine         ###   ########.fr       */
+/*   Updated: 2024/08/19 12:05:49 by mrinkine         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -134,9 +134,9 @@ t_vec3 t_vec3_divide_scalar(const t_vec3 *v, float t)
     return (t_vec3_multiply_scalar(v, 1 / t));
 }
 
-float t_vec3_dot(const t_vec3 *u, const t_vec3 *v)
+float t_vec3_dot(const t_vec3 *vec_a, const t_vec3 *vec_b)
 {
-    return (u->x * v->x + u->y * v->y + u->z * v->z);
+    return (vec_a->x * vec_b->x + vec_a->y * vec_b->y + vec_a->z * vec_b->z);
 }
 
 t_vec3 t_vec3_cross(const t_vec3 *u, const t_vec3 *v)
@@ -149,4 +149,13 @@ t_vec3 t_vec3_cross(const t_vec3 *u, const t_vec3 *v)
 t_vec3 t_vec3_unit_vector(const t_vec3 *vec)
 {
     return (t_vec3_divide_scalar(vec, t_vec3_magnitude(vec)));
+}
+
+t_vec3 calculate_intersection_point(t_ray ray, float t)
+{
+    t_vec3 intersection_point = {
+        ray.orig.x + t * ray.orig.x,
+        ray.orig.y + t * ray.orig.y,
+        ray.orig.z + t * ray.orig.z};
+    return intersection_point;
 }

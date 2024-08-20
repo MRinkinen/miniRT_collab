@@ -6,7 +6,7 @@
 /*   By: mrinkine <mrinkine@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/15 12:02:26 by mrinkine          #+#    #+#             */
-/*   Updated: 2024/08/20 10:48:06 by mrinkine         ###   ########.fr       */
+/*   Updated: 2024/08/20 12:09:22 by mrinkine         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,11 +30,11 @@ t_color ray_color(const t_ray *r, hittable_list *world, t_vec3 camera_pos)
 		// Calculate the attenuation based on the distance
 		float attenuation = 1.0f / (constant + linear * distance + quadratic * (distance * distance));
 		t_color final_color = color_multiply_scalar(rec.color, attenuation);
+		// final_color = t_color_create(77, 158, 176);
 		return final_color;
 	}
-
 	// Background color if no hit occurs
-	background = t_color_create(0.1f, 0.1f, 0.1f);
+	background = t_color_create(255, 255, 255);
 	return background;
 }
 
@@ -87,6 +87,18 @@ void screenloop(t_var *var, hittable_list world)
 		}
 	}
 }
+t_sphere addsphere(t_vec3 vec, t_color col, float radius)
+{
+	t_sphere sphere;
+
+	// sphere = sphere_create(vec, 100, col);
+	hittable_init(&sphere.base, sphere_hit);
+	sphere.color = col;
+	sphere.center = vec;
+	sphere.radius = fmax(0, radius);
+
+	return (sphere);
+}
 
 void printimage(void *param)
 {
@@ -97,20 +109,41 @@ void printimage(void *param)
 
 	hittable_list_init(&world);
 
-	t_sphere s1 = sphere_create(t_vec3_create(0, 25, 200), 100, t_color_create(60, 50, 240));
-	t_sphere s2 = sphere_create(t_vec3_create(-27, 0, 100), 15, t_color_create(200, 56, 100));
-	t_sphere s3 = sphere_create(t_vec3_create(-5, 0, 100), 20, t_color_create(200, 200, 200));
-	t_sphere s4 = sphere_create(t_vec3_create(27, -0, 100), 25, t_color_create(200, 50, 200));
+	int i = 0;
+	int sphere_count = 40;
 
-	t_sphere s5 = sphere_create(t_vec3_create(-28, -5, 85), 3, t_color_create(10, 10, 10));
-	t_sphere s6 = sphere_create(t_vec3_create(-28, 5, 85), 3, t_color_create(10, 10, 10));
+	t_sphere *spheres = malloc(sizeof(t_sphere) * sphere_count);
+	int x = 0;
+	int y = -30;
+	int z = 100;
+	int r = 77;
+	int g = 158;
+	int b = 176;
 
-	hittable_list_add(&world, (t_hittable *)&s1);
-	hittable_list_add(&world, (t_hittable *)&s2);
-	hittable_list_add(&world, (t_hittable *)&s3);
-	hittable_list_add(&world, (t_hittable *)&s4);
-	hittable_list_add(&world, (t_hittable *)&s5);
-	hittable_list_add(&world, (t_hittable *)&s6);
+	while (i < sphere_count)
+	{
+		spheres[i] = addsphere(t_vec3_create(x, y, z), t_color_create(r, g, b), 4);
+		hittable_list_add(&world, (t_hittable *)&spheres[i]);
+		i++;
+		y = y + 5;
+		z = z + 5;
+		b = b + 5;
+	}
+
+	// t_sphere s1 = sphere_create(t_vec3_create(0, 25, 200), 100, t_color_create(60, 50, 240));
+	// t_sphere s2 = sphere_create(t_vec3_create(-27, 0, 100), 15, t_color_create(200, 56, 100));
+	// t_sphere s3 = sphere_create(t_vec3_create(-5, 0, 100), 20, t_color_create(200, 200, 200));
+	// t_sphere s4 = sphere_create(t_vec3_create(27, -0, 100), 25, t_color_create(200, 50, 200));
+
+	// t_sphere s5 = sphere_create(t_vec3_create(-28, -5, 85), 3, t_color_create(10, 10, 10));
+	// t_sphere s6 = sphere_create(t_vec3_create(-28, 5, 85), 3, t_color_create(10, 10, 10));
+
+	// hittable_list_add(&world, (t_hittable *)&s1);
+	// hittable_list_add(&world, (t_hittable *)&s2);
+	// hittable_list_add(&world, (t_hittable *)&s3);
+	// hittable_list_add(&world, (t_hittable *)&s4);
+	// hittable_list_add(&world, (t_hittable *)&s5);
+	// hittable_list_add(&world, (t_hittable *)&s6);
 
 	intitscreen(var);
 	screenloop(var, world);

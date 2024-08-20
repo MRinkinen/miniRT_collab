@@ -1,7 +1,4 @@
-
 miniRT
 *.o
 *.a
 Makefile
-
-

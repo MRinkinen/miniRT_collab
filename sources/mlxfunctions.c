@@ -6,7 +6,7 @@
 /*   By: mrinkine <mrinkine@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/16 09:33:08 by mrinkine          #+#    #+#             */
-/*   Updated: 2024/08/16 11:15:30 by mrinkine         ###   ########.fr       */
+/*   Updated: 2024/08/20 10:44:37 by mrinkine         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,4 +38,33 @@ void hooks(t_var *var)
 {
 	// mlx_loop_hook(var->mlx, printimage, var); // If here. Can move camera while program is running
 	mlx_loop_hook(var->mlx, ft_hook, var);
+}
+
+int mlxinit(t_var *var)
+{
+	var->camrerax = 0;
+	var->camreray = 0;
+	var->camreraz = 0;
+
+	var->aspect_ratio = 16.0 / 9.0;
+	var->image_height = SCREEN_WIDHT / (int)var->aspect_ratio;
+	if (!(var->mlx = mlx_init(SCREEN_WIDHT, var->image_height, "MiniRT", true)))
+	{
+		ft_printf("%s", mlx_strerror(mlx_errno));
+		return (EXIT_FAILURE);
+	}
+	if (!(var->testimage = mlx_new_image(var->mlx, SCREEN_WIDHT, var->image_height)))
+	{
+		mlx_close_window(var->mlx);
+		ft_printf("%s", mlx_strerror(mlx_errno));
+		return (EXIT_FAILURE);
+	}
+
+	if (mlx_image_to_window(var->mlx, var->testimage, 0, 0) == -1)
+	{
+		mlx_close_window(var->mlx);
+		ft_printf("%s", mlx_strerror(mlx_errno));
+		return (EXIT_FAILURE);
+	}
+	return (EXIT_SUCCESS);
 }

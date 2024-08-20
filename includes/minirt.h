@@ -15,15 +15,6 @@
 #define SCREEN_WIDHT 1500
 #define MAX_OBJECTS 100
 
-// Constants
-// #define INFINITY DBL_MAX
-// #define PI 3.1415926535897932385
-
-// // Utility Functions
-// static inline float degrees_to_radians(float degrees) // Ei varmaan saa jäädä tänne!!
-// {
-// 	return degrees * PI / 180.0;
-// }
 typedef struct s_color
 {
 	float r;
@@ -109,6 +100,7 @@ typedef struct s_var
 /*MLX*/
 void ft_hook(void *param);
 void hooks(t_var *var);
+int mlxinit(t_var *var);
 
 void printimage(void *param);
 

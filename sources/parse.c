@@ -6,7 +6,7 @@
 /*   By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/16 18:26:47 by tvalimak          #+#    #+#             */
-/*   Updated: 2024/08/21 17:32:43 by tvalimak         ###   ########.fr       */
+/*   Updated: 2024/08/21 17:36:15 by tvalimak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,7 +26,7 @@ int	check_filename(char *file)
 		free(temp);
 		free(path);
 		printf("Invalid filename or error in open\n");
-		return (0);
+		return (-1);
 	}
 	free(temp);
 	free(path);
@@ -39,6 +39,8 @@ int read_to_parse(t_element_count *element_count, t_map *map, char **file)
 	char	*line;
 
 	fd = check_filename(file[1]);
+	if (fd == -1)
+		return (0);
 	printf("%d\n", fd);
 	line = get_next_line(fd);
 	while (line)

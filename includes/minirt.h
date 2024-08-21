@@ -12,9 +12,10 @@
 #include "../MLX42/include/MLX42/MLX42.h"
 #include "./parsing.h"
 
-#define SCREEN_HEIGHT 400 // Not in use
+#define SCREEN_HEIGHT 600 // Not in use
 #define SCREEN_WIDHT 1500
 #define MAX_OBJECTS 100
+#define PI 3.141592653589793
 
 typedef struct s_color
 {
@@ -69,12 +70,12 @@ bool hittable_list_hit(const hittable_list *list, const t_ray *r, float tmin, fl
 /*Experimental*/
 typedef struct
 {
-    t_hittable base;   // Inherit hittable structure
-    t_vec3 center;     // Center of the base of the cylinder
-    t_vec3 orientation; // Orientation of the cylinder (usually represented by a vector)
-    float radius;      // Radius of the cylinder
-    float height;      // Height of the cylinder
-    t_color color;     // Color of the cylinder
+	t_hittable base;	// Inherit hittable structure
+	t_vec3 center;		// Center of the base of the cylinder
+	t_vec3 orientation; // Orientation of the cylinder (usually represented by a vector)
+	float radius;		// Radius of the cylinder
+	float height;		// Height of the cylinder
+	t_color color;		// Color of the cylinder
 } t_cylinders;
 
 typedef struct
@@ -90,9 +91,10 @@ typedef struct s_var
 	mlx_t *mlx;
 	t_vec3 *vector;
 
+	float camera_fov;
 	float aspect_ratio;
-	int image_width;
-	int image_height;
+	float image_width;
+	float image_height;
 
 	int screen_width;
 
@@ -100,7 +102,10 @@ typedef struct s_var
 	float camreray;
 	float camreraz;
 	t_vec3 camera_center;
-
+	float fov;			   // FOV in degrees
+	float theta;		   // Convert FOV to radians
+	float viewport_height; // Height of the viewport at a focal length of 1 unit
+	float viewport_width;
 	t_vec3 pixel_delta_u;
 	t_vec3 pixel_delta_v;
 	t_vec3 pixel00_loc;

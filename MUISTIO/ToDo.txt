@@ -1,1 +1,13 @@
 Ihan vitusti kaikkea!!
+
+-Sylinterin piirto jiiriin
+-Tason piirto jiiriin
+-FOV:n implementointi kameraan
+-Orientaatio vektorit toimintaan
+-Valot( point ja ambient)
+
+Matti :
+
+Taneli :
+-Komentoriviargumentit toimintaan
+-Liikit vittuun parserista

@@ -86,6 +86,12 @@ typedef struct
 	t_color color;
 } t_sphere;
 
+typedef struct s_ambient_light
+{
+	t_color color;	 // Ambient light color (e.g., white light could be {1.0, 1.0, 1.0})
+	float intensity; // Intensity of the ambient light (range from 0.0 to 1.0)
+} t_ambient_light;
+
 typedef struct s_var
 {
 	mlx_t *mlx;
@@ -111,6 +117,7 @@ typedef struct s_var
 	t_vec3 pixel00_loc;
 	mlx_image_t *testimage;
 	hittable_list hittables;
+	t_ambient_light alight;
 
 } t_var;
 

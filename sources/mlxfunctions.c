@@ -6,7 +6,7 @@
 /*   By: mrinkine <mrinkine@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/16 09:33:08 by mrinkine          #+#    #+#             */
-/*   Updated: 2024/08/21 17:54:08 by mrinkine         ###   ########.fr       */
+/*   Updated: 2024/08/21 18:56:47 by mrinkine         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,13 +39,21 @@ void hooks(t_var *var)
 	// mlx_loop_hook(var->mlx, printimage, var); // If here. Can move camera while program is running
 	mlx_loop_hook(var->mlx, ft_hook, var);
 }
+t_ambient_light setambientlight(t_map *map)
+{
+	t_ambient_light temp;
+
+	temp.color = t_color_create(map->ambient->r, map->ambient->b, map->ambient->g);
+	temp.intensity = map->ambient->ratio;
+	return (temp);
+}
 
 int mlxinit(t_var *var, t_map *map)
 {
 	var->camrerax = map->camera->x;
 	var->camreray = map->camera->y;
 	var->camreraz = map->camera->z;
-
+	var->alight = setambientlight(map);
 	// var->aspect_ratio = 16.0 / 9.0;
 	// var->image_height = (float)SCREEN_WIDHT / var->aspect_ratio;
 

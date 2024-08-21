@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minirt.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mrinkine <mrinkine@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/15 12:02:26 by mrinkine          #+#    #+#             */
-/*   Updated: 2024/08/21 18:48:16 by tvalimak         ###   ########.fr       */
+/*   Updated: 2024/08/21 19:11:29 by mrinkine         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,16 +25,19 @@ t_color normalize_color(t_color color)
 	return color;
 }
 
-t_color ray_color(const t_ray *r, hittable_list *world, t_vec3 camera_pos)
+t_color ray_color(const t_ray *r, hittable_list *world, t_vec3 camera_pos, t_ambient_light ambient)
 {
 	t_hit rec;
 	t_color background = {0.5f, 0.7f, 1.0f}; // Example background color
-
+	// t_color ambient_color;
+	(void)ambient;
 	if (hittable_list_hit(world, r, 0.001f, INFINITY, &rec))
 	{
 		// Calculate the distance from the camera to the intersection point
+		// ambient_color = color_multiply_scalar(ambient.color, ambient.intensity);
+		// ambient_color = normalize_color(ambient_color);
 		float distance = calculate_distance(camera_pos, rec.p);
-
+		printf("%f\n", ambient.intensity);
 		// Define attenuation factors (tuned for your scene)
 		float constant = 1.0;
 		float linear = 0.09;
@@ -43,8 +46,8 @@ t_color ray_color(const t_ray *r, hittable_list *world, t_vec3 camera_pos)
 		// Calculate the attenuation based on the distance
 		float attenuation = 1.0f / (constant + linear * distance + quadratic * (distance * distance));
 		t_color final_color = color_multiply_scalar(rec.color, attenuation);
-
-		// Normalize the final color
+		// final_color = color_add(final_color, ambient_color);
+		//  Normalize the final color
 		final_color = normalize_color(final_color);
 
 		return final_color;
@@ -106,7 +109,7 @@ void screenloop(t_var *var, hittable_list world)
 			pixel_center = t_vec3_add_vectors(&pixel_center, &temp_v);
 			ray_direction = t_vec3_subtract_vectors(&pixel_center, &var->camera_center);
 			ray = ray_create(&var->camera_center, &ray_direction);
-			pixel_color = ray_color(&ray, &world, var->camera_center);
+			pixel_color = ray_color(&ray, &world, var->camera_center, var->alight);
 			write_color(pixel_color, var, i, j);
 		}
 	}

@@ -6,7 +6,7 @@
 /*   By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/15 12:02:26 by mrinkine          #+#    #+#             */
-/*   Updated: 2024/08/21 13:51:26 by tvalimak         ###   ########.fr       */
+/*   Updated: 2024/08/21 17:06:01 by tvalimak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -196,25 +196,29 @@ void printimage(void *param, t_map *map)
 	screenloop(var, world);
 }
 
-int main()
+int main(int argc, char **argv)
 {
 	t_var			var;
 	t_element_count	element_count;
 	t_map			*map;
 
+	if (argc != 2)
+	{
+		ft_printf("Error in arguments, just give a map filename\n");
+		return (0);
+	}
 	ft_memset(&element_count, 0, sizeof(t_element_count));
 	map = malloc(sizeof(t_map));
 	setup_data(&element_count, map);
 	if (!map)
 		return (0);
-	if (read_to_parse(&element_count, map) == 0)
+	if (read_to_parse(&element_count, map, argv) == 0)
 		return (0);
 	print_data(map);
 	if (mlxinit(&var, map) == EXIT_FAILURE)
 		return (EXIT_FAILURE);
 	printimage(&var, map);
 	hooks(&var);
-
 	mlx_loop(var.mlx);
 	mlx_terminate(var.mlx);
 	terminate_data(map, "program ended successfully\n");

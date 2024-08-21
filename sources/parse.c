@@ -3,16 +3,37 @@
 /*                                                        :::      ::::::::   */
 /*   parse.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mrinkine <mrinkine@student.42.fr>          +#+  +:+       +#+        */
+/*   By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/16 18:26:47 by tvalimak          #+#    #+#             */
-/*   Updated: 2024/08/21 16:21:09 by mrinkine         ###   ########.fr       */
+/*   Updated: 2024/08/21 18:39:20 by tvalimak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/parsing.h"
 
-int read_to_parse(t_element_count *element_count, t_map *map)
+int	check_filename(char *file)
+{
+	char	*temp;
+	char	*path;
+	int 	fd;
+
+	temp = ft_strjoin("./maps/", file);
+	path = ft_strjoin(temp, ".rt");
+	fd = open(path, O_RDONLY);
+	if (fd == -1)
+	{
+		free(temp);
+		free(path);
+		printf("Invalid filename or error in open\n");
+		return (-1);
+	}
+	free(temp);
+	free(path);
+	return (fd);
+}
+
+int read_to_parse(t_element_count *element_count, t_map *map, char **file)
 {
 	int fd;
 	char *line;
@@ -20,10 +41,7 @@ int read_to_parse(t_element_count *element_count, t_map *map)
 	fd = open("/home/mrinkine/Desktop/hive/miniRT_collab/sources/test.rt", O_RDONLY);
 	// fd = open("/home/tvalimak/miniRTmerge/sources/test.rt", O_RDONLY);
 	if (fd == -1)
-	{
-		printf("Error in fd\n");
 		return (0);
-	}
 	printf("%d\n", fd);
 	line = get_next_line(fd);
 	while (line)

@@ -1,0 +1,6 @@
+A hello 255,255,255
+C 0,0,0 0,0,1 ninety
+L 10,10,10 brightness 255,255,255
+sp 0,0,0 size 255,0,0
+pl 0,0,0 0,1,0 color
+cy 10,20,30 0,0,1 diameter height 0,255,0

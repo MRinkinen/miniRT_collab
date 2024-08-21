@@ -6,7 +6,7 @@
 /*   By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/16 18:26:47 by tvalimak          #+#    #+#             */
-/*   Updated: 2024/08/21 18:39:20 by tvalimak         ###   ########.fr       */
+/*   Updated: 2024/08/21 18:47:15 by tvalimak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,8 +38,7 @@ int read_to_parse(t_element_count *element_count, t_map *map, char **file)
 	int fd;
 	char *line;
 
-	fd = open("/home/mrinkine/Desktop/hive/miniRT_collab/sources/test.rt", O_RDONLY);
-	// fd = open("/home/tvalimak/miniRTmerge/sources/test.rt", O_RDONLY);
+	fd = check_filename(file[1]);
 	if (fd == -1)
 		return (0);
 	printf("%d\n", fd);
@@ -61,20 +60,3 @@ int read_to_parse(t_element_count *element_count, t_map *map, char **file)
 	close(fd);
 	return (1);
 }
-/*
-int main(void)
-{
-	t_element_count element_count;
-	t_map *map;
-
-	ft_memset(&element_count, 0, sizeof(t_element_count));
-	map = malloc(sizeof(t_map));
-	setup_data(&element_count, map);
-	if (!map)
-		return (0);
-	if (read_to_parse(&element_count, map) == 0)
-		return (0);
-	print_data(map);
-	terminate_data(map, "program ended successfully\n");
-	return (0);
-}*/

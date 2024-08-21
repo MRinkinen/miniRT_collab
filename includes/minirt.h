@@ -90,6 +90,7 @@ typedef struct s_var
 	mlx_t *mlx;
 	t_vec3 *vector;
 
+	float camera_fov;
 	float aspect_ratio;
 	int image_width;
 	int image_height;

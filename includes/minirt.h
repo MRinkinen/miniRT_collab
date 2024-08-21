@@ -10,6 +10,7 @@
 #include <float.h>
 #include "../libft/libft.h"
 #include "../MLX42/include/MLX42/MLX42.h"
+#include "./parsing.h"
 
 #define SCREEN_HEIGHT 400 // Not in use
 #define SCREEN_WIDHT 1500
@@ -65,6 +66,17 @@ void hittable_list_add(hittable_list *list, t_hittable *object);
 // bool hittable_list_hit(const hittable_list *list, const t_ray *r, float tmin, float tmax, t_hit *rec);
 bool hittable_list_hit(const hittable_list *list, const t_ray *r, float tmin, float tmax, t_hit *rec);
 
+/*Experimental*/
+typedef struct
+{
+    t_hittable base;   // Inherit hittable structure
+    t_vec3 center;     // Center of the base of the cylinder
+    t_vec3 orientation; // Orientation of the cylinder (usually represented by a vector)
+    float radius;      // Radius of the cylinder
+    float height;      // Height of the cylinder
+    t_color color;     // Color of the cylinder
+} t_cylinders;
+
 typedef struct
 {
 	t_hittable base;
@@ -100,9 +112,9 @@ typedef struct s_var
 /*MLX*/
 void ft_hook(void *param);
 void hooks(t_var *var);
-int mlxinit(t_var *var);
+int mlxinit(t_var *var, t_map *map);
 
-void printimage(void *param);
+void printimage(void *param, t_map *map);
 
 // bool sphere_hit(const t_hittable *self, const t_ray *r, float tmin, float tmax, t_hit *rec);
 
@@ -143,6 +155,7 @@ t_vec3 ray_at(const t_ray *r, float t);
 
 /*Sphere*/
 bool sphere_hit(const t_hittable *self, const t_ray *r, float tmin, float tmax, t_hit *rec);
+bool cylinder_hit(const t_hittable *self, const t_ray *r, float tmin, float tmax, t_hit *rec);
 // bool sphere_hit(const t_hittable *self, const t_ray *ray, t_hit *rec, t_vec3 *intersection_point);
 
 // float hit_sphere(const t_vec3 *center, float radius, const t_ray *r);

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   functions.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mrinkine <mrinkine@student.42.fr>          +#+  +:+       +#+        */
+/*   By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/16 09:33:18 by mrinkine          #+#    #+#             */
-/*   Updated: 2024/08/20 10:32:23 by mrinkine         ###   ########.fr       */
+/*   Updated: 2024/08/21 13:52:49 by tvalimak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,6 +63,56 @@ bool sphere_hit(const t_hittable *self, const t_ray *r, float tmin, float tmax, 
     set_face_normal(rec, r, &outward_normal);
 
     rec->color = s->color;
+    return true;
+}
+
+// experimental
+bool cylinder_hit(const t_hittable *self, const t_ray *r, float tmin, float tmax, t_hit *rec)
+{
+    const t_cylinders *c = (const t_cylinders *)self;
+
+    // Transform the ray origin to the cylinder's local space
+    t_vec3 oc = t_vec3_subtract_vectors(&r->orig, &c->center);
+
+    // Assume the cylinder is aligned along the y-axis
+    float a = r->dir.x * r->dir.x + r->dir.z * r->dir.z;
+    float b = 2.0 * (oc.x * r->dir.x + oc.z * r->dir.z);
+    float c_val = oc.x * oc.x + oc.z * oc.z - c->radius * c->radius;
+
+    // Solve the quadratic equation
+    float discriminant = b * b - 4 * a * c_val;
+    if (discriminant < 0)
+        return false;
+
+    float sqrtd = sqrtf(discriminant);
+
+    // Find the nearest root that lies within the acceptable range
+    float root = (-b - sqrtd) / (2.0 * a);
+    if (root < tmin || root > tmax)
+    {
+        root = (-b + sqrtd) / (2.0 * a);
+        if (root < tmin || root > tmax)
+            return false;
+    }
+
+    // Calculate the intersection point
+    float y_hit = r->orig.y + root * r->dir.y;
+
+    // Check if the intersection point is within the bounds of the cylinder's height
+    if (y_hit < c->center.y || y_hit > c->center.y + c->height)
+        return false;
+
+    rec->t = root;
+    rec->p = ray_at(r, rec->t);
+
+    // Calculate the normal at the intersection point
+    t_vec3 outward_normal = t_vec3_create(rec->p.x - c->center.x, 0, rec->p.z - c->center.z);
+    outward_normal = t_vec3_multiply_scalar(&outward_normal, 1.0 / c->radius);
+
+    set_face_normal(rec, r, &outward_normal);
+
+    rec->color = c->color;
+
     return true;
 }
 

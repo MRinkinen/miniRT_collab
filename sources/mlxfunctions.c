@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   mlxfunctions.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mrinkine <mrinkine@student.42.fr>          +#+  +:+       +#+        */
+/*   By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/16 09:33:08 by mrinkine          #+#    #+#             */
-/*   Updated: 2024/08/20 10:44:37 by mrinkine         ###   ########.fr       */
+/*   Updated: 2024/08/20 22:06:17 by tvalimak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,11 +40,11 @@ void hooks(t_var *var)
 	mlx_loop_hook(var->mlx, ft_hook, var);
 }
 
-int mlxinit(t_var *var)
+int mlxinit(t_var *var, t_map *map)
 {
-	var->camrerax = 0;
-	var->camreray = 0;
-	var->camreraz = 0;
+	var->camrerax = map->camera->x;
+	var->camreray = map->camera->y;
+	var->camreraz = map->camera->z;
 
 	var->aspect_ratio = 16.0 / 9.0;
 	var->image_height = SCREEN_WIDHT / (int)var->aspect_ratio;

@@ -3,43 +3,59 @@
 /*                                                        :::      ::::::::   */
 /*   minirt.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mrinkine <mrinkine@student.42.fr>          +#+  +:+       +#+        */
+/*   By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/15 12:02:26 by mrinkine          #+#    #+#             */
-/*   Updated: 2024/08/20 12:09:22 by mrinkine         ###   ########.fr       */
+/*   Updated: 2024/08/21 13:51:26 by tvalimak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/minirt.h"
+#include "../includes/parsing.h"
+
+// t_color ray_color(const t_ray *r, hittable_list *world, t_vec3 camera_pos)
+
+t_color normalize_color(t_color color)
+{
+    // Ensure the color values are normalized
+    color.r = fmin(fmax(color.r, 0.0f), 1.0f);
+    color.g = fmin(fmax(color.g, 0.0f), 1.0f);
+    color.b = fmin(fmax(color.b, 0.0f), 1.0f);
+
+    return color;
+}
 
 t_color ray_color(const t_ray *r, hittable_list *world, t_vec3 camera_pos)
 {
-	t_hit rec;
-	t_color background;
+    t_hit rec;
+    t_color background = {0.5f, 0.7f, 1.0f}; // Example background color
 
-	if (hittable_list_hit(world, r, 0.001f, INFINITY, &rec))
-	{
-		//  Calculate the distance from the camera to the intersection point
-		float distance = calculate_distance(camera_pos, rec.p);
+    if (hittable_list_hit(world, r, 0.001f, INFINITY, &rec))
+    {
+        // Calculate the distance from the camera to the intersection point
+        float distance = calculate_distance(camera_pos, rec.p);
 
-		// Define attenuation factors (tuned for your scene)
-		float constant = 1.0;
-		float linear = 0.09;
-		float quadratic = 0.032;
+        // Define attenuation factors (tuned for your scene)
+        float constant = 1.0;
+        float linear = 0.09;
+        float quadratic = 0.032;
 
-		// Calculate the attenuation based on the distance
-		float attenuation = 1.0f / (constant + linear * distance + quadratic * (distance * distance));
-		t_color final_color = color_multiply_scalar(rec.color, attenuation);
-		// final_color = t_color_create(77, 158, 176);
-		return final_color;
-	}
-	// Background color if no hit occurs
-	background = t_color_create(255, 255, 255);
-	return background;
+        // Calculate the attenuation based on the distance
+        float attenuation = 1.0f / (constant + linear * distance + quadratic * (distance * distance));
+        t_color final_color = color_multiply_scalar(rec.color, attenuation);
+
+        // Normalize the final color
+        final_color = normalize_color(final_color);
+
+        return final_color;
+    }
+    // Return background color if no hit occurs
+    return background;
 }
 
-void intitscreen(t_var *var)
+void intitscreen(t_var *var, t_map *map)
 {
+	(void)map;
 	float focal_length = 1.0;
 	float viewport_height = 1.0; // Jos ei 1, niin pallukat soikeita
 	float viewport_width = viewport_height * ((float)SCREEN_WIDHT / var->image_height);
@@ -87,6 +103,20 @@ void screenloop(t_var *var, hittable_list world)
 		}
 	}
 }
+/*Experimental*/
+t_cylinders addcylinder(t_vec3 vec, t_color color, float diameter, float height)
+{
+    t_cylinders cylinder;
+
+    hittable_init(&cylinder.base, cylinder_hit);  // Assume a function similar to sphere_hit for cylinders
+    cylinder.center = vec;
+    cylinder.color = color;
+    cylinder.radius = fmax(0, diameter);
+    cylinder.height = fmax(0, height);
+
+    return (cylinder);
+}
+
 t_sphere addsphere(t_vec3 vec, t_color col, float radius)
 {
 	t_sphere sphere;
@@ -100,7 +130,7 @@ t_sphere addsphere(t_vec3 vec, t_color col, float radius)
 	return (sphere);
 }
 
-void printimage(void *param)
+void printimage(void *param, t_map *map)
 {
 	t_var *var;
 	var = param;
@@ -110,17 +140,34 @@ void printimage(void *param)
 	hittable_list_init(&world);
 
 	int i = 0;
-	int sphere_count = 40;
+	int sphere_count = map->element_count->sphere;
+	int cylinder_count = map->element_count->cylinder;
 
 	t_sphere *spheres = malloc(sizeof(t_sphere) * sphere_count);
-	int x = 0;
-	int y = -30;
-	int z = 100;
-	int r = 77;
-	int g = 158;
-	int b = 176;
+	t_cylinders *cylinders = malloc(sizeof(t_cylinder) * cylinder_count);
+	//int x = 0;
+	//int y = -30;
+	//int z = 100;
+	//int r = 77;
+	//int g = 158;
+	//int b = 176;
 
-	while (i < sphere_count)
+	while (map->spheres)
+	{
+		spheres[i] = addsphere(t_vec3_create(map->spheres->x, map->spheres->y, map->spheres->z), t_color_create(map->spheres->r, map->spheres->g, map->spheres->b), map->spheres->diameter);
+		hittable_list_add(&world, (t_hittable *)&spheres[i]);
+		map->spheres = map->spheres->next;
+		i++;
+	}
+	i = 0;
+	while (map->cylinder)
+	{
+		cylinders[i] = addcylinder(t_vec3_create(map->cylinder->x, map->cylinder->y, map->cylinder->z), t_color_create(map->cylinder->r, map->cylinder->g, map->cylinder->b), map->cylinder->diameter, map->cylinder->height);
+		hittable_list_add(&world, (t_hittable *)&cylinders[i]);
+		map->cylinder = map->cylinder->next;
+		i++;
+	}
+	/*
 	{
 		spheres[i] = addsphere(t_vec3_create(x, y, z), t_color_create(r, g, b), 4);
 		hittable_list_add(&world, (t_hittable *)&spheres[i]);
@@ -128,7 +175,7 @@ void printimage(void *param)
 		y = y + 5;
 		z = z + 5;
 		b = b + 5;
-	}
+	}*/
 
 	// t_sphere s1 = sphere_create(t_vec3_create(0, 25, 200), 100, t_color_create(60, 50, 240));
 	// t_sphere s2 = sphere_create(t_vec3_create(-27, 0, 100), 15, t_color_create(200, 56, 100));
@@ -145,20 +192,31 @@ void printimage(void *param)
 	// hittable_list_add(&world, (t_hittable *)&s5);
 	// hittable_list_add(&world, (t_hittable *)&s6);
 
-	intitscreen(var);
+	intitscreen(var, map);
 	screenloop(var, world);
 }
 
 int main()
 {
-	t_var var;
+	t_var			var;
+	t_element_count	element_count;
+	t_map			*map;
 
-	if (mlxinit(&var))
+	ft_memset(&element_count, 0, sizeof(t_element_count));
+	map = malloc(sizeof(t_map));
+	setup_data(&element_count, map);
+	if (!map)
+		return (0);
+	if (read_to_parse(&element_count, map) == 0)
+		return (0);
+	print_data(map);
+	if (mlxinit(&var, map) == EXIT_FAILURE)
 		return (EXIT_FAILURE);
-	printimage(&var);
+	printimage(&var, map);
 	hooks(&var);
 
 	mlx_loop(var.mlx);
 	mlx_terminate(var.mlx);
+	terminate_data(map, "program ended successfully\n");
 	return (EXIT_SUCCESS);
 }

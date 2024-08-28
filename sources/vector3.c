@@ -159,3 +159,23 @@ t_vec3 calculate_intersection_point(t_ray ray, float t)
         ray.orig.z + t * ray.orig.z};
     return intersection_point;
 }
+
+t_vec3 reflect_vector(t_vec3 v, t_vec3 n)
+{
+    float dot = t_vec3_dot(&v, &n);
+    t_vec3 result;
+    result.x = v.x - 2.0f * dot * n.x;
+    result.y = v.y - 2.0f * dot * n.y;
+    result.z = v.z - 2.0f * dot * n.z;
+    return result;
+}
+
+t_vec3 normalize_vector(t_vec3 v)
+{
+    float magnitude = sqrt(v.x * v.x + v.y * v.y + v.z * v.z);
+    t_vec3 result;
+    result.x = v.x / magnitude;
+    result.y = v.y / magnitude;
+    result.z = v.z / magnitude;
+    return result;
+}

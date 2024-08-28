@@ -20,8 +20,8 @@
 typedef struct s_color
 {
 	float r;
-	float b;
 	float g;
+	float b;
 } t_color;
 
 typedef struct s_vec
@@ -68,7 +68,7 @@ void hittable_list_add(hittable_list *list, t_hittable *object);
 bool hittable_list_hit(const hittable_list *list, const t_ray *r, float tmin, float tmax, t_hit *rec);
 
 /*Experimental*/
-typedef struct
+typedef struct s_cylinders
 {
 	t_hittable base;	// Inherit hittable structure
 	t_vec3 center;		// Center of the base of the cylinder
@@ -78,7 +78,7 @@ typedef struct
 	t_color color;		// Color of the cylinder
 } t_cylinders;
 
-typedef struct
+typedef struct s_sphere
 {
 	t_hittable base;
 	t_vec3 center;
@@ -86,21 +86,37 @@ typedef struct
 	t_color color;
 } t_sphere;
 
+typedef struct s_ambienlight
+{
+	t_color color;
+	float intensity;
+} t_ambienlight;
+
+typedef struct
+{
+	t_vec3 position;
+	t_vec3 forward;
+	t_vec3 right;
+	t_vec3 up;
+	float fov; // Field of view in degrees
+	float aspect_ratio;
+} t_cam;
+
 typedef struct s_var
 {
 	mlx_t *mlx;
 	t_vec3 *vector;
 
-	float camera_fov;
-	float aspect_ratio;
+	// float camera_fov;
+	// float aspect_ratio;
 	float image_width;
 	float image_height;
 
 	int screen_width;
 
-	float camrerax;
-	float camreray;
-	float camreraz;
+	// float camrerax;
+	// float camreray;
+	// float camreraz;
 	t_vec3 camera_center;
 	float fov;			   // FOV in degrees
 	float theta;		   // Convert FOV to radians
@@ -109,9 +125,12 @@ typedef struct s_var
 	t_vec3 pixel_delta_u;
 	t_vec3 pixel_delta_v;
 	t_vec3 pixel00_loc;
+
+	t_vec3 light_position; // Test light
 	mlx_image_t *testimage;
 	hittable_list hittables;
-
+	t_ambienlight ambientl;
+	t_cam cam;
 } t_var;
 
 /*MLX*/
@@ -151,6 +170,9 @@ float t_vec3_dot(const t_vec3 *u, const t_vec3 *v);
 t_vec3 t_vec3_cross(const t_vec3 *u, const t_vec3 *v);
 t_vec3 t_vec3_unit_vector(const t_vec3 *v);
 
+t_vec3 reflect_vector(t_vec3 v, t_vec3 n);
+t_vec3 normalize_vector(t_vec3 v);
+
 /* Ray */
 
 t_ray ray_create(const t_vec3 *origin, const t_vec3 *direction);
@@ -169,9 +191,10 @@ bool cylinder_hit(const t_hittable *self, const t_ray *r, float tmin, float tmax
 
 /*Color*/
 
-t_color t_color_create(float x, float y, float z);
+t_color t_color_create(float r, float b, float g);
 t_color color_multiply_scalar(t_color c, float s);
 t_color color_add(t_color c1, t_color c2);
+t_color clamp_and_normalize_color(t_color color);
 
 bool ray_intersects_sphere(t_ray ray, t_sphere sphere, float *t);
 

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   vector3.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mrinkine <mrinkine@student.42.fr>          +#+  +:+       +#+        */
+/*   By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/15 11:15:10 by mrinkine          #+#    #+#             */
-/*   Updated: 2024/08/19 12:05:49 by mrinkine         ###   ########.fr       */
+/*   Updated: 2024/08/29 14:50:49 by tvalimak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -87,6 +87,8 @@ t_vec3 *t_vec3_multiply(t_vec3 *vec, float t)
 
 t_vec3 *t_vec3_divide(t_vec3 *vec, float t)
 {
+    if (t == 0.0f)
+        return (NULL);
     return (t_vec3_multiply(vec, 1 / t));
 }
 /*
@@ -106,7 +108,7 @@ float t_vec3_magnitude_squared(const t_vec3 *vec)
 
 void t_vec3_print(const t_vec3 *vec)
 {
-    printf("%f %f %f\n", vec->x, vec->y, vec->x);
+    printf("%f %f %f\n", vec->x, vec->y, vec->z);
 }
 
 t_vec3 t_vec3_add_vectors(const t_vec3 *u, const t_vec3 *v)
@@ -131,6 +133,8 @@ t_vec3 t_vec3_multiply_scalar(const t_vec3 *v, float t)
 
 t_vec3 t_vec3_divide_scalar(const t_vec3 *v, float t)
 {
+    if (t == 0.0f)
+        return (t_vec3_create(0, 0, 0));
     return (t_vec3_multiply_scalar(v, 1 / t));
 }
 
@@ -154,25 +158,38 @@ t_vec3 t_vec3_unit_vector(const t_vec3 *vec)
 t_vec3 calculate_intersection_point(t_ray ray, float t)
 {
     t_vec3 intersection_point = {
-        ray.orig.x + t * ray.orig.x,
-        ray.orig.y + t * ray.orig.y,
-        ray.orig.z + t * ray.orig.z};
+        ray.orig.x + t * ray.dir.x,
+        ray.orig.y + t * ray.dir.y,
+        ray.orig.z + t * ray.dir.z};
     return intersection_point;
 }
 
 t_vec3 reflect_vector(t_vec3 v, t_vec3 n)
 {
+    // Calculate the dot product between v and n
     float dot = t_vec3_dot(&v, &n);
+    
+    // Debugging: Print dot product
+    printf("Dot product of v and n: %f\n", dot);
+    
+    // Compute the reflection vector
     t_vec3 result;
     result.x = v.x - 2.0f * dot * n.x;
     result.y = v.y - 2.0f * dot * n.y;
     result.z = v.z - 2.0f * dot * n.z;
+    
+    // Debugging: Print intermediate results
+    printf("Intermediate reflection result: %f %f %f\n", result.x, result.y, result.z);
+    
     return result;
 }
+
 
 t_vec3 normalize_vector(t_vec3 v)
 {
     float magnitude = sqrt(v.x * v.x + v.y * v.y + v.z * v.z);
+    if (magnitude == 0.0f)
+        return (v);
     t_vec3 result;
     result.x = v.x / magnitude;
     result.y = v.y / magnitude;

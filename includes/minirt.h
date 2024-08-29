@@ -156,26 +156,30 @@ void write_color(t_color col, t_var *var, int x, int y);
 // void write_color(FILE* out, const t_vec3* pixel_color);
 
 /*Vector 3*/
-float calculate_distance(t_vec3 vec_a, t_vec3 vec_b);
-t_vec3 t_vec3_create(float e0, float e1, float e2);
-t_vec3 t_vec3_multiply_scalar(const t_vec3 *v, float t);
-t_vec3 t_vec3_add_vectors(const t_vec3 *u, const t_vec3 *v);
-t_vec3 t_vec3_divide_scalar(const t_vec3 *v, float t);
-t_vec3 t_vec3_multiply_vectors(const t_vec3 *u, const t_vec3 *v);
-t_vec3 t_vec3_subtract_vectors(const t_vec3 *u, const t_vec3 *v);
-float t_vec3_magnitude_squared(const t_vec3 *v);
-float t_vec3_magnitude(const t_vec3 *v);
+float 	calculate_distance(t_vec3 vec_a, t_vec3 vec_b);
+t_vec3 	t_vec3_create(float e0, float e1, float e2);
+t_vec3 	t_vec3_multiply_scalar(const t_vec3 *v, float t);
+t_vec3 	t_vec3_add_vectors(const t_vec3 *u, const t_vec3 *v);
+t_vec3 	t_vec3_divide_scalar(const t_vec3 *v, float t);
+t_vec3 	t_vec3_multiply_vectors(const t_vec3 *u, const t_vec3 *v);
+t_vec3 	t_vec3_subtract_vectors(const t_vec3 *u, const t_vec3 *v);
+float 	t_vec3_magnitude_squared(const t_vec3 *v);
+float 	t_vec3_magnitude(const t_vec3 *v);
 
-t_vec3 *t_vec3_divide(t_vec3 *v, float t);
-t_vec3 *t_vec3_multiply(t_vec3 *v, float t);
-t_vec3 *t_vec3_add(t_vec3 *v, const t_vec3 *u);
+t_vec3 	*t_vec3_divide(t_vec3 *v, float t);
+t_vec3 	*t_vec3_multiply(t_vec3 *v, float t);
+t_vec3 	*t_vec3_add(t_vec3 *v, const t_vec3 *u);
 
-float t_vec3_dot(const t_vec3 *u, const t_vec3 *v);
-t_vec3 t_vec3_cross(const t_vec3 *u, const t_vec3 *v);
-t_vec3 t_vec3_unit_vector(const t_vec3 *v);
+float 	t_vec3_dot(const t_vec3 *u, const t_vec3 *v);
+t_vec3 	t_vec3_cross(const t_vec3 *u, const t_vec3 *v);
+t_vec3 	t_vec3_unit_vector(const t_vec3 *v);
 
-t_vec3 reflect_vector(t_vec3 v, t_vec3 n);
-t_vec3 normalize_vector(t_vec3 v);
+t_vec3 	reflect_vector(t_vec3 v, t_vec3 n);
+t_vec3 	normalize_vector(t_vec3 v);
+
+t_vec3 	t_vec3_negate(const t_vec3 *vec);
+
+void	t_vec3_print(const t_vec3 *vec);
 
 /* Ray */
 

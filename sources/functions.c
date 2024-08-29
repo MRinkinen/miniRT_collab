@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   functions.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mrinkine <mrinkine@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/16 09:33:18 by mrinkine          #+#    #+#             */
-/*   Updated: 2024/08/21 13:52:49 by tvalimak         ###   ########.fr       */
+/*   Updated: 2024/08/29 10:19:07 by mrinkine         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -168,17 +168,19 @@ bool hittable_list_hit(const hittable_list *list, const t_ray *ray, float tmin, 
     bool hit_anything = false;
     float closest_so_far = tmax;
 
+    // Loop through all objects in the list
     for (int i = 0; i < list->size; i++)
     {
+        // Check if the current object is hit by the ray
         if (list->objects[i]->hit(list->objects[i], ray, tmin, closest_so_far, &temp_rec))
         {
-            hit_anything = true;
-            closest_so_far = temp_rec.t;
-            *rec = temp_rec;
+            hit_anything = true;                 // Mark that we hit something
+            closest_so_far = temp_rec.t;         // Update the closest hit point
+            *rec = temp_rec;                     // Update the hit record with the closest hit
         }
     }
 
-    return hit_anything;
+    return hit_anything; // Return true if any object was hit, false otherwise
 }
 
 void initialize_camera(t_cam *camera, t_vec3 position, t_vec3 look_at, t_vec3 up, float fov, float aspect_ratio)
@@ -187,12 +189,16 @@ void initialize_camera(t_cam *camera, t_vec3 position, t_vec3 look_at, t_vec3 up
     camera->fov = fov;
     camera->aspect_ratio = aspect_ratio;
 
-    // Calculate forward vector
+    // Calculate forward vector (direction the camera is looking at)
     camera->forward = normalize_vector(t_vec3_subtract_vectors(&look_at, &position));
 
-    // Calculate right vector
-    camera->right = normalize_vector(t_vec3_subtract_vectors(&camera->forward, &up));
+    // Ensure the up vector is normalized (important for the cross product)
+    up = normalize_vector(up);
 
-    // Calculate up vector
-    camera->up = t_vec3_cross(&camera->right, &camera->forward);
+    // Calculate right vector (horizontal direction, perpendicular to forward and up)
+    camera->right = normalize_vector(t_vec3_cross(&camera->forward, &up));
+
+    // Recalculate up vector to ensure orthogonality (vertical direction, perpendicular to forward and right)
+    camera->up = normalize_vector(t_vec3_cross(&camera->right, &camera->forward));
+
 }

@@ -6,7 +6,7 @@
 /*   By: mrinkine <mrinkine@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/16 09:33:08 by mrinkine          #+#    #+#             */
-/*   Updated: 2024/08/21 17:54:08 by mrinkine         ###   ########.fr       */
+/*   Updated: 2024/08/29 11:26:56 by mrinkine         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,27 +42,15 @@ void hooks(t_var *var)
 
 int mlxinit(t_var *var, t_map *map)
 {
-	// var->camrerax = map->camera->x;
-	// var->camreray = map->camera->y;
-	// var->camreraz = map->camera->z;
-	var->cam.position = t_vec3_create(map->camera->x, map->camera->y, map->camera->z);
-
-	initialize_camera(var->cam, t_vec3_create(map->camera->x, map->camera->y, map->camera->z), t_vec3_create(0.0f, 0.0f, 0.0f), t_vec3_create(0.0f, 1.0f, 0.0f), map->camera->fov, 16.0 / 9.0);
-	// var->aspect_ratio = 16.0 / 9.0;
-	// var->image_height = (float)SCREEN_WIDHT / var->aspect_ratio;
-
-	// Define aspect ratio (e.g., 16:9)
-	// var->cam.aspect_ratio = 16.0 / 9.0;
-
+	var->cam.position = t_vec3_create(map->camera->x,map->camera->y,map->camera->z);
+	var->cam.aspect_ratio = 16.0 / 9.0;
 	// Calculate viewport height based on the FOV
-	// var->fov = map->camera->fov;										// FOV in degrees
-	var->theta = var->fov * PI / 180.0;									// Convert FOV to radians
-	var->viewport_height = 2.0 * tan(var->theta / 2.0);					// Height of the viewport at a focal length of 1 unit
+	var->fov = map->camera->fov;									// FOV in degrees
+	var->theta = var->fov * PI / 180.0;								// Convert FOV to radians
+	var->viewport_height = 2.0 * tan(var->theta / 2.0);				// Height of the viewport at a focal length of 1 unit
 	var->viewport_width = var->viewport_height * var->cam.aspect_ratio; // Calculate the viewport width based on the aspect ratio
-
 	// Calculate image height and width based on the viewport
 	var->image_height = SCREEN_WIDHT / var->cam.aspect_ratio;
-	printf("w: %i h: %f\n", SCREEN_WIDHT, var->image_height);
 	if (!(var->mlx = mlx_init(SCREEN_WIDHT, var->image_height, "MiniRT", true)))
 	{
 		ft_printf("%s", mlx_strerror(mlx_errno));

@@ -133,6 +133,10 @@ typedef struct s_var
 	t_cam cam;
 } t_var;
 
+
+
+void initialize_camera(t_cam *camera, t_vec3 position, t_vec3 look_at, t_vec3 up, float fov, float aspect_ratio);
+
 /*MLX*/
 void ft_hook(void *param);
 void hooks(t_var *var);

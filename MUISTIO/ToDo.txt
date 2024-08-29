@@ -1,11 +1,28 @@
 Ihan vitusti kaikkea!!
 
+-Sylinterin piirto jiiriin
 -Tason piirto jiiriin
-
-Matti :
 -FOV:n implementointi kameraan
+-Orientaatio vektorit toimintaan
 -Valot( point ja ambient)
 
+Matti :
+
 Taneli :
--Sylinterin piirto jiiriin
--Orientaatio vektorit toimintaan
+-Komentoriviargumentit toimintaan
+-Liikit vittuun parserista
+
+Edge cases:
+
+-If all RGB values are less than 50 it means the object will be pitch black,
+so you have to limit them to no less than 50.
+
+-When your  is above (179, 180] make it back to 179.
+
+-If parameters seperated by comma ends in excessive comma sign, need to 
+handle as error.
+
+-When camera is exactly on all three axises, some weird behavior might happen
+ask Tanja later.
+
+-When camera is  inside of object, weird behavior might happen.

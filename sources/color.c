@@ -6,7 +6,7 @@
 /*   By: mrinkine <mrinkine@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/16 09:30:46 by mrinkine          #+#    #+#             */
-/*   Updated: 2024/08/16 09:32:02 by mrinkine         ###   ########.fr       */
+/*   Updated: 2024/08/29 12:24:48 by mrinkine         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,11 +37,22 @@ t_color t_color_create(float r, float g, float b)
 {
 	t_color result;
 
-	result.r = r;
-	result.g = g;
-	result.b = b;
+    result.r = fmax(0.0, fmin(1.0, r));
+    result.g = fmax(0.0, fmin(1.0, g));
+    result.b = fmax(0.0, fmin(1.0, b));
 	return (result);
 }
+
+t_color hadamard_product(t_color c1, t_color c2)
+{
+	t_color result;
+
+	result.r = c1.r * c2.r;
+	result.g = c1.g * c2.g;
+	result.b = c1.b * c2.b;
+	return (result);
+}
+
 t_color clamp_and_normalize_color(t_color color)
 {
 	// Clamp the color values to the range [0.0, 1.0]
@@ -59,6 +70,5 @@ t_color clamp_and_normalize_color(t_color color)
 		color.g /= magnitude;
 		color.b /= magnitude;
 	}
-
 	return color;
 }

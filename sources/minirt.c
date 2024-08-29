@@ -6,7 +6,7 @@
 /*   By: mrinkine <mrinkine@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/15 12:02:26 by mrinkine          #+#    #+#             */
-/*   Updated: 2024/08/29 11:29:21 by mrinkine         ###   ########.fr       */
+/*   Updated: 2024/08/29 12:42:14 by mrinkine         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,16 @@
 
 void printimage(void *param, t_map *map)
 {
-
+	t_var *var;
+ 	var = param;
+	(void)map;
+	for (int j = 0; j < (int)var->image_height; j++)
+	{
+		for (int i = 0; i < SCREEN_WIDHT; i++)
+		{
+			write_color(t_color_create(1,0,0), var, i, j); // Red screeen comes from here :D
+		}
+	}
 }
 
 int main(int argc, char **argv)

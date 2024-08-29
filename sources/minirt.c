@@ -13,19 +13,30 @@
 #include "../includes/minirt.h"
 #include "../includes/parsing.h"
 
-// t_color ray_color(const t_ray *r, hittable_list *world, t_vec3 camera_pos)
-
-t_color normalize_color(t_color color)
+t_color calculate_final_color(t_color object_color, t_color ambient_light, t_color light_color, t_vec3 light_dir, t_vec3 normal, t_vec3 view_dir, float shininess)
 {
-	// Ensure the color values are normalized
-	color.r = fmin(fmax(color.r, 0.0f), 1.0f);
-	color.g = fmin(fmax(color.g, 0.0f), 1.0f);
-	color.b = fmin(fmax(color.b, 0.0f), 1.0f);
+	t_color ambient = color_multiply_scalar(ambient_light, 0.1f); // Ambient component
 
-	return color;
+	// Diffuse component
+	float diff = fmax(t_vec3_dot(&normal, &light_dir), 0.0f);
+	t_color diffuse = color_multiply_scalar(light_color, diff);
+
+	// Specular component
+	t_vec3 reflect_dir = reflect_vector(light_dir, normal);
+	float spec = pow(fmax(t_vec3_dot(&view_dir, &reflect_dir), 0.0f), shininess);
+	t_color specular = color_multiply_scalar(light_color, spec);
+
+	// Combine all components
+	t_color final_color = color_add(ambient, color_add(diffuse, specular));
+	final_color = color_add(final_color, object_color);
+
+	// Clamp and normalize the final color
+	final_color = clamp_and_normalize_color(final_color);
+
+	return final_color;
 }
 
-t_color ray_color(const t_ray *r, hittable_list *world, t_vec3 camera_pos)
+t_color ray_color(t_var *var, const t_ray *r, hittable_list *world)
 {
 	t_hit rec;
 	t_color background = {0.5f, 0.7f, 1.0f}; // Example background color
@@ -33,7 +44,7 @@ t_color ray_color(const t_ray *r, hittable_list *world, t_vec3 camera_pos)
 	if (hittable_list_hit(world, r, 0.001f, INFINITY, &rec))
 	{
 		// Calculate the distance from the camera to the intersection point
-		float distance = calculate_distance(camera_pos, rec.p);
+		float distance = calculate_distance(var->camera_center, rec.p);
 
 		// Define attenuation factors (tuned for your scene)
 		float constant = 1.0;
@@ -42,10 +53,15 @@ t_color ray_color(const t_ray *r, hittable_list *world, t_vec3 camera_pos)
 
 		// Calculate the attenuation based on the distance
 		float attenuation = 1.0f / (constant + linear * distance + quadratic * (distance * distance));
-		t_color final_color = color_multiply_scalar(rec.color, attenuation);
+		t_color object_color = color_multiply_scalar(rec.color, attenuation);
 
-		// Normalize the final color
-		final_color = normalize_color(final_color);
+		// Define light properties
+		t_color light_color = {1.0f, 1.0f, 1.0f}; // Example light color
+		t_vec3 light_dir = normalize_vector(t_vec3_subtract_vectors(&var->light_position, &rec.p));
+		t_vec3 view_dir = normalize_vector(t_vec3_subtract_vectors(&var->camera_center, &rec.p));
+		float shininess = 32.0f; // Example shininess value
+
+		t_color final_color = calculate_final_color(object_color, var->ambientl.color, light_color, light_dir, rec.normal, view_dir, shininess);
 
 		return final_color;
 	}
@@ -65,8 +81,8 @@ void intitscreen(t_var *var, t_map *map)
 	// float viewport_height = 1.0; // Jos ei 1, niin pallukat soikeita
 	// float viewport_width = viewport_height * ((float)SCREEN_WIDHT / var->image_height);
 	// float viewport_height = 2.0f * tanf(theta / 2.0f);
-	float viewport_width = var->viewport_height * var->aspect_ratio;
-	var->camera_center = t_vec3_create(var->camrerax, var->camreray, var->camreraz);
+	float viewport_width = var->viewport_height * var->cam.aspect_ratio;
+	var->camera_center = var->cam.position;
 
 	t_vec3 viewport_u = t_vec3_create(viewport_width, 0.0f, 0.0f);
 	t_vec3 viewport_v = t_vec3_create(0.0f, -var->viewport_height, 0.0f);
@@ -106,7 +122,7 @@ void screenloop(t_var *var, hittable_list world)
 			pixel_center = t_vec3_add_vectors(&pixel_center, &temp_v);
 			ray_direction = t_vec3_subtract_vectors(&pixel_center, &var->camera_center);
 			ray = ray_create(&var->camera_center, &ray_direction);
-			pixel_color = ray_color(&ray, &world, var->camera_center);
+			pixel_color = ray_color(var, &ray, &world);
 			write_color(pixel_color, var, i, j);
 		}
 	}
@@ -153,13 +169,14 @@ void printimage(void *param, t_map *map)
 
 	t_sphere *spheres = malloc(sizeof(t_sphere) * sphere_count);
 	t_cylinders *cylinders = malloc(sizeof(t_cylinder) * cylinder_count);
-	// int x = 0;
-	// int y = -30;
-	// int z = 100;
-	// int r = 77;
-	// int g = 158;
-	// int b = 176;
+	var->ambientl.color = t_color_create(map->ambient->r, map->ambient->g, map->ambient->b);
+	// var->ambientl.intensity = map->ambient->ratio;
+	var->ambientl.color = color_multiply_scalar(var->ambientl.color, map->ambient->ratio);
+	var->ambientl.color = clamp_and_normalize_color(var->ambientl.color);
 
+	/*TEST LIGHT*/
+	var->light_position = t_vec3_create(0.0f, 0.0f, 0.0f);
+	printf("%f %f %f\n", var->ambientl.color.r, var->ambientl.color.b, var->ambientl.color.g);
 	while (map->spheres)
 	{
 		spheres[i] = addsphere(t_vec3_create(map->spheres->x, map->spheres->y, map->spheres->z), t_color_create(map->spheres->r, map->spheres->g, map->spheres->b), map->spheres->diameter);
@@ -175,30 +192,6 @@ void printimage(void *param, t_map *map)
 		map->cylinder = map->cylinder->next;
 		i++;
 	}
-	/*
-	{
-		spheres[i] = addsphere(t_vec3_create(x, y, z), t_color_create(r, g, b), 4);
-		hittable_list_add(&world, (t_hittable *)&spheres[i]);
-		i++;
-		y = y + 5;
-		z = z + 5;
-		b = b + 5;
-	}*/
-
-	// t_sphere s1 = sphere_create(t_vec3_create(0, 25, 200), 100, t_color_create(60, 50, 240));
-	// t_sphere s2 = sphere_create(t_vec3_create(-27, 0, 100), 15, t_color_create(200, 56, 100));
-	// t_sphere s3 = sphere_create(t_vec3_create(-5, 0, 100), 20, t_color_create(200, 200, 200));
-	// t_sphere s4 = sphere_create(t_vec3_create(27, -0, 100), 25, t_color_create(200, 50, 200));
-
-	// t_sphere s5 = sphere_create(t_vec3_create(-28, -5, 85), 3, t_color_create(10, 10, 10));
-	// t_sphere s6 = sphere_create(t_vec3_create(-28, 5, 85), 3, t_color_create(10, 10, 10));
-
-	// hittable_list_add(&world, (t_hittable *)&s1);
-	// hittable_list_add(&world, (t_hittable *)&s2);
-	// hittable_list_add(&world, (t_hittable *)&s3);
-	// hittable_list_add(&world, (t_hittable *)&s4);
-	// hittable_list_add(&world, (t_hittable *)&s5);
-	// hittable_list_add(&world, (t_hittable *)&s6);
 
 	intitscreen(var, map);
 	screenloop(var, world);

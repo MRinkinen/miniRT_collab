@@ -180,3 +180,19 @@ bool hittable_list_hit(const hittable_list *list, const t_ray *ray, float tmin, 
 
     return hit_anything;
 }
+
+void initialize_camera(t_cam *camera, t_vec3 position, t_vec3 look_at, t_vec3 up, float fov, float aspect_ratio)
+{
+    camera->position = position;
+    camera->fov = fov;
+    camera->aspect_ratio = aspect_ratio;
+
+    // Calculate forward vector
+    camera->forward = normalize_vector(t_vec3_subtract_vectors(&look_at, &position));
+
+    // Calculate right vector
+    camera->right = normalize_vector(t_vec3_subtract_vectors(&camera->forward, &up));
+
+    // Calculate up vector
+    camera->up = t_vec3_cross(&camera->right, &camera->forward);
+}

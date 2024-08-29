@@ -107,16 +107,11 @@ typedef struct s_var
 	mlx_t *mlx;
 	t_vec3 *vector;
 
-	// float camera_fov;
-	// float aspect_ratio;
+
 	float image_width;
 	float image_height;
 
 	int screen_width;
-
-	// float camrerax;
-	// float camreray;
-	// float camreraz;
 	t_vec3 camera_center;
 	float fov;			   // FOV in degrees
 	float theta;		   // Convert FOV to radians

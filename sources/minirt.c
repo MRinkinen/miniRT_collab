@@ -6,17 +6,26 @@
 /*   By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/15 12:02:26 by mrinkine          #+#    #+#             */
-/*   Updated: 2024/08/29 14:50:49 by tvalimak         ###   ########.fr       */
+/*   Updated: 2024/08/29 14:52:36 by tvalimak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/minirt.h"
 #include "../includes/parsing.h"
-/*
+
 void printimage(void *param, t_map *map)
 {
-
-}*/
+	t_var *var;
+ 	var = param;
+	(void)map;
+	for (int j = 0; j < (int)var->image_height; j++)
+	{
+		for (int i = 0; i < SCREEN_WIDHT; i++)
+		{
+			write_color(t_color_create(1,0,0), var, i, j); // Red screeen comes from here :D
+		}
+	}
+}
 
 int main(int argc, char **argv)
 {
@@ -39,12 +48,10 @@ int main(int argc, char **argv)
 	print_data(map);
 	if (mlxinit(&var, map) == EXIT_FAILURE)
 		return (EXIT_FAILURE);
-	/*
 	printimage(&var, map);
 	hooks(&var);
 	mlx_loop(var.mlx);
 	mlx_terminate(var.mlx);
-	*/
     test_vector_functions();
 	terminate_data(map, "program ended successfully\n");
 	return (EXIT_SUCCESS);

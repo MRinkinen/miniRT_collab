@@ -6,7 +6,7 @@
 /*   By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/15 11:15:10 by mrinkine          #+#    #+#             */
-/*   Updated: 2024/08/29 14:50:49 by tvalimak         ###   ########.fr       */
+/*   Updated: 2024/08/30 17:14:50 by tvalimak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -96,7 +96,7 @@ Returns the length of this vector
 */
 float t_vec3_magnitude(const t_vec3 *vec)
 {
-    return (sqrt(vec->x * vec->x + vec->y * vec->y + vec->z * vec->z));
+    return (sqrtf(vec->x * vec->x + vec->y * vec->y + vec->z * vec->z));
 }
 /*
 Returns the squared length of this vector
@@ -187,7 +187,7 @@ t_vec3 reflect_vector(t_vec3 v, t_vec3 n)
 
 t_vec3 normalize_vector(t_vec3 v)
 {
-    float magnitude = sqrt(v.x * v.x + v.y * v.y + v.z * v.z);
+    float magnitude = sqrtf(v.x * v.x + v.y * v.y + v.z * v.z);
     if (magnitude == 0.0f)
         return (v);
     t_vec3 result;

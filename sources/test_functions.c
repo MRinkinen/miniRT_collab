@@ -6,7 +6,7 @@
 /*   By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/30 10:45:46 by tvalimak          #+#    #+#             */
-/*   Updated: 2024/08/30 20:04:21 by tvalimak         ###   ########.fr       */
+/*   Updated: 2024/08/31 18:20:57 by tvalimak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -129,6 +129,30 @@ float t_matrix_get(t_matrix *m, int row, int col)
         printf("Error: Index out of bounds.\n");
         return 0; // or NAN, depending on your needs
     }
+}
+
+// Function to compare two matrices for equality
+int t_matrix_equal(t_matrix *a, t_matrix *b) 
+{
+    // First, check if the dimensions of the matrices are the same
+    if (a->rows != b->rows || a->cols != b->cols) 
+    {
+        return 0; // Matrices are not equal
+    }
+
+    // Compare each element in the matrices
+    for (int i = 0; i < a->rows; i++) 
+    {
+        for (int j = 0; j < a->cols; j++) 
+        {
+            if (!float_equal(a->data[i][j], b->data[i][j])) 
+            {
+                return 0; // Matrices are not equal
+            }
+        }
+    }
+
+    return 1; // Matrices are equal
 }
 
 // Function to compare two floating-point numbers

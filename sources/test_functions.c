@@ -6,11 +6,11 @@
 /*   By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/30 10:45:46 by tvalimak          #+#    #+#             */
-/*   Updated: 2024/09/01 00:48:06 by tvalimak         ###   ########.fr       */
+/*   Updated: 2024/09/01 01:08:01 by tvalimak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-// Left in the page 30
+// Left in the page 34
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -37,6 +37,68 @@ typedef struct
     double green;
     double blue;
 } Color;
+
+// Function to create an identity matrix    
+t_matrix* identity_matrix() 
+{
+    t_matrix *identity = (t_matrix *)malloc(sizeof(t_matrix));
+    if (identity == NULL)
+    {
+        printf("Error: Memory allocation failed.\n");
+        return NULL;
+    }
+    identity->rows = 4;
+    identity->cols = 4;
+    int i = 0;
+    while (i < 4) 
+    {
+        int j = 0;
+        while (j < 4) 
+        {
+            if (i == j) 
+            {
+                identity->data[i][j] = 1.0;
+            } 
+            else 
+            {
+                identity->data[i][j] = 0.0;
+            }
+            j++;
+        }
+        i++;
+    }
+    return (identity);
+}
+
+// Function to transpose a matrix
+t_matrix* transpose(t_matrix *m) 
+{
+    // Allocate memory for the transposed matrix
+    t_matrix *transposed = (t_matrix *)malloc(sizeof(t_matrix));
+    if (transposed == NULL)
+    {
+        printf("Error: Memory allocation failed.\n");
+        return NULL;
+    }
+
+    transposed->rows = m->cols;
+    transposed->cols = m->rows;
+
+    int i = 0;
+    while (i < m->rows) 
+    {
+        int j = 0;
+        while (j < m->cols) 
+        {
+            // Swap rows and columns
+            transposed->data[j][i] = m->data[i][j];
+            j++;
+        }
+        i++;
+    }
+
+    return transposed;
+}
 
 // Function to multiply two 4x4 matrices
 t_matrix* t_matrix_multiply(t_matrix *a, t_matrix *b) 
@@ -644,6 +706,89 @@ void test_scenarios()
     free(D);
     free(E);
     free(F);
+
+     t_matrix *G = create_4x4_matrix(
+        0, 1, 2, 4,
+        1, 2, 4, 8,
+        2, 4, 8, 16,
+        4, 8, 16, 32
+    );
+
+    // Create the identity matrix
+    t_matrix *I = identity_matrix();
+
+    // Multiply A with the identity matrix
+    t_matrix *multiply_result = t_matrix_multiply(G, I);
+
+    // Print the result, which should be the same as A
+    if (multiply_result != NULL) 
+    {
+        int i = 0;
+        while (i < 4) 
+        {
+            int j = 0;
+            while (j < 4) 
+            {
+                printf("%6.1f ", multiply_result->data[i][j]);
+                j++;
+            }
+            printf("\n");
+            i++;
+        }
+    }
+
+    // Free allocated memory
+    free(G);
+    free(I);
+    free(multiply_result);
+
+    // Define the matrix A
+    t_matrix *H = create_4x4_matrix(
+        0, 9, 3, 0,
+        9, 8, 0, 8,
+        1, 8, 5, 3,
+        0, 0, 5, 8
+    );
+
+    // Transpose matrix A
+    t_matrix *transposed_H = transpose(H);
+
+    // Print the transposed matrix
+    if (transposed_H != NULL) 
+    {
+        int i = 0;
+        while (i < transposed_H->rows) 
+        {
+            int j = 0;
+            while (j < transposed_H->cols) 
+            {
+                printf("%6.1f ", transposed_H->data[i][j]);
+                j++;
+            }
+            printf("\n");
+            i++;
+        }
+    }
+
+    // Check transposing identity matrix
+    t_matrix *identity = identity_matrix();
+    t_matrix *transposed_identity = transpose(identity);
+
+    // Compare the transposed identity matrix to the original identity matrix
+    if (t_matrix_equal(identity, transposed_identity)) 
+    {
+        printf("Transpose of identity matrix is equal to the identity matrix.\n");
+    } 
+    else 
+    {
+        printf("Transpose of identity matrix is NOT equal to the identity matrix.\n");
+    }
+
+    // Free allocated memory
+    free(H);
+    free(transposed_H);
+    free(identity);
+    free(transposed_identity);
 
     return ;
 }

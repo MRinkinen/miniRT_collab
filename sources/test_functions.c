@@ -6,7 +6,7 @@
 /*   By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/30 10:45:46 by tvalimak          #+#    #+#             */
-/*   Updated: 2024/08/31 18:20:57 by tvalimak         ###   ########.fr       */
+/*   Updated: 2024/08/31 21:20:46 by tvalimak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,6 +37,43 @@ typedef struct
     double green;
     double blue;
 } Color;
+
+// Function to multiply two 4x4 matrices
+t_matrix* t_matrix_multiply(t_matrix *a, t_matrix *b) 
+{
+    // Ensure both matrices are 4x4
+    if (a->rows != 4 || a->cols != 4 || b->rows != 4 || b->cols != 4) 
+    {
+        printf("Error: Both matrices must be 4x4.\n");
+        return NULL;
+    }
+
+    // Allocate memory for the result matrix
+    t_matrix *result = (t_matrix *)malloc(sizeof(t_matrix));
+    if (result == NULL) 
+    {
+        printf("Error: Memory allocation failed.\n");
+        return NULL;
+    }
+
+    result->rows = 4;
+    result->cols = 4;
+
+    // Perform matrix multiplication
+    for (int i = 0; i < 4; i++) 
+    {
+        for (int j = 0; j < 4; j++) 
+        {
+            result->data[i][j] = 0; // Initialize the element
+            for (int k = 0; k < 4; k++) 
+            {
+                result->data[i][j] += a->data[i][k] * b->data[k][j];
+            }
+        }
+    }
+
+    return result;
+}
 
 t_matrix *create_2x2_matrix(float a, float b, float c, float d) 
 {
@@ -131,6 +168,12 @@ float t_matrix_get(t_matrix *m, int row, int col)
     }
 }
 
+// Function to compare two floating-point numbers for equality
+bool equal(double a, double b) 
+{
+    return fabs(a - b) < EPSILON;
+}
+
 // Function to compare two matrices for equality
 int t_matrix_equal(t_matrix *a, t_matrix *b) 
 {
@@ -145,20 +188,13 @@ int t_matrix_equal(t_matrix *a, t_matrix *b)
     {
         for (int j = 0; j < a->cols; j++) 
         {
-            if (!float_equal(a->data[i][j], b->data[i][j])) 
+            if (!equal(a->data[i][j], b->data[i][j])) 
             {
                 return 0; // Matrices are not equal
             }
         }
     }
-
     return 1; // Matrices are equal
-}
-
-// Function to compare two floating-point numbers
-bool equal(double a, double b) 
-{
-    return fabs(a - b) < EPSILON;
 }
 
 // Function to create a tuple
@@ -533,6 +569,83 @@ void test_scenarios()
     (t_matrix_get(m2, 0, 0) == -3);
     (t_matrix_get(m2, 1, 1) == -2);
     (t_matrix_get(m2, 2, 2) == 1);
+
+     t_matrix *A = create_4x4_matrix(1, 2, 3, 4, 
+                                    5, 6, 7, 8, 
+                                    9, 8, 7, 6, 
+                                    5, 4, 3, 2);
+
+    t_matrix *B = create_4x4_matrix(1, 2, 3, 4, 
+                                    5, 6, 7, 8, 
+                                    9, 8, 7, 6, 
+                                    5, 4, 3, 2);
+
+    t_matrix *C = create_4x4_matrix(2, 3, 4, 5, 
+                                    6, 7, 8, 9, 
+                                    8, 7, 6, 5, 
+                                    4, 3, 2, 1);
+
+    if (t_matrix_equal(A, B)) 
+    {
+        printf("Matrix A is equal to Matrix B\n");
+    } 
+    else 
+    {
+        printf("Matrix A is not equal to Matrix B\n");
+    }
+
+    if (t_matrix_equal(A, C)) 
+    {
+        printf("Matrix A is equal to Matrix C\n");
+    } 
+    else 
+    {
+        printf("Matrix A is not equal to Matrix C\n");
+    }
+
+    // Free allocated memory for matrices
+    free(A);
+    free(B);
+    free(C);
+
+   // Define matrix D
+    t_matrix *D = create_4x4_matrix(
+        1, 2, 3, 4,
+        5, 6, 7, 8,
+        9, 8, 7, 6,
+        5, 4, 3, 2
+    );
+
+    // Define matrix E
+    t_matrix *E = create_4x4_matrix(
+        -2, 1, 2, 3,
+        3, 2, 1, -1,
+        4, 3, 6, 5,
+        1, 2, 7, 8
+    );
+
+    // Multiply D and E
+    t_matrix *F = t_matrix_multiply(D, E);
+
+    // Print the result
+    if (F != NULL) 
+    {
+        for (int i = 0; i < 4; i++) 
+        {
+            for (int j = 0; j < 4; j++) 
+            {
+                printf("%6.1f ", F->data[i][j]);
+            }
+            printf("\n");
+        }
+    }
+
+    // Free allocated memory
+    free(D);
+    free(E);
+    free(F);
+
+    return ;
 }
 
 // Function to concatenate two arrays

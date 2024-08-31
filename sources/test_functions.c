@@ -6,11 +6,11 @@
 /*   By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/30 10:45:46 by tvalimak          #+#    #+#             */
-/*   Updated: 2024/08/31 21:20:46 by tvalimak         ###   ########.fr       */
+/*   Updated: 2024/09/01 00:48:06 by tvalimak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-// Left in the page 27
+// Left in the page 30
 
 #include <stdio.h>
 #include <stdlib.h>

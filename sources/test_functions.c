@@ -6,7 +6,7 @@
 /*   By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/30 10:45:46 by tvalimak          #+#    #+#             */
-/*   Updated: 2024/09/01 17:56:31 by tvalimak         ###   ########.fr       */
+/*   Updated: 2024/09/01 18:27:27 by tvalimak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -628,6 +628,23 @@ Tuple cross(Tuple a, Tuple b)
     );
 }
 
+
+// Helper function to compare two matrices
+int matrices_are_equal(t_matrix *m1, t_matrix *m2) {
+    if (m1->rows != m2->rows || m1->cols != m2->cols) {
+        return 0;
+    }
+    
+    for (int i = 0; i < m1->rows; i++) {
+        for (int j = 0; j < m1->cols; j++) {
+            if (!equal(m1->data[i][j], m2->data[i][j])) {
+                return 0;
+            }
+        }
+    }
+    return 1;
+}
+
 // Test scenarios
 void test_scenarios() 
 {
@@ -1161,6 +1178,52 @@ void test_scenarios()
         }
         printf("\n");
         i++;
+    }
+
+    t_matrix *A1 = create_4x4_matrix(8, -5, 9, 2,
+                                    7, 5, 6, 1,
+                                    -6, 0, 9, 6,
+                                    -3, 0, -9, -4);
+                                    
+    t_matrix *expected_inv_A1 = create_4x4_matrix(-0.15385, -0.15385, -0.28205, -0.53846,
+                                                 -0.07692,  0.12308,  0.02564,  0.03077,
+                                                  0.35897,  0.35897,  0.43590,  0.92308,
+                                                 -0.69231, -0.69231, -0.76923, -1.92308);
+    
+    t_matrix inv_A1 = inverse(A1);
+
+    if (t_matrix_equal(&inv_A1, expected_inv_A1) == 1)
+    {
+        printf("Test Case 1 Passed!\n");
+    }
+    else
+    {
+        printf("Test Case 1 Failed!\n"); 
+    }
+    /*
+    if (matrices_are_equal(&inv_A1, &expected_inv_A1)) {
+        printf("Test Case 1 Passed!\n");
+    } else {
+        printf("Test Case 1 Failed!\n");
+    }*/
+
+    // Test Case 2
+    t_matrix *A2 = create_4x4_matrix(9, 3, 0, 9,
+                                    -5, -2, -6, -3,
+                                    -4, 9, 6, 4,
+                                    -7, 6, 6, 2);
+                                    
+    t_matrix *expected_inv_A2 = create_4x4_matrix(-0.04074, -0.07778,  0.14444, -0.22222,
+                                                 -0.07778,  0.03333,  0.36667, -0.33333,
+                                                 -0.02901, -0.14630, -0.10926,  0.12963,
+                                                  0.17778,  0.06667, -0.26667,  0.33333);
+    
+    t_matrix inv_A2 = inverse(A2);
+    
+    if (t_matrix_equal(&inv_A2, expected_inv_A2)) {
+        printf("Test Case 2 Passed!\n");
+    } else {
+        printf("Test Case 2 Failed!\n");
     }
 
     return ;

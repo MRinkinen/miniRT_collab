@@ -6,11 +6,13 @@
 /*   By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/30 10:45:46 by tvalimak          #+#    #+#             */
-/*   Updated: 2024/09/01 01:08:01 by tvalimak         ###   ########.fr       */
+/*   Updated: 2024/09/01 16:48:08 by tvalimak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 // Left in the page 34
+
+#include "../includes/test_functions.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -19,24 +21,170 @@
 
 #define EPSILON 0.00001
 
-typedef struct 
+// Function to check if matrix is invertible
+bool is_invertible(t_matrix *m) 
 {
-    int rows;
-    int cols;
-    float data[4][4]; // This can hold up to a 4x4 matrix, adjust the size if necessary
-} t_matrix;
+    float det = determinant(m);
+    return det != 0;
+}
 
-typedef struct 
+// Function to compute the cofactor of an matrix element
+float cofactor(t_matrix *m, int row, int col) 
 {
-    double x, y, z, w;
-}         Tuple;
+    // Calculate the minor at the given row and column
+    float minor_value = minor(m, row, col);
+    
+    // Determine if the cofactor needs to be negated
+    if ((row + col) % 2 != 0) 
+    {
+        return -minor_value;
+    }
+    return minor_value;
+}
 
-typedef struct 
+// Function to return submatrix of a given matrix
+t_matrix* submatrix(const t_matrix *m, int remove_row, int remove_col) 
 {
-    double red;
-    double green;
-    double blue;
-} Color;
+    int new_rows = m->rows - 1;
+    int new_cols = m->cols - 1;
+    
+    // Create a new matrix with reduced size
+    t_matrix *sub_m = (t_matrix *)malloc(sizeof(t_matrix));
+    if (sub_m == NULL) 
+    {
+        // Handle memory allocation failure
+        printf("Error: Memory allocation failed.\n");
+        return NULL;
+    }
+    sub_m->rows = new_rows;
+    sub_m->cols = new_cols;
+
+    int i = 0, j = 0, row_offset = 0, col_offset = 0;
+
+    while (i < new_rows) 
+    {
+        if (i >= remove_row) 
+        {
+            row_offset = 1;
+        }
+        j = 0;
+        col_offset = 0;
+
+        while (j < new_cols) 
+        {
+            if (j >= remove_col) 
+            {
+                col_offset = 1;
+            }
+            sub_m->data[i][j] = m->data[i + row_offset][j + col_offset];
+            j++;
+        }
+        i++;
+    }
+    return sub_m;
+}
+
+/*
+t_matrix* submatrix(const t_matrix *m, int remove_row, int remove_col) 
+{
+    int new_rows = m->rows - 1;
+    int new_cols = m->cols - 1;
+    
+    // Create a new matrix with reduced size
+    t_matrix *sub_m = (t_matrix *)malloc(sizeof(t_matrix));
+    if (sub_m == NULL) 
+    {
+        // Handle memory allocation failure
+        printf("Error: Memory allocation failed.\n");
+        return NULL;
+    }
+    sub_m->rows = new_rows;
+    sub_m->cols = new_cols;
+    
+    int row_offset = 0, col_offset = 0;
+    int i = 0;
+    while (i < m->rows) 
+    {
+        if (i == remove_row) 
+        {
+            row_offset = 1;
+            i++;
+            continue;
+        }
+        int j = 0;
+        col_offset = 0;
+        while (j < m->cols) 
+        {
+            if (j == remove_col) 
+            {
+                col_offset = 1;
+                j++;
+                continue;
+            }
+            sub_m->data[i - row_offset][j - col_offset] = m->data[i][j];
+            j++;
+        }
+        i++;
+    }
+    return sub_m;
+}*/
+
+// Function to return the dminor/determinant of a given matrix
+float minor(t_matrix *m, int row, int col) 
+{
+    // Get the submatrix by removing the specified row and column
+    t_matrix *sub_m = submatrix(m, row, col);
+    
+    // Calculate the determinant of the submatrix
+    float det = determinant(sub_m);
+    
+    // Free the submatrix memory
+    free(sub_m);
+    
+    // Return the determinant, which is the minor
+    return det;
+}
+
+// Function to return the determinant of a 2x2 matrix
+float determinant_2x2(const t_matrix *m) 
+{
+    return m->data[0][0] * m->data[1][1] - m->data[0][1] * m->data[1][0];
+}
+
+// Function to return the determinant of a 3x3 matrix
+float determinant_3x3(const t_matrix *m) 
+{
+    return m->data[0][0] * (m->data[1][1] * m->data[2][2] - m->data[1][2] * m->data[2][1]) -
+           m->data[0][1] * (m->data[1][0] * m->data[2][2] - m->data[1][2] * m->data[2][0]) +
+           m->data[0][2] * (m->data[1][0] * m->data[2][1] - m->data[1][1] * m->data[2][0]);
+}
+
+// Function to return the determinant of a matrix
+float determinant(t_matrix *m) 
+{
+    if (m->rows == 2 && m->cols == 2) 
+    {
+        return determinant_2x2(m);
+    } 
+    else if (m->rows == 3 && m->cols == 3) 
+    {
+        return determinant_3x3(m);
+    } 
+    else if (m->rows == 4 && m->cols == 4) 
+    {
+        float det = 0.0;
+        for (int col = 0; col < m->cols; col++) 
+        {
+            det += m->data[0][col] * cofactor(m, 0, col);
+        }
+        return det;
+    } 
+    else 
+    {
+        printf("Determinant calculation not implemented for matrices larger than 4x4.\n");
+        return 0.0f;
+    }
+}
 
 // Function to create an identity matrix    
 t_matrix* identity_matrix() 
@@ -789,6 +937,150 @@ void test_scenarios()
     free(transposed_H);
     free(identity);
     free(transposed_identity);
+
+    // Define the 2x2 matrix A
+    t_matrix *J = create_2x2_matrix(1, 5, -3, 2);
+
+    // Calculate the determinant of matrix A
+    float det = determinant_2x2(J);
+
+    // Print the determinant
+    printf("Determinant of matrix A: %f\n", det);
+
+    // Check if the determinant matches the expected value
+    if (det == 17.0) 
+    {
+        printf("Test passed: Determinant is correct.\n");
+    } 
+    else 
+    {
+        printf("Test failed: Determinant is incorrect.\n");
+    }
+
+    // Free allocated memory
+    free(J);
+
+    // Scenario 1: A submatrix of a 3x3 matrix is a 2x2 matrix
+    t_matrix *A_3x3 = create_3x3_matrix(1, 5, 0, -3, 2, 7, 0, 6, -3);
+    
+    // Extract submatrix by removing row 0 and column 2
+    t_matrix *sub_A_3x3 = submatrix(A_3x3, 0, 2);
+    
+    printf("Submatrix of A_3x3 (after removing row 0 and col 2):\n");
+    for (int i = 0; i < sub_A_3x3->rows; i++) 
+    {
+        for (int j = 0; j < sub_A_3x3->cols; j++) 
+        {
+            printf("%f ", sub_A_3x3->data[i][j]);
+        }
+        printf("\n");
+    }
+    
+    // Scenario 2: A submatrix of a 4x4 matrix is a 3x3 matrix
+    t_matrix *A_4x4 = create_4x4_matrix(-6, 1, 1, 6, -8, 5, 8, 6, -1, 0, 8, 2, -7, 1, -1, 1);
+    
+    // Extract submatrix by removing row 2 and column 1
+    t_matrix *sub_A_4x4 = submatrix(A_4x4, 2, 1);
+    
+    printf("Submatrix of A_4x4 (after removing row 2 and col 1):\n");
+    for (int i = 0; i < sub_A_4x4->rows; i++) 
+    {
+        for (int j = 0; j < sub_A_4x4->cols; j++) 
+        {
+            printf("%f ", sub_A_4x4->data[i][j]);
+        }
+        printf("\n");
+    }
+    
+    // Free allocated memory
+    free(A_3x3);
+    free(sub_A_3x3);
+    free(A_4x4);
+    free(sub_A_4x4);
+
+    // Create a 3x3 matrix
+    t_matrix *K = create_3x3_matrix(3, 5, 0,
+                                2, -1, -7,
+                                6, -1, 5);
+
+    // Calculate the minor at position (1, 0)
+    float minor_value = minor(K, 1, 0);
+
+    printf("Minor(K, 1, 0) = %f\n", minor_value); // Should print 25
+
+    // Free the matrix memory
+    free(K);
+
+    // Create the 3x3 matrix L
+    t_matrix *L = create_3x3_matrix(3, 5, 0,
+                                    2, -1, -7,
+                                    6, -1, 5);
+
+    // Calculate the minor and cofactor at position (0, 0)
+    float minor_00 = minor(L, 0, 0);
+    float cofactor_00 = cofactor(L, 0, 0);
+
+    printf("Minor(L, 0, 0) = %f\n", minor_00);       // Should print -12
+    printf("Cofactor(L, 0, 0) = %f\n", cofactor_00); // Should print -12
+
+    // Calculate the minor and cofactor at position (1, 0)
+    float minor_10 = minor(L, 1, 0);
+    float cofactor_10 = cofactor(L, 1, 0);
+
+    printf("Minor(L, 1, 0) = %f\n", minor_10);       // Should print 25
+    printf("Cofactor(L, 1, 0) = %f\n", cofactor_10); // Should print -25
+
+    // Free the matrix memory
+    free(L);
+
+    // Invertible matrix example
+    t_matrix *M = create_4x4_matrix(6, 4, 4, 4,
+                                    5, 5, 7, 6,
+                                    4, -9, 3, -7,
+                                    9, 1, 7, -6);
+
+    float det_M = determinant(M);
+    bool invertible_M = is_invertible(M);
+
+    printf("Determinant(M) = %f\n", det_M);  // Should print -2120
+    printf("M is invertible: %s\n", invertible_M ? "true" : "false");  // Should print true
+    // Non-invertible matrix example
+    t_matrix *N = create_4x4_matrix(-4, 2, -2, -3,
+                                    9, 6, 2, 6,
+                                    0, -5, 1, -5,
+                                    0, 0, 0, 0);
+
+    float det_N = determinant(N);
+    bool invertible_N = is_invertible(N);
+    printf("Determinant(N) = %f\n", det_N);  // Should print 0
+    printf("N is invertible: %s\n", invertible_N ? "true" : "false");  // Should print false
+    // Free the matrices after use
+    free(M);
+    free(N);
+
+    // Test case for 2x2 matrix
+    t_matrix m2x2 = { .rows = 2, .cols = 2, .data = { {1, 2}, {3, 4} } };
+    printf("Determinant of 2x2 matrix: %f\n", determinant(&m2x2)); // Should print -2
+
+    // Test case for 3x3 matrix
+    t_matrix m3x3 = { .rows = 3, .cols = 3, .data = { {1, 2, 3}, {4, 5, 6}, {7, 8, 9} } };
+    printf("Determinant of 3x3 matrix: %f\n", determinant(&m3x3)); // Should print 0
+
+    // Create a 4x4 matrix
+    t_matrix m4x4 = {
+        .rows = 4,
+        .cols = 4,
+        .data = {
+            {6, 4, 4, 4},
+            {5, 5, 7, 6},
+            {4, -9, 3, -7},
+            {9, 1, 7, -6}
+        }
+    };
+
+    // Calculate the determinant
+    float det_m4x4 = determinant(&m4x4);
+    printf("Determinant(M) = %f\n", det_m4x4); // Should print -2120
 
     return ;
 }

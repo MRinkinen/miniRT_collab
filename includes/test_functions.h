@@ -6,7 +6,7 @@
 /*   By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/01 13:56:05 by tvalimak          #+#    #+#             */
-/*   Updated: 2024/09/01 16:47:35 by tvalimak         ###   ########.fr       */
+/*   Updated: 2024/09/01 17:34:01 by tvalimak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,10 +41,12 @@ typedef struct
 } Color;
 
 t_matrix*   submatrix(const t_matrix *m, int remove_row, int remove_col);
-float       minor(t_matrix *m, int row, int col);
-float       determinant(t_matrix *m);
+float       minor(const t_matrix *m, int row, int col);
+float       determinant(const t_matrix *m);
 float       determinant_2x2(const t_matrix *m);
 float       determinant_3x3(const t_matrix *m);
+t_matrix    inverse(const t_matrix *m);
+t_matrix    cofactor_matrix(const t_matrix *m);
 t_matrix*   identity_matrix();
 t_matrix*   transpose(t_matrix *m);
 t_matrix*   t_matrix_multiply(t_matrix *a, t_matrix *b);
@@ -83,7 +85,7 @@ bool        magnitude_equal(Tuple v, double expected_magnitude);
 Tuple       normalize(Tuple v);
 double      dot(Tuple a, Tuple b);
 Tuple       cross(Tuple a, Tuple b);
-float       cofactor(t_matrix *m, int row, int col);
+float       cofactor(const t_matrix *m, int row, int col);
 bool        is_invertible(t_matrix *m);
 
 #endif

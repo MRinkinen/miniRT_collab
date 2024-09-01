@@ -6,7 +6,7 @@
 /*   By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/30 10:45:46 by tvalimak          #+#    #+#             */
-/*   Updated: 2024/09/01 16:48:08 by tvalimak         ###   ########.fr       */
+/*   Updated: 2024/09/01 17:44:05 by tvalimak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,52 @@
 
 #define EPSILON 0.00001
 
+// Function to invert a 4x4 matrix using while loops
+t_matrix inverse(const t_matrix *m) 
+{
+    float det = determinant(m);
+    if (det == 0.0f) {
+        printf("Matrix is not invertible.\n");
+        exit(1);
+    }
+    // Get the cofactor matrix
+    t_matrix cofactor_m = cofactor_matrix(m);
+    // Get the adjugate matrix (transpose of the cofactor matrix)
+    t_matrix *adjugate_ptr = transpose(&cofactor_m);
+    t_matrix adjugate_m = *adjugate_ptr; // Dereference pointer to get the actual matrix
+    // Free the dynamically allocated memory for adjugate_ptr
+    free(adjugate_ptr);
+    // Create the inverse matrix by dividing the adjugate matrix by the determinant
+    t_matrix inverse_m = {.rows = m->rows, .cols = m->cols};
+    int i = 0;
+    while (i < inverse_m.rows) {
+        int j = 0;
+        while (j < inverse_m.cols) {
+            inverse_m.data[i][j] = adjugate_m.data[i][j] / det;
+            j++;
+        }
+        i++;
+    }
+    return inverse_m;
+}
+
+// Function to compute the cofactor matrix of a given matrix using while loops
+t_matrix cofactor_matrix(const t_matrix *m) 
+{
+    t_matrix cofactor_m = {.rows = m->rows, .cols = m->cols};
+    
+    int i = 0;
+    while (i < m->rows) {
+        int j = 0;
+        while (j < m->cols) {
+            cofactor_m.data[i][j] = cofactor(m, i, j);
+            j++;
+        }
+        i++;
+    }
+    return cofactor_m;
+}
+
 // Function to check if matrix is invertible
 bool is_invertible(t_matrix *m) 
 {
@@ -29,7 +75,7 @@ bool is_invertible(t_matrix *m)
 }
 
 // Function to compute the cofactor of an matrix element
-float cofactor(t_matrix *m, int row, int col) 
+float cofactor(const t_matrix *m, int row, int col) 
 {
     // Calculate the minor at the given row and column
     float minor_value = minor(m, row, col);
@@ -130,7 +176,7 @@ t_matrix* submatrix(const t_matrix *m, int remove_row, int remove_col)
 }*/
 
 // Function to return the dminor/determinant of a given matrix
-float minor(t_matrix *m, int row, int col) 
+float minor(const t_matrix *m, int row, int col) 
 {
     // Get the submatrix by removing the specified row and column
     t_matrix *sub_m = submatrix(m, row, col);
@@ -160,7 +206,7 @@ float determinant_3x3(const t_matrix *m)
 }
 
 // Function to return the determinant of a matrix
-float determinant(t_matrix *m) 
+float determinant(const t_matrix *m) 
 {
     if (m->rows == 2 && m->cols == 2) 
     {
@@ -1081,6 +1127,41 @@ void test_scenarios()
     // Calculate the determinant
     float det_m4x4 = determinant(&m4x4);
     printf("Determinant(M) = %f\n", det_m4x4); // Should print -2120
+
+    t_matrix O = { 
+        .rows = 4, .cols = 4, 
+        .data = { 
+            {-5, 2, 6, -8}, 
+            {1, -5, 1, 8}, 
+            {7, 7, -6, -7}, 
+            {1, -3, 7, 4} 
+        } 
+    };
+
+    // Calculate the inverse of P
+    t_matrix P = inverse(&O);
+
+    // Print the determinant, cofactor, and elements of the inverse matrix
+    printf("Determinant(O) = %f\n", determinant(&O));  // Should print 532
+
+    printf("Cofactor(O, 2, 3) = %f\n", cofactor(&O, 2, 3));  // Should print -160
+    printf("Cofactor(O, 3, 2) = %f\n", cofactor(&O, 3, 2));  // Should print 105
+
+    printf("P[3,2] = %f\n", P.data[3][2]);  // Should print -160/532
+    printf("P[2,3] = %f\n", P.data[2][3]);  // Should print 105/532
+
+    // Print the full inverse matrix O
+    printf("Inverse Matrix P:\n");
+    int i = 0;
+    while (i < O.rows) {
+        int j = 0;
+        while (j < O.cols) {
+            printf("%f ", O.data[i][j]);
+            j++;
+        }
+        printf("\n");
+        i++;
+    }
 
     return ;
 }

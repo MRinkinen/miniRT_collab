@@ -6,7 +6,7 @@
 /*   By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/01 13:56:05 by tvalimak          #+#    #+#             */
-/*   Updated: 2024/09/02 11:30:55 by tvalimak         ###   ########.fr       */
+/*   Updated: 2024/09/02 15:44:29 by tvalimak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,10 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <math.h>
+
+#ifndef M_PI
+    #define M_PI 3.14159265358979323846
+#endif
 
 #define EPSILON 0.00001
 
@@ -40,6 +44,9 @@ typedef struct
     double blue;
 } Color;
 
+t_matrix    *scaling(float x, float y, float z);
+t_matrix    *inverse_scaling(float x, float y, float z);
+t_matrix    *reflective_scaling(float x, float y, float z);
 t_matrix*   submatrix(const t_matrix *m, int remove_row, int remove_col);
 float       minor(const t_matrix *m, int row, int col);
 float       determinant(const t_matrix *m);

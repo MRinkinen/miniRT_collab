@@ -6,7 +6,7 @@
 /*   By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/30 10:45:46 by tvalimak          #+#    #+#             */
-/*   Updated: 2024/09/02 11:44:58 by tvalimak         ###   ########.fr       */
+/*   Updated: 2024/09/02 15:57:16 by tvalimak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,101 @@
 #include <math.h>
 
 #define EPSILON 0.00001
+
+// Function to create a rotation matrix around the Y-axis
+t_matrix* rotation_y(float radians) 
+{
+    t_matrix *transform = identity_matrix(); // Initialize as identity matrix
+    
+    // Set the rotation components
+    transform->data[0][0] = cos(radians);
+    transform->data[0][2] = sin(radians);
+    transform->data[2][0] = -sin(radians);
+    transform->data[2][2] = cos(radians);
+    
+    return transform;
+}
+
+// Function to create a rotation matrix for rotating around the X axis
+t_matrix *rotation_x(float radians) 
+{
+    t_matrix *transform = identity_matrix();
+    
+    // Set the rotation components for the X axis
+    transform->data[1][1] = cos(radians);
+    transform->data[1][2] = -sin(radians);
+    transform->data[2][1] = sin(radians);
+    transform->data[2][2] = cos(radians);
+    
+    return transform;
+}
+
+// Function to create a reflection matrix (scaling by a negative value)
+t_matrix *reflective_scaling(float x, float y, float z) 
+{
+    // Use the scaling function to scale by the negative values for reflection
+    return scaling(x, y, z);
+}
+
+// Function to compute the inverse of a scaling matrix
+t_matrix *inverse_scaling(float x, float y, float z) 
+{
+    // Inverse scaling factors are the reciprocals of the original scaling factors
+    return scaling(1.0f / x, 1.0f / y, 1.0f / z);
+}
+
+// Function to create a 4x4 scaling matrix using while loops
+t_matrix *scaling(float x, float y, float z) 
+{
+    t_matrix *transform = (t_matrix *)malloc(sizeof(t_matrix));
+    if (transform == NULL) {
+        printf("Error: Memory allocation failed.\n");
+        return NULL;
+    }
+
+    transform->rows = 4;
+    transform->cols = 4;
+
+    int i = 0, j;
+    while (i < 4) {
+        j = 0;
+        while (j < 4) {
+            transform->data[i][j] = (i == j) ? 1.0f : 0.0f;
+            j++;
+        }
+        i++;
+    }
+    
+    // Set scaling components
+    transform->data[0][0] = x;
+    transform->data[1][0] = 0;
+    transform->data[2][0] = 0;
+
+    transform->data[0][1] = 0;
+    transform->data[1][1] = y;
+    transform->data[2][1] = 0;
+
+    transform->data[0][2] = 0;
+    transform->data[1][2] = 0;
+    transform->data[2][2] = z;
+
+    return transform;
+}
+
+// Function to compare two tuples (for test validation)
+bool tuple_equal(Tuple t1, Tuple t2) 
+{
+    return equal(t1.x, t2.x) && equal(t1.y, t2.y) && equal(t1.z, t2.z) && equal(t1.w, t2.w);
+}
+/*
+// Function to check if two tuples (points or vectors) are equal
+int tuple_equal(Tuple *a, Tuple *b) {
+    const float epsilon = 0.00001f;
+    return (fabs(a->x - b->x) < epsilon &&
+            fabs(a->y - b->y) < epsilon &&
+            fabs(a->z - b->z) < epsilon &&
+            fabs(a->w - b->w) < epsilon);
+}*/
 
 // Function to create the inverse of a translation matrix using while loops
 t_matrix *inverse_translation(t_matrix *transform) 
@@ -531,12 +626,6 @@ bool is_point(Tuple t)
 bool is_vector(Tuple t) 
 {
     return t.w == 0.0;
-}
-
-// Function to compare two tuples (for test validation)
-bool tuple_equal(Tuple t1, Tuple t2) 
-{
-    return equal(t1.x, t2.x) && equal(t1.y, t2.y) && equal(t1.z, t2.z) && equal(t1.w, t2.w);
 }
 
 // Function to add two tuples
@@ -1287,6 +1376,140 @@ void test_scenarios()
 
     // Free allocated memory
     free(transform2);
+
+    // Given: transform ← scaling(2, 3, 4)
+    t_matrix *transform3 = scaling(2, 3, 4);
+
+    // And: p ← point(-4, 6, 8)
+    Tuple point2 = point(-4, 6, 8);
+
+    // Then: transform * p = point(-8, 18, 32)
+    Tuple expected3 = point(-8, 18, 32);
+    Tuple result4 = multiply_matrix_tuple(transform3, &point2);
+
+    if (tuple_equal(result4, expected3)) {
+        printf("Test Passed: transform * p = point(-8, 18, 32)\n");
+    } else {
+        printf("Test Failed: transform * p != point(-8, 18, 32)\n");
+        printf("Result: (%f, %f, %f)\n", result4.x, result4.y, result4.z);
+    }
+
+    // Free allocated memory
+    free(transform3);
+
+    // Given: transform ← scaling(2, 3, 4)
+    t_matrix *transform4 = scaling(2, 3, 4);
+
+    // And: inv ← inverse(transform)
+    t_matrix *inv2 = inverse_scaling(2, 3, 4);
+
+    // And: v ← vector(-4, 6, 8)
+    Tuple v17 = vector(-4, 6, 8);
+
+    // Then: inv * v = vector(-2, 2, 2)
+    Tuple expected4 = vector(-2, 2, 2);
+    Tuple result5 = multiply_matrix_tuple(inv2, &v17);
+
+    if (tuple_equal(result5, expected4)) {
+        printf("Test Passed: inv * v = vector(-2, 2, 2)\n");
+    } else {
+        printf("Test Failed: inv * v != vector(-2, 2, 2)\n");
+        printf("Result: (%f, %f, %f)\n", result5.x, result5.y, result5.z);
+    }
+
+    // Free allocated memory
+    free(transform4);
+    free(inv2);
+
+    // Given transform ← scaling(-1, 1, 1)
+    t_matrix *transform5 = reflective_scaling(-1, 1, 1);
+    // And p ← point(2, 3, 4)
+    Tuple point3 = point(2, 3, 4);
+    // Then transform * p = point(-2, 3, 4)
+    Tuple result6 = multiply_matrix_tuple(transform5, &point3);
+    Tuple expected5 = point(-2, 3, 4);
+    // Verify that the result matches the expected reflection
+    if (tuple_equal(result6, expected5)) {
+        printf("Test Passed: Reflection is scaling by a negative value\n");
+    } else {
+        printf("Test Failed: Reflection is not scaling by a negative value\n");
+        printf("Result: (%f, %f, %f)\n", result6.x, result6.y, result6.z);
+    }
+    // Free allocated memory
+    free(transform5);
+
+    // Given p ← point(0, 1, 0)
+    Tuple point4 = point(0, 1, 0);
+    
+    // And half_quarter ← rotation_x(π / 4)
+    t_matrix *half_quarter = rotation_x(M_PI / 4);
+    
+    // And full_quarter ← rotation_x(π / 2)
+    t_matrix *full_quarter = rotation_x(M_PI / 2);
+    
+    // Then half_quarter * p = point(0, √2/2, √2/2)
+    Tuple result_half_quarter = multiply_matrix_tuple(half_quarter, &point4);
+    Tuple expected_half_quarter = point(0, sqrt(2) / 2, sqrt(2) / 2);
+    
+    if (tuple_equal(result_half_quarter, expected_half_quarter))
+        printf("Test Passed: Half quarter rotation around X axis\n");
+    else 
+    {
+        printf("Test Failed: Half quarter rotation around X axis\n");
+        printf("Result: (%f, %f, %f)\n", result_half_quarter.x, result_half_quarter.y, result_half_quarter.z);
+    }
+    // Then full_quarter * p = point(0, 0, 1)
+    Tuple result_full_quarter = multiply_matrix_tuple(full_quarter, &point4);
+    Tuple expected_full_quarter = point(0, 0, 1);
+    if (tuple_equal(result_full_quarter, expected_full_quarter)) 
+    {
+        printf("Test Passed: Full quarter rotation around X axis\n");
+    } else 
+    {
+        printf("Test Failed: Full quarter rotation around X axis\n");
+        printf("Result: (%f, %f, %f)\n", result_full_quarter.x, result_full_quarter.y, result_full_quarter.z);
+    }
+    // Free allocated memory
+    free(half_quarter);
+    free(full_quarter);
+
+    Tuple point5 = point(0, 1, 0);
+    t_matrix* half_quarter2 = rotation_x(M_PI / 4);
+    t_matrix* inv3 = inverse(half_quarter2);
+    
+    Tuple result7 = multiply_matrix_tuple(inv3, &point5);
+    Tuple expected6 = point(0, sqrt(2)/2, -sqrt(2)/2);
+    
+    if (tuple_equal(result7, expected6)) {
+        printf("Inverse X-Rotation Test Passed!\n");
+    } else {
+        printf("Inverse X-Rotation Test Failed!\n");
+    }
+
+    Tuple point6 = point(0, 0, 1);
+    
+    // Rotating by π/4 (45 degrees)
+    t_matrix* half_quarter3 = rotation_y(M_PI / 4);
+    Tuple result_half_quarter2 = multiply_matrix_tuple(half_quarter3, &point6);
+    Tuple expected_half_quarter2 = point(sqrt(2)/2, 0, sqrt(2)/2);
+    
+    if (tuple_equal(result_half_quarter2, expected_half_quarter2)) 
+    {
+        printf("Y-Rotation Half Quarter Test Passed!\n");
+    } else {
+        printf("Y-Rotation Half Quarter Test Failed!\n");
+    }
+    // Rotating by π/2 (90 degrees)
+    t_matrix* full_quarter3 = rotation_y(M_PI / 2);
+    Tuple result_full_quarter3 = multiply_matrix_tuple(full_quarter3, &point6);
+    Tuple expected_full_quarter3 = point(1, 0, 0);
+    
+    if (tuple_equal(result_full_quarter3, expected_full_quarter3)) 
+    {
+        printf("Y-Rotation Full Quarter Test Passed!\n");
+    } else {
+        printf("Y-Rotation Full Quarter Test Failed!\n");
+    }
 
     return ;
 }

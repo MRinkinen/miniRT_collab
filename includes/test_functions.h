@@ -6,7 +6,7 @@
 /*   By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/01 13:56:05 by tvalimak          #+#    #+#             */
-/*   Updated: 2024/09/01 17:34:01 by tvalimak         ###   ########.fr       */
+/*   Updated: 2024/09/02 11:30:55 by tvalimak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,8 +45,12 @@ float       minor(const t_matrix *m, int row, int col);
 float       determinant(const t_matrix *m);
 float       determinant_2x2(const t_matrix *m);
 float       determinant_3x3(const t_matrix *m);
-t_matrix    inverse(const t_matrix *m);
-t_matrix    cofactor_matrix(const t_matrix *m);
+t_matrix    *inverse(t_matrix *m);
+t_matrix    *inverse_translation(t_matrix *transform);
+t_matrix    *translation(float x, float y, float z);
+//t_matrix    inverse(const t_matrix *m);
+//t_matrix    cofactor_matrix(const t_matrix *m);
+t_matrix*   cofactor_matrix(const t_matrix *m);
 t_matrix*   identity_matrix();
 t_matrix*   transpose(t_matrix *m);
 t_matrix*   t_matrix_multiply(t_matrix *a, t_matrix *b);

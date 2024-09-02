@@ -6,7 +6,7 @@
 /*   By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/30 10:45:46 by tvalimak          #+#    #+#             */
-/*   Updated: 2024/09/01 18:45:04 by tvalimak         ###   ########.fr       */
+/*   Updated: 2024/09/02 11:44:58 by tvalimak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,49 +21,94 @@
 
 #define EPSILON 0.00001
 
-// Function to invert a 4x4 matrix using while loops
-t_matrix inverse(const t_matrix *m) 
+// Function to create the inverse of a translation matrix using while loops
+t_matrix *inverse_translation(t_matrix *transform) 
 {
+    return translation(-transform->data[0][3], -transform->data[1][3], -transform->data[2][3]);
+}
+
+// Function to multiply a 4x4 matrix by a point (assumed to be a 4x1 vector)
+Tuple multiply_matrix_tuple(t_matrix *m, Tuple *p) {
+    Tuple result;
+    
+    result.x = m->data[0][0] * p->x + m->data[0][1] * p->y + m->data[0][2] * p->z + m->data[0][3] * p->w;
+    result.y = m->data[1][0] * p->x + m->data[1][1] * p->y + m->data[1][2] * p->z + m->data[1][3] * p->w;
+    result.z = m->data[2][0] * p->x + m->data[2][1] * p->y + m->data[2][2] * p->z + m->data[2][3] * p->w;
+    result.w = m->data[3][0] * p->x + m->data[3][1] * p->y + m->data[3][2] * p->z + m->data[3][3] * p->w;
+    
+    return (result);
+}
+
+// Function to create a 4x4 translation matrix
+t_matrix *translation(float x, float y, float z) {
+    // Initialize the identity matrix
+    t_matrix *transform = identity_matrix();
+    
+    // Set the translation components
+    transform->data[0][3] = x;
+    transform->data[1][3] = y;
+    transform->data[2][3] = z;
+    
+    return (transform);
+}
+
+t_matrix *inverse(t_matrix *m) {
+    // Calculate the determinant first
     float det = determinant(m);
     if (det == 0.0f) {
         printf("Matrix is not invertible.\n");
-        exit(1);
+        exit(1);  // You can handle it better based on your needs.
     }
+
     // Get the cofactor matrix
-    t_matrix cofactor_m = cofactor_matrix(m);
+    t_matrix *cofactor_m = cofactor_matrix(m);
+
     // Get the adjugate matrix (transpose of the cofactor matrix)
-    t_matrix *adjugate_ptr = transpose(&cofactor_m);
-    t_matrix adjugate_m = *adjugate_ptr; // Dereference pointer to get the actual matrix
-    // Free the dynamically allocated memory for adjugate_ptr
-    free(adjugate_ptr);
+    t_matrix *adjugate_m = transpose(cofactor_m);
+
     // Create the inverse matrix by dividing the adjugate matrix by the determinant
-    t_matrix inverse_m = {.rows = m->rows, .cols = m->cols};
-    int i = 0;
-    while (i < inverse_m.rows) {
-        int j = 0;
-        while (j < inverse_m.cols) {
-            inverse_m.data[i][j] = adjugate_m.data[i][j] / det;
-            j++;
+    t_matrix *inverse_m = (t_matrix *)malloc(sizeof(t_matrix));
+    inverse_m->rows = m->rows;
+    inverse_m->cols = m->cols;
+
+    for (int i = 0; i < inverse_m->rows; i++) {
+        for (int j = 0; j < inverse_m->cols; j++) {
+            inverse_m->data[i][j] = adjugate_m->data[i][j] / det;
         }
-        i++;
     }
+
+    // Free allocated memory for cofactor and adjugate matrices
+    free(cofactor_m);
+    free(adjugate_m);
+
     return inverse_m;
 }
 
-// Function to compute the cofactor matrix of a given matrix using while loops
-t_matrix cofactor_matrix(const t_matrix *m) 
+t_matrix* cofactor_matrix(const t_matrix *m) 
 {
-    t_matrix cofactor_m = {.rows = m->rows, .cols = m->cols};
+    // Allocate memory for the cofactor matrix
+    t_matrix *cofactor_m = (t_matrix *)malloc(sizeof(t_matrix));
+    if (cofactor_m == NULL) {
+        printf("Error: Memory allocation failed.\n");
+        return NULL;
+    }
     
+    // Initialize the cofactor matrix with the same dimensions as the original matrix
+    cofactor_m->rows = m->rows;
+    cofactor_m->cols = m->cols;
+
+    // Iterate over each element using while loops
     int i = 0;
     while (i < m->rows) {
         int j = 0;
         while (j < m->cols) {
-            cofactor_m.data[i][j] = cofactor(m, i, j);
+            // Calculate the cofactor for element (i, j)
+            cofactor_m->data[i][j] = cofactor(m, i, j);
             j++;
         }
         i++;
     }
+    
     return cofactor_m;
 }
 
@@ -129,51 +174,6 @@ t_matrix* submatrix(const t_matrix *m, int remove_row, int remove_col)
     }
     return sub_m;
 }
-
-/*
-t_matrix* submatrix(const t_matrix *m, int remove_row, int remove_col) 
-{
-    int new_rows = m->rows - 1;
-    int new_cols = m->cols - 1;
-    
-    // Create a new matrix with reduced size
-    t_matrix *sub_m = (t_matrix *)malloc(sizeof(t_matrix));
-    if (sub_m == NULL) 
-    {
-        // Handle memory allocation failure
-        printf("Error: Memory allocation failed.\n");
-        return NULL;
-    }
-    sub_m->rows = new_rows;
-    sub_m->cols = new_cols;
-    
-    int row_offset = 0, col_offset = 0;
-    int i = 0;
-    while (i < m->rows) 
-    {
-        if (i == remove_row) 
-        {
-            row_offset = 1;
-            i++;
-            continue;
-        }
-        int j = 0;
-        col_offset = 0;
-        while (j < m->cols) 
-        {
-            if (j == remove_col) 
-            {
-                col_offset = 1;
-                j++;
-                continue;
-            }
-            sub_m->data[i - row_offset][j - col_offset] = m->data[i][j];
-            j++;
-        }
-        i++;
-    }
-    return sub_m;
-}*/
 
 // Function to return the dminor/determinant of a given matrix
 float minor(const t_matrix *m, int row, int col) 
@@ -1156,7 +1156,7 @@ void test_scenarios()
     };
 
     // Calculate the inverse of P
-    t_matrix P = inverse(&O);
+    t_matrix *P = inverse(&O);
 
     // Print the determinant, cofactor, and elements of the inverse matrix
     printf("Determinant(O) = %f\n", determinant(&O));  // Should print 532
@@ -1164,8 +1164,8 @@ void test_scenarios()
     printf("Cofactor(O, 2, 3) = %f\n", cofactor(&O, 2, 3));  // Should print -160
     printf("Cofactor(O, 3, 2) = %f\n", cofactor(&O, 3, 2));  // Should print 105
 
-    printf("P[3,2] = %f\n", P.data[3][2]);  // Should print -160/532
-    printf("P[2,3] = %f\n", P.data[2][3]);  // Should print 105/532
+    printf("P[3,2] = %f\n", P->data[3][2]);  // Should print -160/532
+    printf("P[2,3] = %f\n", P->data[2][3]);  // Should print 105/532
 
     // Print the full inverse matrix O
     printf("Inverse Matrix P:\n");
@@ -1190,9 +1190,9 @@ void test_scenarios()
                                                   0.35897,  0.35897,  0.43590,  0.92308,
                                                  -0.69231, -0.69231, -0.76923, -1.92308);
     
-    t_matrix inv_A1 = inverse(A1);
+    t_matrix *inv_A1 = inverse(A1);
 
-    if (t_matrix_equal(&inv_A1, expected_inv_A1) == 1)
+    if (t_matrix_equal(inv_A1, expected_inv_A1) == 1)
     {
         printf("Test Case 1 Passed!\n");
     }
@@ -1218,13 +1218,75 @@ void test_scenarios()
                                                  -0.02901, -0.14630, -0.10926,  0.12963,
                                                   0.17778,  0.06667, -0.26667,  0.33333);
     
-    t_matrix inv_A2 = inverse(A2);
+    t_matrix *inv_A2 = inverse(A2);
     
-    if (t_matrix_equal(&inv_A2, expected_inv_A2)) {
+    if (t_matrix_equal(inv_A2, expected_inv_A2)) {
         printf("Test Case 2 Passed!\n");
     } else {
         printf("Test Case 2 Failed!\n");
     }
+    // Create a translation matrix
+    t_matrix *transform = translation(5, -3, 2);
+    // Define a point
+    Tuple p5 = point(-3, 4, 5); 
+    // Multiply the translation matrix by the point
+    Tuple result1 = multiply_matrix_tuple(transform, &p5); 
+    // Expected result after translation
+    Tuple expected1 = point(2, 1, 7); 
+    // Check if the result matches the expected point
+    if (equal(result1.x, expected1.x) &&
+        equal(result1.y, expected1.y) &&
+        equal(result1.z, expected1.z)) 
+    {
+        printf("Test for multiplying by a translation matrix Passed!\n");
+    } 
+    else 
+    {
+        printf("Test for multiplying by a translation matrix Failed!\n");
+    }
+
+    // Given: transform ← translation(5, -3, 2)
+    t_matrix *transform1 = translation(5, -3, 2);
+
+    // And: inv ← inverse(transform)
+    t_matrix *inv = inverse_translation(transform1);
+
+    // And: p ← point(-3, 4, 5)
+    Tuple point1 = point(-3, 4, 5);
+
+    // Then: inv * p = point(-8, 7, 3)
+    Tuple expected2 = point(-8, 7, 3);
+    Tuple result2 = multiply_matrix_tuple(inv, &point1);
+
+    if (tuple_equal(result2, expected2)) {
+        printf("Test Passed: inv * p = point(-8, 7, 3)\n");
+    } else {
+        printf("Test Failed: inv * p != point(-8, 7, 3)\n");
+        printf("Result: (%f, %f, %f)\n", result.x, result.y, result.z);
+    }
+
+    // Free allocated memory
+    free(transform1);
+    free(inv);
+
+    // Given: transform ← translation(5, -3, 2)
+    t_matrix *transform2 = translation(5, -3, 2);
+
+    // And: v ← vector(-3, 4, 5)
+    Tuple v16 = vector(-3, 4, 5);
+
+    // Then: transform * v = v
+    Tuple result3 = multiply_matrix_tuple(transform2, &v16);
+
+    if (tuple_equal(result3, v16)) {
+        printf("Test Passed: transform * v = v\n");
+    } else {
+        printf("Test Failed: transform * v != v\n");
+        printf("Result: (%f, %f, %f)\n", result.x, result.y, result.z);
+    }
+
+    // Free allocated memory
+    free(transform2);
 
     return ;
 }

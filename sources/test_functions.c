@@ -6,11 +6,11 @@
 /*   By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/30 10:45:46 by tvalimak          #+#    #+#             */
-/*   Updated: 2024/09/02 15:57:16 by tvalimak         ###   ########.fr       */
+/*   Updated: 2024/09/02 17:25:06 by tvalimak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-// Left in the page 42
+// Left in the page 53 chaining part
 
 #include "../includes/test_functions.h"
 
@@ -20,6 +20,36 @@
 #include <math.h>
 
 #define EPSILON 0.00001
+
+// Function to create a shearing matrix
+t_matrix* shearing(float xy, float xz, float yx, float yz, float zx, float zy) 
+{
+    t_matrix* shear = identity_matrix(); // Initialize as identity matrix
+
+    // Set the shearing components
+    shear->data[0][1] = xy;
+    shear->data[0][2] = xz;
+    shear->data[1][0] = yx;
+    shear->data[1][2] = yz;
+    shear->data[2][0] = zx;
+    shear->data[2][1] = zy;
+
+    return shear;
+}
+
+// Function to create a rotation matrix around the Z-axis
+t_matrix *rotation_z(float radians)
+{
+    t_matrix* rotation = identity_matrix(); // Initialize as identity matrix
+    
+    // Set the rotation components
+    rotation->data[0][0] = cos(radians);
+    rotation->data[0][1] = -sin(radians);
+    rotation->data[1][0] = sin(radians);
+    rotation->data[1][1] = cos(radians);
+    
+    return rotation;
+}
 
 // Function to create a rotation matrix around the Y-axis
 t_matrix* rotation_y(float radians) 
@@ -1509,6 +1539,58 @@ void test_scenarios()
         printf("Y-Rotation Full Quarter Test Passed!\n");
     } else {
         printf("Y-Rotation Full Quarter Test Failed!\n");
+    }
+
+    Tuple point7 = point(0, 1, 0);
+    
+    // Rotating by π/4 (45 degrees)
+    t_matrix* half_quarter4 = rotation_z(M_PI / 4);
+    Tuple result_half_quarter3 = multiply_matrix_tuple(half_quarter4, &point7);
+    Tuple expected_half_quarter3 = point(-sqrt(2)/2, sqrt(2)/2, 0);
+    
+    if (tuple_equal(result_half_quarter3, expected_half_quarter3)) 
+    {
+        printf("Z-Rotation Half Quarter Test Passed!\n");
+    } else 
+    {
+        printf("Z-Rotation Half Quarter Test Failed!\n");
+    }
+
+    // Rotating by π/2 (90 degrees)
+    t_matrix* full_quarter4 = rotation_z(M_PI / 2);
+    Tuple result_full_quarter4 = multiply_matrix_tuple(full_quarter4, &point7);
+    Tuple expected_full_quarter4 = point(-1, 0, 0);
+    
+    if (tuple_equal(result_full_quarter4, expected_full_quarter4)) {
+        printf("Z-Rotation Full Quarter Test Passed!\n");
+    } else {
+        printf("Z-Rotation Full Quarter Test Failed!\n");
+    }
+
+    Tuple point8 = point(0, 1, 0);
+    
+    // Rotating by π/4 (45 degrees)
+    t_matrix* half_quarter5 = rotation_z(M_PI / 4);
+    Tuple result_half_quarter4 = multiply_matrix_tuple(half_quarter5, &point8);
+    Tuple expected_half_quarter4 = point(-sqrt(2)/2, sqrt(2)/2, 0);
+    
+    if (tuple_equal(result_half_quarter4, expected_half_quarter4)) 
+    {
+        printf("Z-Rotation Half Quarter Test Passed!\n");
+    } else 
+    {
+        printf("Z-Rotation Half Quarter Test Failed!\n");
+    }
+
+    // Rotating by π/2 (90 degrees)
+    t_matrix* full_quarter5 = rotation_z(M_PI / 2);
+    Tuple result_full_quarter5 = multiply_matrix_tuple(full_quarter5, &point8);
+    Tuple expected_full_quarter5 = point(-1, 0, 0);
+    
+    if (tuple_equal(result_full_quarter5, expected_full_quarter5)) {
+        printf("Z-Rotation Full Quarter Test Passed!\n");
+    } else {
+        printf("Z-Rotation Full Quarter Test Failed!\n");
     }
 
     return ;

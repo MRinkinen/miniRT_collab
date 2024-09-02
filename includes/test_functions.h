@@ -6,7 +6,7 @@
 /*   By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/01 13:56:05 by tvalimak          #+#    #+#             */
-/*   Updated: 2024/09/02 15:44:29 by tvalimak         ###   ########.fr       */
+/*   Updated: 2024/09/02 17:25:38 by tvalimak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,10 +44,14 @@ typedef struct
     double blue;
 } Color;
 
+t_matrix    *shearing(float xy, float xz, float yx, float yz, float zx, float zy);
+t_matrix    *rotation_z(float radians);
+t_matrix    *rotation_x(float radians);
+t_matrix    *rotation_y(float radians); 
 t_matrix    *scaling(float x, float y, float z);
 t_matrix    *inverse_scaling(float x, float y, float z);
 t_matrix    *reflective_scaling(float x, float y, float z);
-t_matrix*   submatrix(const t_matrix *m, int remove_row, int remove_col);
+t_matrix    *submatrix(const t_matrix *m, int remove_row, int remove_col);
 float       minor(const t_matrix *m, int row, int col);
 float       determinant(const t_matrix *m);
 float       determinant_2x2(const t_matrix *m);
@@ -55,8 +59,6 @@ float       determinant_3x3(const t_matrix *m);
 t_matrix    *inverse(t_matrix *m);
 t_matrix    *inverse_translation(t_matrix *transform);
 t_matrix    *translation(float x, float y, float z);
-//t_matrix    inverse(const t_matrix *m);
-//t_matrix    cofactor_matrix(const t_matrix *m);
 t_matrix*   cofactor_matrix(const t_matrix *m);
 t_matrix*   identity_matrix();
 t_matrix*   transpose(t_matrix *m);

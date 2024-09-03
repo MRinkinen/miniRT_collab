@@ -6,7 +6,7 @@
 /*   By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/20 11:10:02 by tvalimak          #+#    #+#             */
-/*   Updated: 2024/08/20 16:32:04 by tvalimak         ###   ########.fr       */
+/*   Updated: 2024/09/03 20:55:09 by tvalimak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,7 +60,7 @@ int	print_data(t_map *map)
 		printf("Camera:\n");
 		printf("  Position: (%f, %f, %f)\n", camera->x, camera->y, camera->z);
 		printf("  Orientation: (%f, %f, %f)\n", camera->nx, camera->ny, camera->nz);
-		printf("  FOV: %d\n", camera->fov);
+		printf("  FOV: %f\n", camera->fov);
 		camera = camera->next;
 	}
 

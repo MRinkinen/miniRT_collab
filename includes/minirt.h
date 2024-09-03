@@ -13,7 +13,7 @@
 #include "./parsing.h"
 
 #define SCREEN_HEIGHT 600 // Not in use
-#define SCREEN_WIDHT 1500
+#define SCREEN_WIDTH 1500
 #define MAX_OBJECTS 100
 #define PI 3.141592653589793
 

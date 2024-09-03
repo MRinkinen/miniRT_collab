@@ -6,7 +6,7 @@
 /*   By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/18 21:05:48 by tvalimak          #+#    #+#             */
-/*   Updated: 2024/08/20 13:49:53 by tvalimak         ###   ########.fr       */
+/*   Updated: 2024/09/03 20:55:56 by tvalimak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,7 +67,7 @@ int	setup_camera(char **split, t_map *map)
 	new_camera->ny = ft_atof(nxyz[1]);
 	new_camera->nz = ft_atof(nxyz[2]);
 	printf("inside setup_camera 4\n");
-	new_camera->fov = ft_atoi(split[3]);
+	new_camera->fov = ft_atof(split[3]);
 	new_camera->next = NULL;
 	free_split(xyz);
 	free_split(nxyz);

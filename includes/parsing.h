@@ -6,7 +6,7 @@
 /*   By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/10 19:39:44 by tvalimak          #+#    #+#             */
-/*   Updated: 2024/08/21 17:06:34 by tvalimak         ###   ########.fr       */
+/*   Updated: 2024/09/03 20:54:36 by tvalimak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,7 +37,7 @@ typedef struct s_camera
 	float			nx;
 	float			ny;
 	float			nz;
-	int				fov;
+	float			fov;
 	struct s_camera	*next;
 	t_map			*map;
 }				t_camera;

@@ -6,7 +6,7 @@
 /*   By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/30 10:45:46 by tvalimak          #+#    #+#             */
-/*   Updated: 2024/09/02 17:25:06 by tvalimak         ###   ########.fr       */
+/*   Updated: 2024/09/03 15:55:24 by tvalimak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,35 @@
 #include <math.h>
 
 #define EPSILON 0.00001
+
+// Multiplies a transformation matrix by a tuple and returns the transformed tuple
+Tuple apply_transformation(t_matrix *transformation, Tuple *point)
+{
+    t_matrix *point_matrix = tuple_to_matrix(point);
+    t_matrix *transformed_matrix = t_matrix_multiply(transformation, point_matrix);
+    Tuple transformed_point = matrix_to_tuple(transformed_matrix);
+    free(point_matrix);
+    free(transformed_matrix);
+    return transformed_point;
+}
+
+// Function to convert the first column of a 4x4 matrix back to a Tuple
+Tuple matrix_to_tuple(t_matrix *m)
+{
+    return tuple(m->data[0][0], m->data[1][0], m->data[2][0], m->data[3][0]);
+}
+
+// Function to convert a Tuple to a 4x4 matrix for transformation
+t_matrix *tuple_to_matrix(Tuple *t)
+{
+    t_matrix *m = create_4x4_matrix(
+        t->x, 0, 0, 0,
+        t->y, 0, 0, 0,
+        t->z, 0, 0, 0,
+        t->w, 0, 0, 0
+    );
+    return m;
+}
 
 // Function to create a shearing matrix
 t_matrix* shearing(float xy, float xz, float yx, float yz, float zx, float zy) 
@@ -588,7 +617,7 @@ Tuple tuple(double x, double y, double z, double w)
     t.w = w;
     return (t);
 }
-
+/*
 Color hadamard_product(Color c1, Color c2) 
 {
     Color result;
@@ -596,7 +625,7 @@ Color hadamard_product(Color c1, Color c2)
     result.green = c1.green * c2.green;
     result.blue = c1.blue * c2.blue;
     return result;
-}
+}*/
 
 // Function to compare two colors
 bool compare_colors(Color c1, Color c2) 
@@ -763,7 +792,7 @@ int matrices_are_equal(t_matrix *m1, t_matrix *m2) {
     }
     return 1;
 }
-
+/*
 // Test scenarios
 void test_scenarios() 
 {
@@ -824,7 +853,6 @@ void test_scenarios()
     printf("v2 - v3 = vector(-2, -4, -6): %s\n", tuple_equal(result_subtract_vectors, expected_vector_subtract) ? "true" : "false"); // Expected output: true
 
     // Scenario: Negating a vector (subtracting it from zero vector)
-    Tuple zero = vector(0, 0, 0);
     Tuple v4 = vector(1, -2, 3);
     Tuple result_negate_vector = negate_vector(v4);
     Tuple expected_negated_vector = vector(-1, 2, -3);
@@ -948,19 +976,6 @@ void test_scenarios()
 
     printf("Blended Color: ");
     print_color(blended_color);
-
-    // Test 2x2 Matrix
-    t_matrix *m = create_2x2_matrix(-3, 5, 1, -2);
-    (t_matrix_get(m, 0, 0) == -3);
-    (t_matrix_get(m, 0, 1) == 5);
-    (t_matrix_get(m, 1, 0) == 1);
-    (t_matrix_get(m, 1, 1) == -2);
-
-    // Test 3x3 Matrix
-    t_matrix *m2 = create_3x3_matrix(-3, 5, 0, 1, -2, -7, 0, 1, 1);
-    (t_matrix_get(m2, 0, 0) == -3);
-    (t_matrix_get(m2, 1, 1) == -2);
-    (t_matrix_get(m2, 2, 2) == 1);
 
      t_matrix *A = create_4x4_matrix(1, 2, 3, 4, 
                                     5, 6, 7, 8, 
@@ -1319,13 +1334,6 @@ void test_scenarios()
     {
         printf("Test Case 1 Failed!\n"); 
     }
-    /*
-    if (matrices_are_equal(&inv_A1, &expected_inv_A1)) {
-        printf("Test Case 1 Passed!\n");
-    } else {
-        printf("Test Case 1 Failed!\n");
-    }*/
-
     // Test Case 2
     t_matrix *A2 = create_4x4_matrix(9, 3, 0, 9,
                                     -5, -2, -6, -3,
@@ -1653,4 +1661,4 @@ int main() {
 
     test_scenarios();
     return 0;
-}
+}*/

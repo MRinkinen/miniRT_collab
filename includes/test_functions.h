@@ -6,7 +6,7 @@
 /*   By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/01 13:56:05 by tvalimak          #+#    #+#             */
-/*   Updated: 2024/09/02 17:25:38 by tvalimak         ###   ########.fr       */
+/*   Updated: 2024/09/03 15:46:28 by tvalimak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,25 +25,28 @@
 
 #define EPSILON 0.00001
 
-typedef struct 
+typedef struct
 {
     int rows;
     int cols;
     float data[4][4]; // This can hold up to a 4x4 matrix, adjust the size if necessary
 } t_matrix;
 
-typedef struct 
+typedef struct
 {
     double x, y, z, w;
 }         Tuple;
 
-typedef struct 
+typedef struct
 {
     double red;
     double green;
     double blue;
 } Color;
 
+Tuple       apply_transformation(t_matrix *transformation, Tuple *point);
+Tuple       matrix_to_tuple(t_matrix *m);
+t_matrix    *tuple_to_matrix(Tuple *t);
 t_matrix    *shearing(float xy, float xz, float yx, float yz, float zx, float zy);
 t_matrix    *rotation_z(float radians);
 t_matrix    *rotation_x(float radians);

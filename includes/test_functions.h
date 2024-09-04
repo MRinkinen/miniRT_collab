@@ -6,7 +6,7 @@
 /*   By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/01 13:56:05 by tvalimak          #+#    #+#             */
-/*   Updated: 2024/09/03 15:46:28 by tvalimak         ###   ########.fr       */
+/*   Updated: 2024/09/04 21:06:54 by tvalimak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 #ifndef TEST_FUNCTIONS_H
 # define TEST_FUNCTIONS_H
 
+#include "./minirt.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
@@ -37,6 +38,12 @@ typedef struct
     double x, y, z, w;
 }         Tuple;
 
+typedef struct 
+{
+    Tuple origin;
+    Tuple direction;
+} Ray;
+
 typedef struct
 {
     double red;
@@ -44,6 +51,8 @@ typedef struct
     double blue;
 } Color;
 
+Ray         ray(Tuple origin, Tuple direction);
+Tuple       position(Ray r, double t);
 Tuple       apply_transformation(t_matrix *transformation, Tuple *point);
 Tuple       matrix_to_tuple(t_matrix *m);
 t_matrix    *tuple_to_matrix(Tuple *t);

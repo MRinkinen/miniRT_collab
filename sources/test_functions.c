@@ -6,7 +6,7 @@
 /*   By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/30 10:45:46 by tvalimak          #+#    #+#             */
-/*   Updated: 2024/09/03 15:55:24 by tvalimak         ###   ########.fr       */
+/*   Updated: 2024/09/04 18:27:23 by tvalimak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -792,7 +792,7 @@ int matrices_are_equal(t_matrix *m1, t_matrix *m2) {
     }
     return 1;
 }
-/*
+
 // Test scenarios
 void test_scenarios() 
 {
@@ -1601,6 +1601,48 @@ void test_scenarios()
         printf("Z-Rotation Full Quarter Test Failed!\n");
     }
 
+    // Scenario: Creating and querying a ray
+    Tuple origin = point(1, 2, 3);
+    Tuple direction = vector(4, 5, 6);
+    Ray r = ray(origin, direction);
+
+    printf("Ray origin: (%f, %f, %f)\n", r.origin.x, r.origin.y, r.origin.z);
+    printf("Ray direction: (%f, %f, %f)\n", r.direction.x, r.direction.y, r.direction.z);
+
+    // Check if the ray's origin and direction match the expected values
+    assert(tuple_equal(r.origin, origin));
+    assert(tuple_equal(r.direction, direction));
+
+    // Test the position function
+    double t = 3.5;
+    Tuple point_on_ray = position(r, t);
+    printf("Point on ray at t=%f: (%f, %f, %f)\n", t, point_on_ray.x, point_on_ray.y, point_on_ray.z);
+
+    // Expected point calculation
+    Tuple expected_point = point(1 + 3.5 * 4, 2 + 3.5 * 5, 3 + 3.5 * 6);
+    assert(tuple_equal(point_on_ray, expected_point));
+
+    // Scenario: Creating and querying a ray
+    Tuple origin = point(1, 2, 3);
+    Tuple direction = vector(4, 5, 6);
+    Ray r = ray(origin, direction);
+
+    printf("Ray origin: (%f, %f, %f)\n", r.origin.x, r.origin.y, r.origin.z);
+    printf("Ray direction: (%f, %f, %f)\n", r.direction.x, r.direction.y, r.direction.z);
+
+    // Check if the ray's origin and direction match the expected values
+    assert(tuple_equal(r.origin, origin));
+    assert(tuple_equal(r.direction, direction));
+
+    // Test the position function
+    double t = 3.5;
+    Tuple point_on_ray = position(r, t);
+    printf("Point on ray at t=%f: (%f, %f, %f)\n", t, point_on_ray.x, point_on_ray.y, point_on_ray.z);
+
+    // Expected point calculation
+    Tuple expected_point = point(1 + 3.5 * 4, 2 + 3.5 * 5, 3 + 3.5 * 6);
+    assert(tuple_equal(point_on_ray, expected_point));
+
     return ;
 }
 
@@ -1661,4 +1703,4 @@ int main() {
 
     test_scenarios();
     return 0;
-}*/
+}

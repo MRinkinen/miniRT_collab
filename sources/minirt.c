@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minirt.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mrinkine <mrinkine@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/15 12:02:26 by mrinkine          #+#    #+#             */
-/*   Updated: 2024/09/04 21:40:07 by tvalimak         ###   ########.fr       */
+/*   Updated: 2024/09/05 19:13:43 by mrinkine         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,16 +15,16 @@
 //#include "../includes/test_functions.h"
 
 // Function to multiply a tuple by a scalar
-Tuple tuple_multiply(Tuple t, double scalar) 
+t_tuple tuple_multiply(t_tuple t, double scalar)
 {
     return tuple(t.x * scalar, t.y * scalar, t.z * scalar, t.w);  // Preserves w
 }
 
 // Computes a point along the ray at parameter t
-Tuple position(Ray r, double t) 
+t_tuple position(t_ray r, double t)
 {
     // p = origin + t * direction
-    Tuple scaled_direction = tuple_multiply(r.direction, t);
+    t_tuple scaled_direction = tuple_multiply(r.direction, t);
     return tuple_add(r.origin, scaled_direction);
 }
 
@@ -33,11 +33,11 @@ void print_clock_face(t_var *var)
     float CLOCK_RADIUS = var->image_width * 1.0 / 8.0;
     float CENTER_X = var->image_width / (float)2.0;
     float CENTER_Y = var->image_height / (float)2.0;
-    const int MARK_SIZE = 10; // Size of the mark, 10 pixels
+    const int MARK_SIZE = 2; // Size of the mark, 10 pixels
 
-    Tuple twelve_oclock = point(0, 0, 1); // 12 o'clock at the top center
-    int hours = 12;
-    float angle_per_hour = (float)3.1415 / 6; // 2 * M_PI / 12
+    t_tuple twelve_oclock = point(0, 0, 1); // 12 o'clock at the top center
+    int hours = 360;
+    float angle_per_hour = (float)3.1415 / 180; // 2 * M_PI / 12
 
 	printf("Center: (%f, %f)\n", CENTER_X, CENTER_Y);
 	printf("Camera fov: %f\n", var->fov);
@@ -45,7 +45,7 @@ void print_clock_face(t_var *var)
     // Draw each hour mark
     for (int hour = 0; hour < hours; hour++) {
         t_matrix *rotation = rotation_y(angle_per_hour * hour);
-        Tuple hour_pos = apply_transformation(rotation, &twelve_oclock);
+        t_tuple hour_pos = apply_transformation(rotation, &twelve_oclock);
 
     // Scale and translate position
     float px = CENTER_X + (float)(hour_pos.x * CLOCK_RADIUS);
@@ -83,24 +83,24 @@ void printimage(void *param, t_map *map)
 }
 
 // Multiplies a transformation matrix by a tuple and returns the transformed tuple
-Tuple apply_transformation(t_matrix *transformation, Tuple *point)
+t_tuple apply_transformation(t_matrix *transformation, t_tuple *point)
 {
     t_matrix *point_matrix = tuple_to_matrix(point);
     t_matrix *transformed_matrix = t_matrix_multiply(transformation, point_matrix);
-    Tuple transformed_point = matrix_to_tuple(transformed_matrix);
+    t_tuple transformed_point = matrix_to_tuple(transformed_matrix);
     free(point_matrix);
     free(transformed_matrix);
     return transformed_point;
 }
 
-// Function to convert the first column of a 4x4 matrix back to a Tuple
-Tuple matrix_to_tuple(t_matrix *m)
+// Function to convert the first column of a 4x4 matrix back to a t_tuple
+t_tuple matrix_to_tuple(t_matrix *m)
 {
     return tuple(m->data[0][0], m->data[1][0], m->data[2][0], m->data[3][0]);
 }
 
-// Function to convert a Tuple to a 4x4 matrix for transformation
-t_matrix *tuple_to_matrix(Tuple *t)
+// Function to convert a t_tuple to a 4x4 matrix for transformation
+t_matrix *tuple_to_matrix(t_tuple *t)
 {
     t_matrix *m = create_4x4_matrix(
         t->x, 0, 0, 0,
@@ -112,7 +112,7 @@ t_matrix *tuple_to_matrix(Tuple *t)
 }
 
 // Function to create a shearing matrix
-t_matrix* shearing(float xy, float xz, float yx, float yz, float zx, float zy) 
+t_matrix* shearing(float xy, float xz, float yx, float yz, float zx, float zy)
 {
     t_matrix* shear = identity_matrix(); // Initialize as identity matrix
 
@@ -131,60 +131,60 @@ t_matrix* shearing(float xy, float xz, float yx, float yz, float zx, float zy)
 t_matrix *rotation_z(float radians)
 {
     t_matrix* rotation = identity_matrix(); // Initialize as identity matrix
-    
+
     // Set the rotation components
     rotation->data[0][0] = cos(radians);
     rotation->data[0][1] = -sin(radians);
     rotation->data[1][0] = sin(radians);
     rotation->data[1][1] = cos(radians);
-    
+
     return rotation;
 }
 
 // Function to create a rotation matrix around the Y-axis
-t_matrix* rotation_y(float radians) 
+t_matrix* rotation_y(float radians)
 {
     t_matrix *transform = identity_matrix(); // Initialize as identity matrix
-    
+
     // Set the rotation components
     transform->data[0][0] = cos(radians);
     transform->data[0][2] = sin(radians);
     transform->data[2][0] = -sin(radians);
     transform->data[2][2] = cos(radians);
-    
+
     return transform;
 }
 
 // Function to create a rotation matrix for rotating around the X axis
-t_matrix *rotation_x(float radians) 
+t_matrix *rotation_x(float radians)
 {
     t_matrix *transform = identity_matrix();
-    
+
     // Set the rotation components for the X axis
     transform->data[1][1] = cos(radians);
     transform->data[1][2] = -sin(radians);
     transform->data[2][1] = sin(radians);
     transform->data[2][2] = cos(radians);
-    
+
     return transform;
 }
 
 // Function to create a reflection matrix (scaling by a negative value)
-t_matrix *reflective_scaling(float x, float y, float z) 
+t_matrix *reflective_scaling(float x, float y, float z)
 {
     // Use the scaling function to scale by the negative values for reflection
     return scaling(x, y, z);
 }
 
 // Function to compute the inverse of a scaling matrix
-t_matrix *inverse_scaling(float x, float y, float z) 
+t_matrix *inverse_scaling(float x, float y, float z)
 {
     // Inverse scaling factors are the reciprocals of the original scaling factors
     return scaling(1.0f / x, 1.0f / y, 1.0f / z);
 }
 
 // Function to create a 4x4 scaling matrix using while loops
-t_matrix *scaling(float x, float y, float z) 
+t_matrix *scaling(float x, float y, float z)
 {
     t_matrix *transform = (t_matrix *)malloc(sizeof(t_matrix));
     if (transform == NULL) {
@@ -204,7 +204,7 @@ t_matrix *scaling(float x, float y, float z)
         }
         i++;
     }
-    
+
     // Set scaling components
     transform->data[0][0] = x;
     transform->data[1][0] = 0;
@@ -222,13 +222,13 @@ t_matrix *scaling(float x, float y, float z)
 }
 
 // Function to compare two tuples (for test validation)
-bool tuple_equal(Tuple t1, Tuple t2) 
+bool tuple_equal(t_tuple t1, t_tuple t2)
 {
     return equal(t1.x, t2.x) && equal(t1.y, t2.y) && equal(t1.z, t2.z) && equal(t1.w, t2.w);
 }
 /*
 // Function to check if two tuples (points or vectors) are equal
-int tuple_equal(Tuple *a, Tuple *b) {
+int tuple_equal(t_tuple *a, t_tuple *b) {
     const float epsilon = 0.00001f;
     return (fabs(a->x - b->x) < epsilon &&
             fabs(a->y - b->y) < epsilon &&
@@ -237,20 +237,20 @@ int tuple_equal(Tuple *a, Tuple *b) {
 }*/
 
 // Function to create the inverse of a translation matrix using while loops
-t_matrix *inverse_translation(t_matrix *transform) 
+t_matrix *inverse_translation(t_matrix *transform)
 {
     return translation(-transform->data[0][3], -transform->data[1][3], -transform->data[2][3]);
 }
 
 // Function to multiply a 4x4 matrix by a point (assumed to be a 4x1 vector)
-Tuple multiply_matrix_tuple(t_matrix *m, Tuple *p) {
-    Tuple result;
-    
+t_tuple multiply_matrix_tuple(t_matrix *m, t_tuple *p) {
+    t_tuple result;
+
     result.x = m->data[0][0] * p->x + m->data[0][1] * p->y + m->data[0][2] * p->z + m->data[0][3] * p->w;
     result.y = m->data[1][0] * p->x + m->data[1][1] * p->y + m->data[1][2] * p->z + m->data[1][3] * p->w;
     result.z = m->data[2][0] * p->x + m->data[2][1] * p->y + m->data[2][2] * p->z + m->data[2][3] * p->w;
     result.w = m->data[3][0] * p->x + m->data[3][1] * p->y + m->data[3][2] * p->z + m->data[3][3] * p->w;
-    
+
     return (result);
 }
 
@@ -258,12 +258,12 @@ Tuple multiply_matrix_tuple(t_matrix *m, Tuple *p) {
 t_matrix *translation(float x, float y, float z) {
     // Initialize the identity matrix
     t_matrix *transform = identity_matrix();
-    
+
     // Set the translation components
     transform->data[0][3] = x;
     transform->data[1][3] = y;
     transform->data[2][3] = z;
-    
+
     return (transform);
 }
 
@@ -299,7 +299,7 @@ t_matrix *inverse(t_matrix *m) {
     return inverse_m;
 }
 
-t_matrix* cofactor_matrix(const t_matrix *m) 
+t_matrix* cofactor_matrix(const t_matrix *m)
 {
     // Allocate memory for the cofactor matrix
     t_matrix *cofactor_m = (t_matrix *)malloc(sizeof(t_matrix));
@@ -307,7 +307,7 @@ t_matrix* cofactor_matrix(const t_matrix *m)
         printf("Error: Memory allocation failed.\n");
         return NULL;
     }
-    
+
     // Initialize the cofactor matrix with the same dimensions as the original matrix
     cofactor_m->rows = m->rows;
     cofactor_m->cols = m->cols;
@@ -323,25 +323,25 @@ t_matrix* cofactor_matrix(const t_matrix *m)
         }
         i++;
     }
-    
+
     return cofactor_m;
 }
 
 // Function to check if matrix is invertible
-bool is_invertible(t_matrix *m) 
+bool is_invertible(t_matrix *m)
 {
     float det = determinant(m);
     return det != 0;
 }
 
 // Function to compute the cofactor of an matrix element
-float cofactor(const t_matrix *m, int row, int col) 
+float cofactor(const t_matrix *m, int row, int col)
 {
     // Calculate the minor at the given row and column
     float minor_value = minor(m, row, col);
-    
+
     // Determine if the cofactor needs to be negated
-    if ((row + col) % 2 != 0) 
+    if ((row + col) % 2 != 0)
     {
         return -minor_value;
     }
@@ -349,14 +349,14 @@ float cofactor(const t_matrix *m, int row, int col)
 }
 
 // Function to return submatrix of a given matrix
-t_matrix* submatrix(const t_matrix *m, int remove_row, int remove_col) 
+t_matrix* submatrix(const t_matrix *m, int remove_row, int remove_col)
 {
     int new_rows = m->rows - 1;
     int new_cols = m->cols - 1;
-    
+
     // Create a new matrix with reduced size
     t_matrix *sub_m = (t_matrix *)malloc(sizeof(t_matrix));
-    if (sub_m == NULL) 
+    if (sub_m == NULL)
     {
         // Handle memory allocation failure
         printf("Error: Memory allocation failed.\n");
@@ -367,18 +367,18 @@ t_matrix* submatrix(const t_matrix *m, int remove_row, int remove_col)
 
     int i = 0, j = 0, row_offset = 0, col_offset = 0;
 
-    while (i < new_rows) 
+    while (i < new_rows)
     {
-        if (i >= remove_row) 
+        if (i >= remove_row)
         {
             row_offset = 1;
         }
         j = 0;
         col_offset = 0;
 
-        while (j < new_cols) 
+        while (j < new_cols)
         {
-            if (j >= remove_col) 
+            if (j >= remove_col)
             {
                 col_offset = 1;
             }
@@ -391,29 +391,29 @@ t_matrix* submatrix(const t_matrix *m, int remove_row, int remove_col)
 }
 
 // Function to return the dminor/determinant of a given matrix
-float minor(const t_matrix *m, int row, int col) 
+float minor(const t_matrix *m, int row, int col)
 {
     // Get the submatrix by removing the specified row and column
     t_matrix *sub_m = submatrix(m, row, col);
-    
+
     // Calculate the determinant of the submatrix
     float det = determinant(sub_m);
-    
+
     // Free the submatrix memory
     free(sub_m);
-    
+
     // Return the determinant, which is the minor
     return det;
 }
 
 // Function to return the determinant of a 2x2 matrix
-float determinant_2x2(const t_matrix *m) 
+float determinant_2x2(const t_matrix *m)
 {
     return m->data[0][0] * m->data[1][1] - m->data[0][1] * m->data[1][0];
 }
 
 // Function to return the determinant of a 3x3 matrix
-float determinant_3x3(const t_matrix *m) 
+float determinant_3x3(const t_matrix *m)
 {
     return m->data[0][0] * (m->data[1][1] * m->data[2][2] - m->data[1][2] * m->data[2][1]) -
            m->data[0][1] * (m->data[1][0] * m->data[2][2] - m->data[1][2] * m->data[2][0]) +
@@ -421,34 +421,34 @@ float determinant_3x3(const t_matrix *m)
 }
 
 // Function to return the determinant of a matrix
-float determinant(const t_matrix *m) 
+float determinant(const t_matrix *m)
 {
-    if (m->rows == 2 && m->cols == 2) 
+    if (m->rows == 2 && m->cols == 2)
     {
         return determinant_2x2(m);
-    } 
-    else if (m->rows == 3 && m->cols == 3) 
+    }
+    else if (m->rows == 3 && m->cols == 3)
     {
         return determinant_3x3(m);
-    } 
-    else if (m->rows == 4 && m->cols == 4) 
+    }
+    else if (m->rows == 4 && m->cols == 4)
     {
         float det = 0.0;
-        for (int col = 0; col < m->cols; col++) 
+        for (int col = 0; col < m->cols; col++)
         {
             det += m->data[0][col] * cofactor(m, 0, col);
         }
         return det;
-    } 
-    else 
+    }
+    else
     {
         printf("Determinant calculation not implemented for matrices larger than 4x4.\n");
         return 0.0f;
     }
 }
 
-// Function to create an identity matrix    
-t_matrix* identity_matrix() 
+// Function to create an identity matrix
+t_matrix* identity_matrix()
 {
     t_matrix *identity = (t_matrix *)malloc(sizeof(t_matrix));
     if (identity == NULL)
@@ -459,16 +459,16 @@ t_matrix* identity_matrix()
     identity->rows = 4;
     identity->cols = 4;
     int i = 0;
-    while (i < 4) 
+    while (i < 4)
     {
         int j = 0;
-        while (j < 4) 
+        while (j < 4)
         {
-            if (i == j) 
+            if (i == j)
             {
                 identity->data[i][j] = 1.0;
-            } 
-            else 
+            }
+            else
             {
                 identity->data[i][j] = 0.0;
             }
@@ -480,7 +480,7 @@ t_matrix* identity_matrix()
 }
 
 // Function to transpose a matrix
-t_matrix* transpose(t_matrix *m) 
+t_matrix* transpose(t_matrix *m)
 {
     // Allocate memory for the transposed matrix
     t_matrix *transposed = (t_matrix *)malloc(sizeof(t_matrix));
@@ -494,10 +494,10 @@ t_matrix* transpose(t_matrix *m)
     transposed->cols = m->rows;
 
     int i = 0;
-    while (i < m->rows) 
+    while (i < m->rows)
     {
         int j = 0;
-        while (j < m->cols) 
+        while (j < m->cols)
         {
             // Swap rows and columns
             transposed->data[j][i] = m->data[i][j];
@@ -510,10 +510,10 @@ t_matrix* transpose(t_matrix *m)
 }
 
 // Function to multiply two 4x4 matrices
-t_matrix* t_matrix_multiply(t_matrix *a, t_matrix *b) 
+t_matrix* t_matrix_multiply(t_matrix *a, t_matrix *b)
 {
     // Ensure both matrices are 4x4
-    if (a->rows != 4 || a->cols != 4 || b->rows != 4 || b->cols != 4) 
+    if (a->rows != 4 || a->cols != 4 || b->rows != 4 || b->cols != 4)
     {
         printf("Error: Both matrices must be 4x4.\n");
         return NULL;
@@ -521,7 +521,7 @@ t_matrix* t_matrix_multiply(t_matrix *a, t_matrix *b)
 
     // Allocate memory for the result matrix
     t_matrix *result = (t_matrix *)malloc(sizeof(t_matrix));
-    if (result == NULL) 
+    if (result == NULL)
     {
         printf("Error: Memory allocation failed.\n");
         return NULL;
@@ -531,12 +531,12 @@ t_matrix* t_matrix_multiply(t_matrix *a, t_matrix *b)
     result->cols = 4;
 
     // Perform matrix multiplication
-    for (int i = 0; i < 4; i++) 
+    for (int i = 0; i < 4; i++)
     {
-        for (int j = 0; j < 4; j++) 
+        for (int j = 0; j < 4; j++)
         {
             result->data[i][j] = 0; // Initialize the element
-            for (int k = 0; k < 4; k++) 
+            for (int k = 0; k < 4; k++)
             {
                 result->data[i][j] += a->data[i][k] * b->data[k][j];
             }
@@ -546,7 +546,7 @@ t_matrix* t_matrix_multiply(t_matrix *a, t_matrix *b)
     return result;
 }
 
-t_matrix *create_2x2_matrix(float a, float b, float c, float d) 
+t_matrix *create_2x2_matrix(float a, float b, float c, float d)
 {
     t_matrix *m = (t_matrix *)malloc(sizeof(t_matrix));
     if (m == NULL)
@@ -566,7 +566,7 @@ t_matrix *create_2x2_matrix(float a, float b, float c, float d)
 
 t_matrix *create_3x3_matrix(float a, float b, float c,
                            float d, float e, float f,
-                           float g, float h, float i) 
+                           float g, float h, float i)
 {
     t_matrix *m = (t_matrix *)malloc(sizeof(t_matrix));
     if (m == NULL)
@@ -622,15 +622,15 @@ t_matrix *create_4x4_matrix(float a, float b, float c, float d,
     return matrix;
 }
 
-float t_matrix_get(t_matrix *m, int row, int col) 
+float t_matrix_get(t_matrix *m, int row, int col)
 {
     // Ensure the row and column indices are within the valid range
-    if (row >= 0 && row < m->rows && col >= 0 && col < m->cols) 
+    if (row >= 0 && row < m->rows && col >= 0 && col < m->cols)
     {
         printf("%f\n", m->data[row][col]);
         return m->data[row][col];
-    } 
-    else 
+    }
+    else
     {
         // Handle invalid indices, e.g., returning 0 or some error value
         // You could also print an error message or return a special value like NAN
@@ -640,26 +640,26 @@ float t_matrix_get(t_matrix *m, int row, int col)
 }
 
 // Function to compare two floating-point numbers for equality
-bool equal(double a, double b) 
+bool equal(double a, double b)
 {
     return fabs(a - b) < EPSILON;
 }
 
 // Function to compare two matrices for equality
-int t_matrix_equal(t_matrix *a, t_matrix *b) 
+int t_matrix_equal(t_matrix *a, t_matrix *b)
 {
     // First, check if the dimensions of the matrices are the same
-    if (a->rows != b->rows || a->cols != b->cols) 
+    if (a->rows != b->rows || a->cols != b->cols)
     {
         return 0; // Matrices are not equal
     }
 
     // Compare each element in the matrices
-    for (int i = 0; i < a->rows; i++) 
+    for (int i = 0; i < a->rows; i++)
     {
-        for (int j = 0; j < a->cols; j++) 
+        for (int j = 0; j < a->cols; j++)
         {
-            if (!equal(a->data[i][j], b->data[i][j])) 
+            if (!equal(a->data[i][j], b->data[i][j]))
             {
                 return 0; // Matrices are not equal
             }
@@ -669,9 +669,9 @@ int t_matrix_equal(t_matrix *a, t_matrix *b)
 }
 
 // Function to create a tuple
-Tuple tuple(double x, double y, double z, double w)
+t_tuple tuple(double x, double y, double z, double w)
 {
-    Tuple t;
+    t_tuple t;
     t.x = x;
     t.y = y;
     t.z = z;
@@ -679,9 +679,9 @@ Tuple tuple(double x, double y, double z, double w)
     return (t);
 }
 /*
-Color hadamard_product(Color c1, Color c2) 
+t_color hadamard_product(t_color c1, t_color c2)
 {
-    Color result;
+    t_color result;
     result.red = c1.red * c2.red;
     result.green = c1.green * c2.green;
     result.blue = c1.blue * c2.blue;
@@ -689,101 +689,101 @@ Color hadamard_product(Color c1, Color c2)
 }*/
 
 // Function to compare two colors
-bool compare_colors(Color c1, Color c2) 
+bool compare_colors(t_color c1, t_color c2)
 {
-    return equal(c1.red, c2.red) && equal(c1.green, c2.green) && equal(c1.blue, c2.blue);
+    return equal(c1.r, c2.r) && equal(c1.g, c2.g) && equal(c1.b, c2.b);
 }
 
 // Function to add two colors
-Color add_colors(Color c1, Color c2) 
+t_color add_colors(t_color c1, t_color c2)
 {
-    return (Color){c1.red + c2.red, c1.green + c2.green, c1.blue + c2.blue};
+    return (t_color){c1.r + c2.r, c1.g + c2.g, c1.b + c2.b};
 }
 
 // Function to subtract two colors
-Color subtract_colors(Color c1, Color c2) 
+t_color subtract_colors(t_color c1, t_color c2)
 {
-    return (Color){c1.red - c2.red, c1.green - c2.green, c1.blue - c2.blue};
+    return (t_color){c1.r - c2.r, c1.g - c2.g, c1.b - c2.b};
 }
 
 // Function to multiply a color by a scalar
-Color multiply_color_scalar(Color c, double scalar) 
+t_color multiply_color_scalar(t_color c, double scalar)
 {
-    return (Color){c.red * scalar, c.green * scalar, c.blue * scalar};
+    return (t_color){c.r * scalar, c.g * scalar, c.b * scalar};
 }
 
 // Function to multiply two colors (Hadamard product)
-Color multiply_colors(Color c1, Color c2) 
+t_color multiply_colors(t_color c1, t_color c2)
 {
-    return (Color){c1.red * c2.red, c1.green * c2.green, c1.blue * c2.blue};
+    return (t_color){c1.r * c2.r, c1.g * c2.g, c1.b * c2.b};
 }
 
 // Function to print a color (for debugging)
-void print_color(Color c) 
+void print_color(t_color c)
 {
-    printf("(%.2f, %.2f, %.2f)\n", c.red, c.green, c.blue);
+    printf("(%.2f, %.2f, %.2f)\n", c.r, c.g, c.b);
 }
 
 // Function to create a point (w = 1.0)
-Tuple point(double x, double y, double z) 
+t_tuple point(double x, double y, double z)
 {
     return tuple(x, y, z, 1.0);
 }
 
 // Function to create a vector (w = 0.0)
-Tuple vector(double x, double y, double z) 
+t_tuple vector(double x, double y, double z)
 {
     return tuple(x, y, z, 0.0);
 }
 
 // Function to check if a tuple is a point (w = 1.0)
-bool is_point(Tuple t) 
+bool is_point(t_tuple t)
 {
     return t.w == 1.0;
 }
 
 // Function to check if a tuple is a vector (w = 0.0)
-bool is_vector(Tuple t) 
+bool is_vector(t_tuple t)
 {
     return t.w == 0.0;
 }
 
 // Function to add two tuples
-Tuple tuple_add(Tuple t1, Tuple t2)
+t_tuple tuple_add(t_tuple t1, t_tuple t2)
 {
     return tuple(t1.x + t2.x, t1.y + t2.y, t1.z + t2.z, t1.w + t2.w);
 }
 
 // Function to subtract two tuples
-Tuple tuple_subtract(Tuple t1, Tuple t2) 
+t_tuple tuple_subtract(t_tuple t1, t_tuple t2)
 {
     return tuple(t1.x - t2.x, t1.y - t2.y, t1.z - t2.z, t1.w - t2.w);
 }
 
 // Function to subtract a vector from a point
-Tuple subtract_vector_from_point(Tuple point, Tuple vector) 
+t_tuple subtract_vector_from_point(t_tuple point, t_tuple vector)
 {
     // Ensure the w component remains 1.0 for a point
     return tuple(point.x - vector.x, point.y - vector.y, point.z - vector.z, 1.0);
 }
 
 // Function to negate a vector (subtract it from the zero vector)
-Tuple negate_vector(Tuple v)
+t_tuple negate_vector(t_tuple v)
 {
-    Tuple zero = vector(0, 0, 0);
+    t_tuple zero = vector(0, 0, 0);
     return tuple_subtract(zero, v);
 }
 
 // Function to negate a tuple
-Tuple negate_tuple(Tuple t) 
+t_tuple negate_tuple(t_tuple t)
 {
     return tuple(-t.x, -t.y, -t.z, -t.w);
 }
 
 // Function to divide a tuple by a scalar, same as multiplying with a fraction lets say 0.5
-Tuple tuple_divide(Tuple t, double scalar) 
+t_tuple tuple_divide(t_tuple t, double scalar)
 {
-    if (scalar == 0) 
+    if (scalar == 0)
     {
         // Handle division by zero if necessary
         // Here we'll just return a tuple with NaN components as a placeholder
@@ -793,19 +793,19 @@ Tuple tuple_divide(Tuple t, double scalar)
 }
 
 // Function to calculate the magnitude of a vector
-double magnitude(Tuple v) 
+double magnitude(t_tuple v)
 {
     return (sqrt(v.x * v.x + v.y * v.y + v.z * v.z));
 }
 
 // Function to compare magnitude results
-bool magnitude_equal(Tuple v, double expected_magnitude) 
+bool magnitude_equal(t_tuple v, double expected_magnitude)
 {
     return equal(magnitude(v), expected_magnitude);
 }
 
 // Function to normalize a vector
-Tuple normalize(Tuple v) 
+t_tuple normalize(t_tuple v)
 {
     double mag = magnitude(v);
     if (mag == 0) {
@@ -816,13 +816,13 @@ Tuple normalize(Tuple v)
 }
 
 // Function to compute the dot product of two vectors
-double dot(Tuple a, Tuple b) 
+double dot(t_tuple a, t_tuple b)
 {
     return a.x * b.x + a.y * b.y + a.z * b.z + a.w * b.w;
 }
 
 // Function to compute the cross product of two vectors
-Tuple cross(Tuple a, Tuple b)
+t_tuple cross(t_tuple a, t_tuple b)
 {
     return vector(
         a.y * b.z - a.z * b.y,
@@ -837,7 +837,7 @@ int matrices_are_equal(t_matrix *m1, t_matrix *m2) {
     if (m1->rows != m2->rows || m1->cols != m2->cols) {
         return 0;
     }
-    
+
     for (int i = 0; i < m1->rows; i++) {
         for (int j = 0; j < m1->cols; j++) {
             if (!equal(m1->data[i][j], m2->data[i][j])) {

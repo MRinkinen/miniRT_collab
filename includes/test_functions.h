@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   test_functions.h                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mrinkine <mrinkine@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/01 13:56:05 by tvalimak          #+#    #+#             */
-/*   Updated: 2024/09/04 21:06:54 by tvalimak         ###   ########.fr       */
+/*   Updated: 2024/09/05 19:11:11 by mrinkine         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,30 +36,30 @@ typedef struct
 typedef struct
 {
     double x, y, z, w;
-}         Tuple;
+}         t_tuple;
 
-typedef struct 
+typedef struct
 {
-    Tuple origin;
-    Tuple direction;
-} Ray;
+    t_tuple origin;
+    t_tuple direction;
+} t_ray;
 
 typedef struct
 {
     double red;
     double green;
     double blue;
-} Color;
+} t_color;
 
-Ray         ray(Tuple origin, Tuple direction);
-Tuple       position(Ray r, double t);
-Tuple       apply_transformation(t_matrix *transformation, Tuple *point);
-Tuple       matrix_to_tuple(t_matrix *m);
-t_matrix    *tuple_to_matrix(Tuple *t);
+t_ray         ray(t_tuple origin, t_tuple direction);
+t_tuple       position(t_ray r, double t);
+t_tuple       apply_transformation(t_matrix *transformation, t_tuple *point);
+t_tuple       matrix_to_tuple(t_matrix *m);
+t_matrix    *tuple_to_matrix(t_tuple *t);
 t_matrix    *shearing(float xy, float xz, float yx, float yz, float zx, float zy);
 t_matrix    *rotation_z(float radians);
 t_matrix    *rotation_x(float radians);
-t_matrix    *rotation_y(float radians); 
+t_matrix    *rotation_y(float radians);
 t_matrix    *scaling(float x, float y, float z);
 t_matrix    *inverse_scaling(float x, float y, float z);
 t_matrix    *reflective_scaling(float x, float y, float z);
@@ -85,31 +85,31 @@ t_matrix    *create_4x4_matrix(float a, float b, float c, float d,
                            float m, float n, float o, float p);
 float       t_matrix_get(t_matrix *m, int row, int col);
 bool        equal(double a, double b);
-Tuple       tuple(double x, double y, double z, double w);
-Color       hadamard_product(Color c1, Color c2);
-bool        compare_colors(Color c1, Color c2);
-Color       add_colors(Color c1, Color c2);
-Color       subtract_colors(Color c1, Color c2);
-Color       multiply_color_scalar(Color c, double scalar);
-Color       multiply_colors(Color c1, Color c2);
-void        print_color(Color c);
-Tuple       point(double x, double y, double z);
-Tuple       vector(double x, double y, double z);
-bool        is_point(Tuple t);
-bool        is_vector(Tuple t);
-bool        tuple_equal(Tuple t1, Tuple t2);
-Tuple       tuple_add(Tuple t1, Tuple t2);
-Tuple       tuple_subtract(Tuple t1, Tuple t2);
-Tuple       subtract_vector_from_point(Tuple point, Tuple vector);
-Tuple       negate_vector(Tuple v);
-Tuple       negate_tuple(Tuple t);
-Tuple       tuple_multiply(Tuple t, double scalar);
-Tuple       tuple_divide(Tuple t, double scalar);
-double      magnitude(Tuple v);
-bool        magnitude_equal(Tuple v, double expected_magnitude);
-Tuple       normalize(Tuple v);
-double      dot(Tuple a, Tuple b);
-Tuple       cross(Tuple a, Tuple b);
+t_tuple       tuple(double x, double y, double z, double w);
+t_color       hadamard_product(t_color c1, t_color c2);
+bool        compare_colors(t_color c1, t_color c2);
+t_color       add_colors(t_color c1, t_color c2);
+t_color       subtract_colors(t_color c1, t_color c2);
+t_color       multiply_color_scalar(t_color c, double scalar);
+t_color       multiply_colors(t_color c1, t_color c2);
+void        print_color(t_color c);
+t_tuple       point(double x, double y, double z);
+t_tuple       vector(double x, double y, double z);
+bool        is_point(t_tuple t);
+bool        is_vector(t_tuple t);
+bool        tuple_equal(t_tuple t1, t_tuple t2);
+t_tuple       tuple_add(t_tuple t1, t_tuple t2);
+t_tuple       tuple_subtract(t_tuple t1, t_tuple t2);
+t_tuple       subtract_vector_from_point(t_tuple point, t_tuple vector);
+t_tuple       negate_vector(t_tuple v);
+t_tuple       negate_tuple(t_tuple t);
+t_tuple       tuple_multiply(t_tuple t, double scalar);
+t_tuple       tuple_divide(t_tuple t, double scalar);
+double      magnitude(t_tuple v);
+bool        magnitude_equal(t_tuple v, double expected_magnitude);
+t_tuple       normalize(t_tuple v);
+double      dot(t_tuple a, t_tuple b);
+t_tuple       cross(t_tuple a, t_tuple b);
 float       cofactor(const t_matrix *m, int row, int col);
 bool        is_invertible(t_matrix *m);
 

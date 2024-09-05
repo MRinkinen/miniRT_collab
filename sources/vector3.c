@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   vector3.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mrinkine <mrinkine@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/15 11:15:10 by mrinkine          #+#    #+#             */
-/*   Updated: 2024/08/30 17:14:50 by tvalimak         ###   ########.fr       */
+/*   Updated: 2024/09/05 19:04:01 by mrinkine         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -158,9 +158,9 @@ t_vec3 t_vec3_unit_vector(const t_vec3 *vec)
 t_vec3 calculate_intersection_point(t_ray ray, float t)
 {
     t_vec3 intersection_point = {
-        ray.orig.x + t * ray.dir.x,
-        ray.orig.y + t * ray.dir.y,
-        ray.orig.z + t * ray.dir.z};
+        ray.origin.x + t * ray.direction.x,
+        ray.origin.y + t * ray.direction.y,
+        ray.origin.z + t * ray.direction.z};
     return intersection_point;
 }
 
@@ -168,19 +168,19 @@ t_vec3 reflect_vector(t_vec3 v, t_vec3 n)
 {
     // Calculate the dot product between v and n
     float dot = t_vec3_dot(&v, &n);
-    
+
     // Debugging: Print dot product
     printf("Dot product of v and n: %f\n", dot);
-    
+
     // Compute the reflection vector
     t_vec3 result;
     result.x = v.x - 2.0f * dot * n.x;
     result.y = v.y - 2.0f * dot * n.y;
     result.z = v.z - 2.0f * dot * n.z;
-    
+
     // Debugging: Print intermediate results
     printf("Intermediate reflection result: %f %f %f\n", result.x, result.y, result.z);
-    
+
     return result;
 }
 

@@ -20,7 +20,7 @@ Libft authorized Yes
 
 Description:
 The goal of your program is to generate
-images using the Raytracing protocol. Those
+images using the t_raytracing protocol. Those
 computer-generated images will each represent a
 scene, as seen from a specific angle and position,
 defined by simple geometric objects, and each with

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   structs_n_lists.c                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mrinkine <mrinkine@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/20 11:10:02 by tvalimak          #+#    #+#             */
-/*   Updated: 2024/09/03 20:55:09 by tvalimak         ###   ########.fr       */
+/*   Updated: 2024/09/05 19:11:11 by mrinkine         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,7 +50,7 @@ int	print_data(t_map *map)
 	{
 		printf("Ambient:\n");
 		printf("  Ratio: %f\n", map->ambient->ratio);
-		printf("  Color: (R: %d, G: %d, B: %d)\n", map->ambient->r, map->ambient->g, map->ambient->b);
+		printf("  t_color: (R: %d, G: %d, B: %d)\n", map->ambient->r, map->ambient->g, map->ambient->b);
 	}
 
 	// Print Camera List
@@ -71,7 +71,7 @@ int	print_data(t_map *map)
 		printf("Light:\n");
 		printf("  Position: (%f, %f, %f)\n", light->x, light->y, light->z);
 		printf("  Ratio: %f\n", light->ratio);
-		printf("  Color: (R: %d, G: %d, B: %d)\n", light->r, light->g, light->b);
+		printf("  t_color: (R: %d, G: %d, B: %d)\n", light->r, light->g, light->b);
 		light = light->next;
 	}
 
@@ -82,7 +82,7 @@ int	print_data(t_map *map)
 		printf("Sphere:\n");
 		printf("  Position: (%f, %f, %f)\n", sphere->x, sphere->y, sphere->z);
 		printf("  Diameter: %f\n", sphere->diameter);
-		printf("  Color: (R: %d, G: %d, B: %d)\n", sphere->r, sphere->g, sphere->b);
+		printf("  t_color: (R: %d, G: %d, B: %d)\n", sphere->r, sphere->g, sphere->b);
 		sphere = sphere->next;
 	}
 
@@ -93,7 +93,7 @@ int	print_data(t_map *map)
 		printf("Plane:\n");
 		printf("  Position: (%f, %f, %f)\n", plane->x, plane->y, plane->z);
 		printf("  Normal: (%f, %f, %f)\n", plane->nx, plane->ny, plane->nz);
-		printf("  Color: (R: %d, G: %d, B: %d)\n", plane->r, plane->g, plane->b);
+		printf("  t_color: (R: %d, G: %d, B: %d)\n", plane->r, plane->g, plane->b);
 		plane = plane->next;
 	}
 
@@ -106,7 +106,7 @@ int	print_data(t_map *map)
 		printf("  Normal: (%f, %f, %f)\n", cylinder->nx, cylinder->ny, cylinder->nz);
 		printf("  Diameter: %f\n", cylinder->diameter);
 		printf("  Height: %f\n", cylinder->height);
-		printf("  Color: (R: %d, G: %d, B: %d)\n", cylinder->r, cylinder->g, cylinder->b);
+		printf("  t_color: (R: %d, G: %d, B: %d)\n", cylinder->r, cylinder->g, cylinder->b);
 		cylinder = cylinder->next;
 	}
 

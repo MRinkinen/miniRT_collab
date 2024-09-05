@@ -8,6 +8,7 @@
 #include <math.h>
 #include <limits.h>
 #include <float.h>
+#include <assert.h> // Only for testing purposes, remove from final version
 #include "../libft/libft.h"
 #include "../MLX42/include/MLX42/MLX42.h"
 #include "./parsing.h"
@@ -59,8 +60,6 @@ typedef struct s_vec
 	float y;
 	float z;
 } t_vec3;
-
-
 
 typedef struct s_hit
 {
@@ -166,7 +165,7 @@ void printimage(void *param, t_map *map);
 
 // bool sphere_hit(const t_hittable *self, const t_ray *r, float tmin, float tmax, t_hit *rec);
 
-t_sphere sphere_create(t_vec3 center, float radius, t_color col);
+//t_sphere sphere_create(t_vec3 center, float radius, t_color col);
 void hittable_init(t_hittable *h, hit_func func);
 
 // t_sphere sphere_create(t_vec3 center, float radius);

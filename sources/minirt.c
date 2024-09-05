@@ -3,16 +3,45 @@
 /*                                                        :::      ::::::::   */
 /*   minirt.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mrinkine <mrinkine@student.42.fr>          +#+  +:+       +#+        */
+/*   By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/15 12:02:26 by mrinkine          #+#    #+#             */
-/*   Updated: 2024/09/05 19:13:43 by mrinkine         ###   ########.fr       */
+/*   Updated: 2024/09/05 21:24:56 by tvalimak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/minirt.h"
 #include "../includes/parsing.h"
 //#include "../includes/test_functions.h"
+
+int intersect(t_sphere sphere, t_ray ray, float *t0, float *t1)
+{
+    t_vec3 oc = t_vec3_subtract_vectors(&ray.origin, &sphere.center);
+    float a = t_vec3_dot(&ray.direction, &ray.direction);
+    float b = 2.0 * t_vec3_dot(&oc, &ray.direction);
+    float c = t_vec3_dot(&oc, &oc) - sphere.radius * sphere.radius;
+    float discriminant = b*b - 4*a*c;
+
+    if (discriminant < 0) {
+        return 0; // No intersection
+    } else if (discriminant == 0) {
+        *t0 = *t1 = -b / (2*a);
+        return 1; // Tangent intersection
+    } else {
+        float sqrt_discriminant = sqrt(discriminant);
+        *t0 = (-b - sqrt_discriminant) / (2*a);
+        *t1 = (-b + sqrt_discriminant) / (2*a);
+        return 2; // Two intersections
+    }
+}
+
+t_sphere sphere_create()
+{
+    t_sphere s;
+    s.center = t_vec3_create(0, 0, 0); // Center at world origin
+    s.radius = 1.0; // Unit sphere
+    return s;
+}
 
 // Function to multiply a tuple by a scalar
 t_tuple tuple_multiply(t_tuple t, double scalar)
@@ -67,6 +96,55 @@ void print_clock_face(t_var *var)
     }
 }
 
+void test_position_function() {
+    t_ray r;
+    r.origin = point(2, 3, 4);
+    r.direction = vector(1, 0, 0);
+
+    // Test different values of t
+    t_tuple expected;
+    t_tuple result;
+
+    // t = 0
+    result = position(r, 0);
+    expected = point(2, 3, 4);
+    assert(tuple_equal(result, expected));
+
+    // t = 1
+    result = position(r, 1);
+    expected = point(3, 3, 4);
+    assert(tuple_equal(result, expected));
+
+    // t = -1
+    result = position(r, -1);
+    expected = point(1, 3, 4);
+    assert(tuple_equal(result, expected));
+
+    // t = 2.5
+    result = position(r, 2.5);
+    expected = point(4.5, 3, 4);
+    assert(tuple_equal(result, expected));
+
+    printf("All position function tests passed.\n");
+}
+
+void test_ray_sphere_intersection()
+{
+    t_ray r = ray(point(0, 0, -5), vector(0, 0, 1));
+    t_sphere s = sphere_create();
+
+    float t0, t1;
+    int count = intersect(s, r, &t0, &t1);
+
+    if (count == 2 && fabs(t0 - 4.0) < EPSILON && fabs(t1 - 6.0) < EPSILON) 
+    {
+        printf("Test passed: The ray intersects the sphere at two points.\n");
+    } else 
+    {
+        printf("Test failed: Incorrect intersection points.\n");
+    }
+}
+
 void printimage(void *param, t_map *map)
 {
 	t_var *var;
@@ -79,7 +157,8 @@ void printimage(void *param, t_map *map)
 			write_color(t_color_create(1,1,1), var, i, j);
 		}
 	}
-	print_clock_face(var);
+    test_position_function();
+	//print_clock_face(var);
 }
 
 // Multiplies a transformation matrix by a tuple and returns the transformed tuple

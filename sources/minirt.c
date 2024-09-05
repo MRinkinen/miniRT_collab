@@ -6,7 +6,7 @@
 /*   By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/15 12:02:26 by mrinkine          #+#    #+#             */
-/*   Updated: 2024/09/05 21:24:56 by tvalimak         ###   ########.fr       */
+/*   Updated: 2024/09/05 21:33:52 by tvalimak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,12 +22,17 @@ int intersect(t_sphere sphere, t_ray ray, float *t0, float *t1)
     float c = t_vec3_dot(&oc, &oc) - sphere.radius * sphere.radius;
     float discriminant = b*b - 4*a*c;
 
-    if (discriminant < 0) {
+    if (discriminant < 0) 
+    {
         return 0; // No intersection
-    } else if (discriminant == 0) {
+    } 
+    else if (discriminant == 0) 
+    {
         *t0 = *t1 = -b / (2*a);
         return 1; // Tangent intersection
-    } else {
+    } 
+    else 
+    {
         float sqrt_discriminant = sqrt(discriminant);
         *t0 = (-b - sqrt_discriminant) / (2*a);
         *t1 = (-b + sqrt_discriminant) / (2*a);

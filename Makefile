@@ -11,7 +11,7 @@ OBJECTS = $(SOURCES:.c=.o)
 
 SRC_DIR	= ./sources
 #SRC_BON_DIR = ./sources_bonus
-USERNAME = mattirinkinen
+USERNAME = tvalimak
 LIBFTNAME = libft.a
 LIBFTDIR = ./libft/
 INCLUDEDIR = ./includes/
@@ -32,7 +32,6 @@ $(MLX) :
 
 $(NAME) : $(OBJECTS) $(MLX) $(LIBFT)
 	$(CC) $(OBJECTS) $(MLX) $(LIBFT) -ldl -pthread -lm -L"/Users/$(USERNAME)/.brew/opt/glfw/lib/" -lglfw -I $(MLX_HEADER) -o $(NAME)
-##	$(CC) $(OBJECTS) $(MLX) $(LIBFT) -Iinclude -ldl -lglfw -pthread -lm $(MLX_HEADER) -o $(NAME)
 
 #bonus: .bonus
 

@@ -102,10 +102,20 @@ typedef struct s_cylinders
 	t_color color;		// t_color of the cylinder
 } t_cylinders;
 
+/*
 typedef struct s_sphere
 {
 	t_hittable base;
 	t_vec3 center;
+	float radius;
+	t_color color;
+} t_sphere;
+*/
+
+typedef struct s_sphere
+{
+	t_hittable base;
+	t_tuple center;
 	float radius;
 	t_color color;
 } t_sphere;

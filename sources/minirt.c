@@ -6,7 +6,7 @@
 /*   By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/15 12:02:26 by mrinkine          #+#    #+#             */
-/*   Updated: 2024/09/05 21:33:52 by tvalimak         ###   ########.fr       */
+/*   Updated: 2024/09/07 12:01:57 by tvalimak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,36 +14,32 @@
 #include "../includes/parsing.h"
 //#include "../includes/test_functions.h"
 
-int intersect(t_sphere sphere, t_ray ray, float *t0, float *t1)
-{
-    t_vec3 oc = t_vec3_subtract_vectors(&ray.origin, &sphere.center);
-    float a = t_vec3_dot(&ray.direction, &ray.direction);
-    float b = 2.0 * t_vec3_dot(&oc, &ray.direction);
-    float c = t_vec3_dot(&oc, &oc) - sphere.radius * sphere.radius;
-    float discriminant = b*b - 4*a*c;
+int intersect(t_sphere sphere, t_ray ray, float *t0, float *t1) {
+    // Calculate vector from sphere center to ray origin
+    t_tuple oc = tuple_subtract(ray.origin, sphere.center);
 
-    if (discriminant < 0) 
-    {
+    // Calculate coefficients for the quadratic formula
+    float a = dot(ray.direction, ray.direction); // Assuming you have a `dot` function for t_tuple
+    float b = 2.0 * dot(oc, ray.direction);
+    float c = dot(oc, oc) - sphere.radius * sphere.radius;
+
+    // Calculate the discriminant
+    float discriminant = b * b - 4 * a * c;
+
+    if (discriminant < 0) {
         return 0; // No intersection
-    } 
-    else if (discriminant == 0) 
-    {
-        *t0 = *t1 = -b / (2*a);
-        return 1; // Tangent intersection
-    } 
-    else 
-    {
+    } else {
         float sqrt_discriminant = sqrt(discriminant);
-        *t0 = (-b - sqrt_discriminant) / (2*a);
-        *t1 = (-b + sqrt_discriminant) / (2*a);
-        return 2; // Two intersections
+        *t0 = (-b - sqrt_discriminant) / (2 * a);
+        *t1 = (-b + sqrt_discriminant) / (2 * a);
+        return discriminant == 0 ? 1 : 2; // 1 if tangent, 2 if intersects at two points
     }
 }
 
 t_sphere sphere_create()
 {
     t_sphere s;
-    s.center = t_vec3_create(0, 0, 0); // Center at world origin
+    s.center = point(0, 0, 0); // Center at world origin
     s.radius = 1.0; // Unit sphere
     return s;
 }
@@ -131,6 +127,15 @@ void test_position_function() {
     assert(tuple_equal(result, expected));
 
     printf("All position function tests passed.\n");
+}
+
+// Function to create a new ray given an origin and a direction
+t_ray ray(t_tuple origin, t_tuple direction)
+{
+    t_ray new_ray;
+    new_ray.origin = origin;
+    new_ray.direction = direction;
+    return new_ray;
 }
 
 void test_ray_sphere_intersection()

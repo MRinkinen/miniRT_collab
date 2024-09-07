@@ -6,7 +6,7 @@
 /*   By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/15 12:02:26 by mrinkine          #+#    #+#             */
-/*   Updated: 2024/09/07 12:01:57 by tvalimak         ###   ########.fr       */
+/*   Updated: 2024/09/07 12:32:00 by tvalimak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 #include "../includes/parsing.h"
 //#include "../includes/test_functions.h"
 
+/*
 int intersect(t_sphere sphere, t_ray ray, float *t0, float *t1) {
     // Calculate vector from sphere center to ray origin
     t_tuple oc = tuple_subtract(ray.origin, sphere.center);
@@ -33,6 +34,44 @@ int intersect(t_sphere sphere, t_ray ray, float *t0, float *t1) {
         *t0 = (-b - sqrt_discriminant) / (2 * a);
         *t1 = (-b + sqrt_discriminant) / (2 * a);
         return discriminant == 0 ? 1 : 2; // 1 if tangent, 2 if intersects at two points
+    }
+}*/
+
+int intersect(t_sphere sphere, t_ray ray, float *t0, float *t1)
+{
+    t_tuple oc = tuple_subtract(ray.origin, sphere.center);
+    float a = dot(ray.direction, ray.direction);
+    float b = 2.0 * dot(oc, ray.direction);
+    float c = dot(oc, oc) - sphere.radius * sphere.radius;
+    float discriminant = b * b - 4 * a * c;
+
+    if (discriminant < 0) {
+        return 0; // No intersection
+    } else {
+        float sqrt_discriminant = sqrt(discriminant);
+        float root1 = (-b - sqrt_discriminant) / (2 * a);
+        float root2 = (-b + sqrt_discriminant) / (2 * a);
+
+        if (root1 > root2) {
+            float temp = root1;
+            root1 = root2;
+            root2 = temp;
+        }
+
+        if (root1 >= 0) {
+            *t0 = root1;
+            if (root2 >= 0) {
+                *t1 = root2;
+                return 2; // Two intersections
+            }
+            *t1 = *t0; // Only one intersection is valid and ahead
+            return 1;
+        }
+        if (root2 >= 0) {
+            *t0 = *t1 = root2; // Only the second intersection is valid and ahead
+            return 1;
+        }
+        return 0; // Both intersections are behind
     }
 }
 
@@ -138,21 +177,74 @@ t_ray ray(t_tuple origin, t_tuple direction)
     return new_ray;
 }
 
-void test_ray_sphere_intersection()
+void test_no_intersection()
 {
-    t_ray r = ray(point(0, 0, -5), vector(0, 0, 1));
+    t_ray r = ray(point(0, 2, -5), vector(0, 0, 1));
     t_sphere s = sphere_create();
 
     float t0, t1;
     int count = intersect(s, r, &t0, &t1);
 
-    if (count == 2 && fabs(t0 - 4.0) < EPSILON && fabs(t1 - 6.0) < EPSILON) 
-    {
+    if (count == 0)
+        printf("Test passed: No intersection as expected.\n");
+    else
+        printf("Test failed: Unexpected intersections found.\n");
+}
+
+void test_tangent_intersection()
+{
+    t_ray r = ray(point(1, 1, -5), vector(0, 0, 1));
+    t_sphere s = sphere_create();
+
+    float t0, t1;
+    int count = intersect(s, r, &t0, &t1);
+
+    if (count == 1)
+        printf("Test passed: One tangent intersection as expected.\n");
+    else
+        printf("Test failed: Incorrect number of intersections.\n");
+}
+
+void test_ray_origin_inside_sphere()
+{
+    t_ray r = ray(point(0, 0, 0), vector(0, 0, 1));
+    t_sphere s = sphere_create();
+
+    float t0, t1;
+    int count = intersect(s, r, &t0, &t1);
+
+    if (count == 2)
+        printf("Test passed: Two intersections from inside the sphere.\n");
+    else
+        printf("Test failed: Incorrect number of intersections.\n");
+}
+
+void test_sphere_behind_ray()
+{
+    t_ray r = ray(point(0, 0, 5), vector(0, 0, 1));
+    t_sphere s = sphere_create();
+
+    float t0, t1;
+    int count = intersect(s, r, &t0, &t1);
+
+    if (count == 0)
+        printf("Test passed: No intersection as sphere is behind the ray.\n");
+    else
+        printf("Test failed: Unexpected intersections found.\n");
+}
+
+void test_sphere_at_origin()
+{
+    t_ray r = ray(point(0, 0, -5), vector(0, 0, 1));
+    t_sphere s = sphere_create(); // Assuming sphere center at origin and radius 1
+
+    float t0, t1;
+    int count = intersect(s, r, &t0, &t1);
+
+    if (count == 2 && fabs(t0 - 4.0) < EPSILON && fabs(t1 - 6.0) < EPSILON)
         printf("Test passed: The ray intersects the sphere at two points.\n");
-    } else 
-    {
+    else
         printf("Test failed: Incorrect intersection points.\n");
-    }
 }
 
 void printimage(void *param, t_map *map)
@@ -167,7 +259,12 @@ void printimage(void *param, t_map *map)
 			write_color(t_color_create(1,1,1), var, i, j);
 		}
 	}
-    test_position_function();
+    test_no_intersection();
+    test_tangent_intersection();
+    test_ray_origin_inside_sphere();
+    test_sphere_behind_ray();
+    test_sphere_at_origin();
+    //test_position_function();
 	//print_clock_face(var);
 }
 

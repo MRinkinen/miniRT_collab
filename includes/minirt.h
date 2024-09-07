@@ -102,38 +102,37 @@ typedef struct s_cylinders
 	t_color color;		// t_color of the cylinder
 } t_cylinders;
 
-/*
-typedef struct s_sphere
-{
-	t_hittable base;
-	t_vec3 center;
-	float radius;
-	t_color color;
-} t_sphere;
-*/
+typedef struct s_sphere {
+    t_tuple center;  // Sphere's center (position)
+    float radius;    // Sphere's radius
+    t_color color;   // Sphere's color
 
-typedef struct s_sphere
-{
-	t_hittable base;
-	t_tuple center;
-	float radius;
-	t_color color;
-} t_sphere;
+    // Transformation matrices
+    t_matrix *transform;        // Combined transformation matrix
+    t_matrix *inverse_transform; // Inverse of the combined transformation matrix
 
-typedef struct s_ambienlight
-{
-	t_color color;
-	float intensity;
-} t_ambienlight;
+    // Optional: Separate transformation components if needed
+    t_matrix *translation_matrix; // Translation matrix
+    t_matrix *rotation_matrix;    // Rotation matrix
+    t_matrix *scaling_matrix;     // Scaling matrix
+
+} t_sphere;
 
 typedef struct
 {
-	t_vec3 position;
-	t_vec3 forward;
-	t_vec3 right;
-	t_vec3 up;
+	t_tuple position;
+	t_tuple forward;
+	t_tuple right;
+	t_tuple up;
 	float fov; // Field of view in degrees
 	float aspect_ratio;
+	float viewport_height;
+	float viewport_width;
+	float focal_length;
+
+	t_tuple horizontal;
+	t_tuple vertical;
+	t_tuple lower_left_corner;
 } t_cam;
 
 typedef struct s_var
@@ -149,29 +148,32 @@ typedef struct s_var
 	t_vec3 camera_center;
 	float fov;			   // FOV in degrees
 	float theta;		   // Convert FOV to radians
-	float viewport_height; // Height of the viewport at a focal length of 1 unit
-	float viewport_width;
+	 // Height of the viewport at a focal length of 1 unit
+
 	t_vec3 pixel_delta_u;
 	t_vec3 pixel_delta_v;
 	t_vec3 pixel00_loc;
 
 	t_vec3 light_position; // Test light
 	mlx_image_t *testimage;
-	hittable_list hittables;
-	t_ambienlight ambientl;
+	//hittable_list hittables;
+	t_color ambientl;
 	t_cam cam;
+
+	t_sphere *test_sphere;
+	int num_spheres;
 } t_var;
 
 
 
-void initialize_camera(t_cam *camera, t_vec3 position, t_vec3 look_at, t_vec3 up, float fov, float aspect_ratio);
+void initialize_camera(t_var *var, t_cam *camera, t_map *map);
 
 /*MLX*/
 void ft_hook(void *param);
 void hooks(t_var *var);
 int mlxinit(t_var *var, t_map *map);
 
-void printimage(void *param, t_map *map);
+void printimage(void *param);
 
 // bool sphere_hit(const t_hittable *self, const t_ray *r, float tmin, float tmax, t_hit *rec);
 

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minirt.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mrinkine <mrinkine@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/15 12:02:26 by mrinkine          #+#    #+#             */
-/*   Updated: 2024/09/07 12:32:00 by tvalimak         ###   ########.fr       */
+/*   Updated: 2024/09/07 17:59:16 by mrinkine         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,50 +37,109 @@ int intersect(t_sphere sphere, t_ray ray, float *t0, float *t1) {
     }
 }*/
 
-int intersect(t_sphere sphere, t_ray ray, float *t0, float *t1)
-{
-    t_tuple oc = tuple_subtract(ray.origin, sphere.center);
-    float a = dot(ray.direction, ray.direction);
-    float b = 2.0 * dot(oc, ray.direction);
-    float c = dot(oc, oc) - sphere.radius * sphere.radius;
-    float discriminant = b * b - 4 * a * c;
+int intersect(t_sphere s, t_ray r, float *t0, float *t1) {
+    // Calculate vector from ray origin to sphere center
+    t_tuple sphere_to_ray = tuple_subtract(r.origin, s.center);
+
+    float a = dot(r.direction, r.direction);  // Always 1 since the direction is normalized
+    float b = 2 * dot(sphere_to_ray, r.direction);
+    float c = dot(sphere_to_ray, sphere_to_ray) - (s.radius * s.radius);
+    float discriminant = (b * b) - (4 * a * c);
 
     if (discriminant < 0) {
-        return 0; // No intersection
+        return 0;  // No intersection
     } else {
-        float sqrt_discriminant = sqrt(discriminant);
-        float root1 = (-b - sqrt_discriminant) / (2 * a);
-        float root2 = (-b + sqrt_discriminant) / (2 * a);
-
-        if (root1 > root2) {
-            float temp = root1;
-            root1 = root2;
-            root2 = temp;
-        }
-
-        if (root1 >= 0) {
-            *t0 = root1;
-            if (root2 >= 0) {
-                *t1 = root2;
-                return 2; // Two intersections
-            }
-            *t1 = *t0; // Only one intersection is valid and ahead
-            return 1;
-        }
-        if (root2 >= 0) {
-            *t0 = *t1 = root2; // Only the second intersection is valid and ahead
-            return 1;
-        }
-        return 0; // Both intersections are behind
+        *t0 = (-b - sqrt(discriminant)) / (2 * a);
+        *t1 = (-b + sqrt(discriminant)) / (2 * a);
+        return 1;  // Intersection found
     }
 }
 
-t_sphere sphere_create()
+// int intersect(t_sphere s, t_ray r, float *t0, float *t1) {
+//     // Sphere center at the origin for simplicity
+//     t_tuple sphere_to_ray = tuple_subtract(r.origin, point(0, 0, -10));
+
+//     float a = dot(r.direction, r.direction);
+//     float b = 2 * dot(sphere_to_ray, r.direction);
+//     float c = dot(sphere_to_ray, sphere_to_ray) - s.radius * s.radius;
+//     float discriminant = b * b - 4 * a * c;
+
+//     if (discriminant < 0) {
+//         return 0;  // No intersections
+//     } else {
+//         *t0 = (-b - sqrt(discriminant)) / (2 * a);
+//         *t1 = (-b + sqrt(discriminant)) / (2 * a);
+//         return 2;  // Two intersections
+//     }
+// }
+
+// int intersect(t_sphere sphere, t_ray ray, float *t0, float *t1)
+// {
+//     t_tuple oc = tuple_subtract(ray.origin, sphere.center);
+//     float a = dot(ray.direction, ray.direction);
+//     float b = 2.0 * dot(oc, ray.direction);
+//     float c = dot(oc, oc) - sphere.radius * sphere.radius;
+//     float discriminant = b * b - 4 * a * c;
+
+//     if (discriminant < 0) {
+//         return 0; // No intersection
+//     } else {
+//         float sqrt_discriminant = sqrt(discriminant);
+//         float root1 = (-b - sqrt_discriminant) / (2 * a);
+//         float root2 = (-b + sqrt_discriminant) / (2 * a);
+
+//         if (root1 > root2) {
+//             float temp = root1;
+//             root1 = root2;
+//             root2 = temp;
+//         }
+
+//         if (root1 >= 0) {
+//             *t0 = root1;
+//             if (root2 >= 0) {
+//                 *t1 = root2;
+//                 return 2; // Two intersections
+//             }
+//             *t1 = *t0; // Only one intersection is valid and ahead
+//             return 1;
+//         }
+//         if (root2 >= 0) {
+//             *t0 = *t1 = root2; // Only the second intersection is valid and ahead
+//             return 1;
+//         }
+//         return 0; // Both intersections are behind
+//     }
+// }
+
+// t_sphere sphere_create()
+// {
+//     t_sphere s;
+//     s.center = point(0, 0, 0); // Center at world origin
+//     s.radius = 1.0; // Unit sphere
+//     s.color = t_color_create(1,0,0);
+//     return s;
+// }
+
+t_sphere sphere_create(t_tuple center, float radius, t_color col)
 {
-    t_sphere s;
-    s.center = point(0, 0, 0); // Center at world origin
-    s.radius = 1.0; // Unit sphere
-    return s;
+    t_sphere sphere;
+
+    //hittable_init(&sphere.base, sphere_hit);
+    sphere.color = col;
+    sphere.center = center;
+    sphere.radius = fmax(0, radius);
+
+     // Initialize transformation matrices
+    sphere.translation_matrix = translation(center.x, center.y, center.z);
+    sphere.rotation_matrix = identity_matrix(); // No rotation initially
+    sphere.scaling_matrix = scaling(radius, radius, radius);
+
+    // Combine transformations into one matrix
+    sphere.transform = t_matrix_multiply(t_matrix_multiply(sphere.translation_matrix, sphere.rotation_matrix), sphere.scaling_matrix);
+
+    // Calculate the inverse transform for ray-sphere intersection
+    sphere.inverse_transform = inverse(sphere.transform);
+    return (sphere);
 }
 
 // Function to multiply a tuple by a scalar
@@ -177,96 +236,42 @@ t_ray ray(t_tuple origin, t_tuple direction)
     return new_ray;
 }
 
-void test_no_intersection()
-{
-    t_ray r = ray(point(0, 2, -5), vector(0, 0, 1));
-    t_sphere s = sphere_create();
 
-    float t0, t1;
-    int count = intersect(s, r, &t0, &t1);
+// void printimage(void *param, t_map *map)
+// {
+// 	t_var *var;
+//  	var = param;
+// 	(void)map;
+//     t_sphere s = sphere_create();
+//     t_tuple camera_position = point(0, 0, 0);  // Assuming the camera is at (0,0,0)
+//     t_ray r = ray(camera_position, normalize(tuple_subtract(position, camera_position)));
 
-    if (count == 0)
-        printf("Test passed: No intersection as expected.\n");
-    else
-        printf("Test failed: Unexpected intersections found.\n");
-}
-
-void test_tangent_intersection()
-{
-    t_ray r = ray(point(1, 1, -5), vector(0, 0, 1));
-    t_sphere s = sphere_create();
-
-    float t0, t1;
-    int count = intersect(s, r, &t0, &t1);
-
-    if (count == 1)
-        printf("Test passed: One tangent intersection as expected.\n");
-    else
-        printf("Test failed: Incorrect number of intersections.\n");
-}
-
-void test_ray_origin_inside_sphere()
-{
-    t_ray r = ray(point(0, 0, 0), vector(0, 0, 1));
-    t_sphere s = sphere_create();
-
-    float t0, t1;
-    int count = intersect(s, r, &t0, &t1);
-
-    if (count == 2)
-        printf("Test passed: Two intersections from inside the sphere.\n");
-    else
-        printf("Test failed: Incorrect number of intersections.\n");
-}
-
-void test_sphere_behind_ray()
-{
-    t_ray r = ray(point(0, 0, 5), vector(0, 0, 1));
-    t_sphere s = sphere_create();
-
-    float t0, t1;
-    int count = intersect(s, r, &t0, &t1);
-
-    if (count == 0)
-        printf("Test passed: No intersection as sphere is behind the ray.\n");
-    else
-        printf("Test failed: Unexpected intersections found.\n");
-}
-
-void test_sphere_at_origin()
-{
-    t_ray r = ray(point(0, 0, -5), vector(0, 0, 1));
-    t_sphere s = sphere_create(); // Assuming sphere center at origin and radius 1
-
-    float t0, t1;
-    int count = intersect(s, r, &t0, &t1);
-
-    if (count == 2 && fabs(t0 - 4.0) < EPSILON && fabs(t1 - 6.0) < EPSILON)
-        printf("Test passed: The ray intersects the sphere at two points.\n");
-    else
-        printf("Test failed: Incorrect intersection points.\n");
-}
-
-void printimage(void *param, t_map *map)
-{
-	t_var *var;
- 	var = param;
-	(void)map;
-	for (int j = 0; j < (int)var->image_height; j++)
-	{
-		for (int i = 0; i < SCREEN_WIDTH; i++)
-		{
-			write_color(t_color_create(1,1,1), var, i, j);
-		}
-	}
-    test_no_intersection();
-    test_tangent_intersection();
-    test_ray_origin_inside_sphere();
-    test_sphere_behind_ray();
-    test_sphere_at_origin();
-    //test_position_function();
-	//print_clock_face(var);
-}
+// 	for (int y = 0; y < (int)var->image_height; y++)
+// 	{
+// 		for (int x = 0; x < SCREEN_WIDTH; x++)
+// 		{
+//             float t0, t1;
+//             t_tuple _ray_origin = point((float)x, (float)y, 0);
+//             t_tuple position = point((float)x, (float)y, -10);
+//             t_ray r = ray(_ray_origin,normalize(tuple_subtract(position,_ray_origin)));
+//             int xs = intersect(s, r ,&t0 , &t1);
+//             if (xs > 0) {
+//             // Intersection, color the pixel (e.g., red)
+//                 write_color(t_color_create(255, 0, 0), var, y, x);
+//             } else {
+//                 // No intersection, leave it black
+//                 write_color(t_color_create(0, 0, 0), var, y, x);
+//             }
+// 		}
+// 	}
+//     // test_no_intersection();
+//     // test_tangent_intersection();
+//     // test_ray_origin_inside_sphere();
+//     // test_sphere_behind_ray();
+//     // test_sphere_at_origin();
+//     //test_position_function();
+// 	//print_clock_face(var);
+// }
 
 // Multiplies a transformation matrix by a tuple and returns the transformed tuple
 t_tuple apply_transformation(t_matrix *transformation, t_tuple *point)
@@ -1033,6 +1038,88 @@ int matrices_are_equal(t_matrix *m1, t_matrix *m2) {
     }
     return 1;
 }
+void init_ambient_color(t_var *var, t_map *map)
+{
+    t_color ambient = t_color_create(map->ambient->r,map->ambient->b,map->ambient->g);
+    var->ambientl = multiply_color_scalar(ambient,map->ambient->ratio);
+}
+
+void init_test_sphere(t_var *var, t_map *map)
+{
+    int i = 0;
+    t_spheres *current_sphere = map->spheres;  // Create a temporary pointer to traverse the list
+    var->num_spheres = map->element_count->sphere;
+    var->test_sphere = malloc(var->num_spheres * sizeof(t_sphere));
+    if (!var->test_sphere)
+    {
+        // Handle malloc failure (optional)
+        return;
+    }
+
+    while (current_sphere != NULL)
+    {
+        t_tuple center = point(current_sphere->x, current_sphere->y, current_sphere->z);
+        float size = current_sphere->diameter;
+        t_color color = t_color_create(current_sphere->r, current_sphere->b, current_sphere->g);
+        var->test_sphere[i] = sphere_create(center, size, color);
+        i++;
+        current_sphere = current_sphere->next;  // Move to the next sphere in the list
+    }
+}
+
+void printimage(void *param)
+{
+    t_var *var;
+    var = param;
+
+    for (int y = 0; y < (int)var->image_height; y++)
+    {
+        for (int x = 0; x < SCREEN_WIDTH; x++)
+        {
+            float u = (float)x / (float)(SCREEN_WIDTH - 1);  // Map pixel x to [0, 1] range
+            float v = (float)y / (float)(var->image_height - 1);  // Map pixel y to [0, 1] range
+
+            // Calculate ray direction for each pixel
+            t_tuple ray_direction = normalize(tuple_subtract(
+                tuple_add(var->cam.lower_left_corner,
+                    tuple_add(tuple_multiply(var->cam.horizontal, u),
+                              tuple_multiply(var->cam.vertical, v))),
+                var->cam.position));
+            t_ray r = ray(var->cam.position, ray_direction);
+
+            bool hit_something = false;
+            t_color sphere_color = var->ambientl;  // Default to ambient light color if no sphere is hit
+            float closest_t = INFINITY;  // Track the closest intersection
+
+            // Loop over all spheres to find the closest hit
+            for (int i = 0; i < var->num_spheres; i++)
+            {
+                float t0, t1;
+                int xs = intersect(var->test_sphere[i], r, &t0, &t1);
+
+                // If there is an intersection and it's the closest so far
+                if (xs > 0 && t0 < closest_t)
+                {
+                    hit_something = true;
+                    closest_t = t0;
+                    sphere_color = var->test_sphere[i].color;  // Set color to the sphere's color
+                    break;
+                }
+            }
+
+            // If a sphere was hit, color the pixel with that sphere's color
+            if (hit_something)
+            {
+                write_color(sphere_color, var, x, y);
+            }
+            else
+            {
+                // No hit, apply ambient light color
+                write_color(var->ambientl, var, x, y);
+            }
+        }
+    }
+}
 
 int main(int argc, char **argv)
 {
@@ -1057,7 +1144,10 @@ int main(int argc, char **argv)
 	printf("image height: %f\n", var.image_height);
 	if (mlxinit(&var, map) == EXIT_FAILURE)
 		return (EXIT_FAILURE);
-	printimage(&var, map);
+    init_ambient_color(&var, map);
+    initialize_camera(&var, &var.cam, map);
+    init_test_sphere(&var, map); // TESTI SPHERE!!!!!
+	printimage(&var);
 	hooks(&var);
 	mlx_loop(var.mlx);
 	mlx_terminate(var.mlx);

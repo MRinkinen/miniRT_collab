@@ -6,7 +6,7 @@
 /*   By: mrinkine <mrinkine@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/16 09:33:18 by mrinkine          #+#    #+#             */
-/*   Updated: 2024/09/05 19:06:43 by mrinkine         ###   ########.fr       */
+/*   Updated: 2024/09/07 15:34:51 by mrinkine         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -186,22 +186,37 @@ void write_color(t_color col, t_var *var, int x, int y)
 //     return hit_anything; // Return true if any object was hit, false otherwise
 // }
 
-// void initialize_camera(t_cam *camera, t_vec3 position, t_vec3 look_at, t_vec3 up, float fov, float aspect_ratio)
-// {
-//     camera->position = position;
-//     camera->fov = fov;
-//     camera->aspect_ratio = aspect_ratio;
+void initialize_camera(t_var *var, t_cam *camera, t_map *map)
+{
+    camera->position = point(map->camera->x,map->camera->y,map->camera->z);
+    camera->fov = map->camera->fov;
+    //camera->aspect_ratio = (float)SCREEN_WIDTH / (float)var->image_height;
 
-//     // Calculate forward vector (direction the camera is looking at)
-//     camera->forward = normalize_vector(t_vec3_subtract_vectors(&look_at, &position));
+    camera->viewport_height = 2.0;  // Arbitrary, could be based on FOV
+    camera->viewport_width = camera->viewport_height * var->cam.aspect_ratio;
+    camera->focal_length = 1.0;
 
-//     // Ensure the up vector is normalized (important for the cross product)
-//     up = normalize_vector(up);
+    camera->horizontal = vector(var->cam.viewport_width, 0, 0);
+    camera->vertical = vector(0, var->cam.viewport_height, 0);
+    camera->lower_left_corner = tuple_subtract(tuple_subtract(tuple_subtract(camera->position, tuple_divide(camera->horizontal, 2)),
+                                                              tuple_divide(camera->vertical, 2)),
+                                               vector(0, 0, var->cam.focal_length));
 
-//     // Calculate right vector (horizontal direction, perpendicular to forward and up)
-//     camera->right = normalize_vector(t_vec3_cross(&camera->forward, &up));
+    // t_tuple horizontal = vector(var->cam.viewport_width, 0, 0);
+    // t_tuple vertical = vector(0, var->cam.viewport_height, 0);
+    // t_tuple lower_left_corner = tuple_subtract(tuple_subtract(tuple_subtract(camera_position, tuple_divide(horizontal, 2)),
+    //                                                           tuple_divide(vertical, 2)),
+    //                                            vector(0, 0, var->cam.focal_length));
+    // Calculate forward vector (direction the camera is looking at)
+    //camera->forward = normalize_vector(t_vec3_subtract_vectors(&look_at, &position));
 
-//     // Recalculate up vector to ensure orthogonality (vertical direction, perpendicular to forward and right)
-//     camera->up = normalize_vector(t_vec3_cross(&camera->right, &camera->forward));
+    // Ensure the up vector is normalized (important for the cross product)
+    //up = normalize_vector(up);
 
-// }
+    // Calculate right vector (horizontal direction, perpendicular to forward and up)
+    //camera->right = normalize_vector(t_vec3_cross(&camera->forward, &up));
+
+    // Recalculate up vector to ensure orthogonality (vertical direction, perpendicular to forward and right)
+    //camera->up = normalize_vector(t_vec3_cross(&camera->right, &camera->forward));
+
+}

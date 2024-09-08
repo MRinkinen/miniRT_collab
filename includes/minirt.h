@@ -92,6 +92,20 @@ void hittable_list_add(hittable_list *list, t_hittable *object);
 bool hittable_list_hit(const hittable_list *list, const t_ray *r, float tmin, float tmax, t_hit *rec);
 
 /*Experimental*/
+
+typedef struct s_plane
+{
+    t_matrix *transform;
+    t_matrix *inverse_transform;
+
+	t_matrix *translation_matrix;
+	t_matrix *rotation_matrix;
+	t_matrix *scaling_matrix;
+    t_color   color;
+
+	t_tuple	  center;
+} t_plane;
+
 typedef struct s_cylinders
 {
 	t_hittable base;	// Inherit hittable structure
@@ -102,7 +116,8 @@ typedef struct s_cylinders
 	t_color color;		// t_color of the cylinder
 } t_cylinders;
 
-typedef struct s_sphere {
+typedef struct s_sphere
+{
     t_tuple center;  // Sphere's center (position)
     float radius;    // Sphere's radius
     t_color color;   // Sphere's color
@@ -161,7 +176,9 @@ typedef struct s_var
 	t_cam cam;
 
 	t_sphere *test_sphere;
+	t_plane	 *test_plane;
 	int num_spheres;
+	int	num_planes;
 } t_var;
 
 

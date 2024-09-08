@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minirt.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mrinkine <mrinkine@student.42.fr>          +#+  +:+       +#+        */
+/*   By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/15 12:02:26 by mrinkine          #+#    #+#             */
-/*   Updated: 2024/09/07 17:59:16 by mrinkine         ###   ########.fr       */
+/*   Updated: 2024/09/08 14:56:38 by tvalimak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,7 +37,33 @@ int intersect(t_sphere sphere, t_ray ray, float *t0, float *t1) {
     }
 }*/
 
-int intersect(t_sphere s, t_ray r, float *t0, float *t1) {
+int plane_intersect(t_plane plane, t_ray r, float *t)
+{
+    // Transform ray into the plane's local space using the plane's inverse transform
+    t_tuple transformed_origin = apply_transformation(plane.inverse_transform, &r.origin);
+    t_tuple transformed_direction = apply_transformation(plane.inverse_transform, &r.direction);
+    
+    // Create a transformed ray from the transformed origin and direction
+    t_ray transformed_ray = ray(transformed_origin, transformed_direction);
+
+    // Avoid division by zero if the ray is parallel to the plane
+    if (fabs(transformed_ray.direction.y) < EPSILON) {
+        return 0;  // Ray is parallel to the plane, no intersection
+    }
+
+    // Calculate the intersection t value
+    *t = -transformed_ray.origin.y / transformed_ray.direction.y;
+    
+    // Only accept intersections that occur "in front" of the ray origin
+    if (*t >= 0) {
+        return 1; // One intersection
+    }
+
+    return 0; // No intersection
+}
+
+int intersect(t_sphere s, t_ray r, float *t0, float *t1)
+{
     // Calculate vector from ray origin to sphere center
     t_tuple sphere_to_ray = tuple_subtract(r.origin, s.center);
 
@@ -119,6 +145,48 @@ int intersect(t_sphere s, t_ray r, float *t0, float *t1) {
 //     s.color = t_color_create(1,0,0);
 //     return s;
 // }
+
+/*
+t_plane plane_create(t_tuple center, t_tuple normal, t_color color)
+{
+    t_plane plane;
+
+    (void)normal;
+    // Initialize transformation matrices based on provided center and normal
+    plane.translation_matrix = translation(center.x, center.y, center.z);
+    plane.rotation_matrix = rotation_from_normal(normal);  // You'd need to implement this
+    plane.scaling_matrix = identity_matrix();  // Typically no scaling for an infinite plane
+
+    // Combine transformations into one matrix
+    plane.transform = t_matrix_multiply(t_matrix_multiply(plane.translation_matrix, plane.rotation_matrix), plane.scaling_matrix);
+
+    // Calculate the inverse transform for ray-plane intersection
+    plane.inverse_transform = inverse(plane.transform);
+    plane.color = color;
+    return (plane);
+}*/
+
+t_plane plane_create(t_tuple center, t_color color)
+{
+    t_plane plane;
+
+    // Initialize transformation matrices
+    // Translation to move the plane to the specified center
+    plane.translation_matrix = translation(center.x, center.y, center.z);
+    
+    // No rotation or scaling is applied
+    plane.rotation_matrix = identity_matrix(); // No rotation needed for a default-aligned plane
+    plane.scaling_matrix = identity_matrix();  // No scaling needed for an infinite plane
+
+    // Combine transformations into one matrix, though in this simple case, it's just the translation
+    plane.transform = plane.translation_matrix;
+
+    // Calculate the inverse transform for ray-plane intersection calculations
+    plane.inverse_transform = inverse(plane.transform);
+    plane.color = color;
+
+    return plane;
+}
 
 t_sphere sphere_create(t_tuple center, float radius, t_color col)
 {
@@ -446,7 +514,8 @@ t_tuple multiply_matrix_tuple(t_matrix *m, t_tuple *p) {
 }
 
 // Function to create a 4x4 translation matrix
-t_matrix *translation(float x, float y, float z) {
+t_matrix *translation(float x, float y, float z) 
+{
     // Initialize the identity matrix
     t_matrix *transform = identity_matrix();
 
@@ -1044,6 +1113,30 @@ void init_ambient_color(t_var *var, t_map *map)
     var->ambientl = multiply_color_scalar(ambient,map->ambient->ratio);
 }
 
+void init_test_planes(t_var *var, t_map *map)
+{
+    int i = 0;
+    t_planes *current_plane = map->planes;  // Assuming map has a 'planes' linked list
+    var->num_planes = map->element_count->plane;  // Assuming map has an element count for planes
+    var->test_plane = malloc(var->num_planes * sizeof(t_plane));
+    if (!var->test_plane)
+    {
+        // Handle malloc failure (optional)
+        return;
+    }
+
+    while (current_plane != NULL)
+    {
+        t_tuple center = point(current_plane->x, current_plane->y, current_plane->z);
+//        t_tuple normal = vector(current_plane->nx, current_plane->ny, current_plane->nz);
+        t_color color = t_color_create(current_plane->r, current_plane->b, current_plane->g);
+        //var->test_plane[i] = plane_create(center, normal, color);
+        var->test_plane[i] = plane_create(center, color);
+        i++;
+        current_plane = current_plane->next;  // Move to the next plane in the list
+    }
+}
+
 void init_test_sphere(t_var *var, t_map *map)
 {
     int i = 0;
@@ -1147,6 +1240,9 @@ int main(int argc, char **argv)
     init_ambient_color(&var, map);
     initialize_camera(&var, &var.cam, map);
     init_test_sphere(&var, map); // TESTI SPHERE!!!!!
+    printf("test1\n");
+    init_test_planes(&var, map); // TESTI PLANE!!!!!
+    printf("test2\n");
 	printimage(&var);
 	hooks(&var);
 	mlx_loop(var.mlx);

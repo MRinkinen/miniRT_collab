@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   structs_n_lists.c                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mrinkine <mrinkine@student.42.fr>          +#+  +:+       +#+        */
+/*   By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/20 11:10:02 by tvalimak          #+#    #+#             */
-/*   Updated: 2024/09/05 19:11:11 by mrinkine         ###   ########.fr       */
+/*   Updated: 2024/09/08 14:27:16 by tvalimak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -87,7 +87,7 @@ int	print_data(t_map *map)
 	}
 
 	// Print Plane List
-	t_plane *plane = map->plane;
+	t_planes *plane = map->planes;
 	while (plane)
 	{
 		printf("Plane:\n");
@@ -133,8 +133,8 @@ int terminate_data(t_map *map, char *error)
     t_light *next_light;
     t_spheres *sphere;
     t_spheres *next_sphere;
-    t_plane *plane;
-    t_plane *next_plane;
+    t_planes *plane;
+    t_planes *next_plane;
     t_cylinder *cylinder;
     t_cylinder *next_cylinder;
 
@@ -163,7 +163,7 @@ int terminate_data(t_map *map, char *error)
         free(sphere);
         sphere = next_sphere;
     }
-    plane = map->plane;
+    plane = map->planes;
     while (plane)
     {
         next_plane = plane->next;

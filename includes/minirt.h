@@ -18,7 +18,8 @@
 #define SCREEN_WIDTH 1500
 #define MAX_OBJECTS 100
 #define PI 3.141592653589793
-#define EPSILON 0.00001
+#define EPSILON 0.9
+//#define EPSILON 0.00001
 
 typedef struct
 {
@@ -95,6 +96,7 @@ bool hittable_list_hit(const hittable_list *list, const t_ray *r, float tmin, fl
 
 typedef struct s_plane
 {
+	t_tuple	  normal;
     t_matrix *transform;
     t_matrix *inverse_transform;
 
@@ -109,8 +111,8 @@ typedef struct s_plane
 typedef struct s_cylinders
 {
 	t_hittable base;	// Inherit hittable structure
-	t_vec3 center;		// Center of the base of the cylinder
-	t_vec3 orientation; // Orientation of the cylinder (usually represented by a vector)
+	t_tuple center;		// Center of the base of the cylinder
+	t_tuple orientation; // Orientation of the cylinder (usually represented by a vector)
 	float radius;		// Radius of the cylinder
 	float height;		// Height of the cylinder
 	t_color color;		// t_color of the cylinder

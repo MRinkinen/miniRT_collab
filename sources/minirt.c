@@ -6,7 +6,7 @@
 /*   By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/15 12:02:26 by mrinkine          #+#    #+#             */
-/*   Updated: 2024/09/08 14:56:38 by tvalimak         ###   ########.fr       */
+/*   Updated: 2024/09/09 18:27:24 by tvalimak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,6 +37,14 @@ int intersect(t_sphere sphere, t_ray ray, float *t0, float *t1) {
     }
 }*/
 
+t_tuple local_normal_at(const t_plane *plane, t_tuple point) 
+{
+    // If transformations are applied to the plane, adjust the normal vector accordingly.
+    t_tuple local_normal = vector(0, 1, 0); // Default normal for a plane along XZ.
+    t_tuple world_normal = apply_transformation(transpose(inverse(plane->transform)), &local_normal);
+    return (normalize(world_normal));
+}
+
 int plane_intersect(t_plane plane, t_ray r, float *t)
 {
     // Transform ray into the plane's local space using the plane's inverse transform
@@ -47,7 +55,10 @@ int plane_intersect(t_plane plane, t_ray r, float *t)
     t_ray transformed_ray = ray(transformed_origin, transformed_direction);
 
     // Avoid division by zero if the ray is parallel to the plane
-    if (fabs(transformed_ray.direction.y) < EPSILON) {
+    printf("transformed_ray.direction.y = %f\n", r.direction.y);
+    if (fabs(transformed_ray.direction.y) < EPSILON)
+    {
+        printf("No hit to the plane 1\n");
         return 0;  // Ray is parallel to the plane, no intersection
     }
 
@@ -55,12 +66,33 @@ int plane_intersect(t_plane plane, t_ray r, float *t)
     *t = -transformed_ray.origin.y / transformed_ray.direction.y;
     
     // Only accept intersections that occur "in front" of the ray origin
-    if (*t >= 0) {
+    if (*t >= 0)
+    {
+        printf("Hit to the plane 2\n");
         return 1; // One intersection
     }
-
+    printf("No hit to the plane\n");
     return 0; // No intersection
 }
+/*
+int plane_intersect(t_plane plane, t_ray r, float *t)
+{
+    // Calculate vector from ray origin to plane center
+    t_tuple plane_to_ray = tuple_subtract(plane.center, r.origin);
+
+    // Calculate the denominator of the ray-plane intersection formula
+    float a = dot(r.direction, r.direction);
+    float b = 2 * dot(plane_to_ray, r.direction);
+    float c = dot(plane_to_ray, plane_to_ray);
+    float discriminant = (b * b) - (4 * a * c);
+
+    if (discriminant < 0) {
+        return 0;  // No intersection
+    } else {
+        *t = (-b - sqrt(discriminant)) / (2 * a);
+        return 1;  // Intersection found
+    }
+}*/
 
 int intersect(t_sphere s, t_ray r, float *t0, float *t1)
 {
@@ -170,22 +202,27 @@ t_plane plane_create(t_tuple center, t_color color)
 {
     t_plane plane;
 
+    plane.color = color;
+    plane.center = center;
+    
     // Initialize transformation matrices
     // Translation to move the plane to the specified center
     plane.translation_matrix = translation(center.x, center.y, center.z);
     
     // No rotation or scaling is applied
     plane.rotation_matrix = identity_matrix(); // No rotation needed for a default-aligned plane
-    plane.scaling_matrix = identity_matrix();  // No scaling needed for an infinite plane
+    //plane.scaling_matrix = identity_matrix();  // No scaling needed for an infinite plane
+    plane.scaling_matrix = scaling(1, 1, 1);
 
     // Combine transformations into one matrix, though in this simple case, it's just the translation
-    plane.transform = plane.translation_matrix;
+    //plane.transform = plane.translation_matrix;
+    plane.transform = t_matrix_multiply(t_matrix_multiply(plane.translation_matrix, plane.rotation_matrix), plane.scaling_matrix);
 
     // Calculate the inverse transform for ray-plane intersection calculations
     plane.inverse_transform = inverse(plane.transform);
     plane.color = color;
 
-    return plane;
+    return (plane);
 }
 
 t_sphere sphere_create(t_tuple center, float radius, t_color col)
@@ -1181,7 +1218,7 @@ void printimage(void *param)
             t_ray r = ray(var->cam.position, ray_direction);
 
             bool hit_something = false;
-            t_color sphere_color = var->ambientl;  // Default to ambient light color if no sphere is hit
+            t_color object_color = var->ambientl;  // Default to ambient light color if no object is hit
             float closest_t = INFINITY;  // Track the closest intersection
 
             // Loop over all spheres to find the closest hit
@@ -1195,15 +1232,31 @@ void printimage(void *param)
                 {
                     hit_something = true;
                     closest_t = t0;
-                    sphere_color = var->test_sphere[i].color;  // Set color to the sphere's color
-                    break;
+                    object_color = var->test_sphere[i].color;  // Set color to the sphere's color
+                    break ;
                 }
             }
 
-            // If a sphere was hit, color the pixel with that sphere's color
+            // Loop over all planes to find the closest hit
+            for (int i = 0; i < var->num_planes; i++)
+            {
+                float t;
+                int hit = plane_intersect(var->test_plane[i], r, &t);
+
+                // If there is an intersection and it's the closest so far
+                if (hit && t < closest_t)
+                {
+                    hit_something = true;
+                    closest_t = t;
+                    object_color = var->test_plane[i].color;  // Set color to the plane's color
+                    break ;
+                }
+            }
+
+            // If an object was hit, color the pixel with that object's color
             if (hit_something)
             {
-                write_color(sphere_color, var, x, y);
+                write_color(object_color, var, x, y);
             }
             else
             {
@@ -1240,9 +1293,7 @@ int main(int argc, char **argv)
     init_ambient_color(&var, map);
     initialize_camera(&var, &var.cam, map);
     init_test_sphere(&var, map); // TESTI SPHERE!!!!!
-    printf("test1\n");
     init_test_planes(&var, map); // TESTI PLANE!!!!!
-    printf("test2\n");
 	printimage(&var);
 	hooks(&var);
 	mlx_loop(var.mlx);

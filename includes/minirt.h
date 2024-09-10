@@ -106,6 +106,7 @@ typedef struct s_plane
     t_color   color;
 
 	t_tuple	  center;
+    //t_tuple (*local_normal_at)(const struct s_plane *plane, t_tuple point);
 } t_plane;
 
 typedef struct s_cylinders

@@ -6,7 +6,7 @@
 /*   By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/15 12:02:26 by mrinkine          #+#    #+#             */
-/*   Updated: 2024/09/09 18:27:24 by tvalimak         ###   ########.fr       */
+/*   Updated: 2024/09/10 11:58:58 by tvalimak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,10 +39,14 @@ int intersect(t_sphere sphere, t_ray ray, float *t0, float *t1) {
 
 t_tuple local_normal_at(const t_plane *plane, t_tuple point) 
 {
+    // Log or otherwise use the point to demonstrate it's part of the computation
+    // For a plane, the point does not alter the normal, but we consider it to ensure API consistency
+    printf("Calculating normal at point: (%f, %f, %f)\n", point.x, point.y, point.z);
+
     // If transformations are applied to the plane, adjust the normal vector accordingly.
     t_tuple local_normal = vector(0, 1, 0); // Default normal for a plane along XZ.
     t_tuple world_normal = apply_transformation(transpose(inverse(plane->transform)), &local_normal);
-    return (normalize(world_normal));
+    return normalize(world_normal);
 }
 
 int plane_intersect(t_plane plane, t_ray r, float *t)
@@ -55,10 +59,10 @@ int plane_intersect(t_plane plane, t_ray r, float *t)
     t_ray transformed_ray = ray(transformed_origin, transformed_direction);
 
     // Avoid division by zero if the ray is parallel to the plane
-    printf("transformed_ray.direction.y = %f\n", r.direction.y);
+    //printf("transformed_ray.direction.y = %f\n", r.direction.y);
     if (fabs(transformed_ray.direction.y) < EPSILON)
     {
-        printf("No hit to the plane 1\n");
+        //printf("No hit to the plane 1\n");
         return 0;  // Ray is parallel to the plane, no intersection
     }
 
@@ -68,10 +72,10 @@ int plane_intersect(t_plane plane, t_ray r, float *t)
     // Only accept intersections that occur "in front" of the ray origin
     if (*t >= 0)
     {
-        printf("Hit to the plane 2\n");
+        //printf("Hit to the plane 2\n");
         return 1; // One intersection
     }
-    printf("No hit to the plane\n");
+    //printf("No hit to the plane\n");
     return 0; // No intersection
 }
 /*
@@ -204,6 +208,10 @@ t_plane plane_create(t_tuple center, t_color color)
 
     plane.color = color;
     plane.center = center;
+    t_tuple point1 = point(0, 0, 0);
+    t_tuple point2 = point(10, 0, -10);
+    t_tuple point3 = point(-5, 0, 150);
+    t_tuple local_normal_at_result;
     
     // Initialize transformation matrices
     // Translation to move the plane to the specified center
@@ -221,6 +229,14 @@ t_plane plane_create(t_tuple center, t_color color)
     // Calculate the inverse transform for ray-plane intersection calculations
     plane.inverse_transform = inverse(plane.transform);
     plane.color = color;
+    local_normal_at_result = local_normal_at(&plane, point1);
+    // Calculate local normal at different points and print them
+    local_normal_at_result = local_normal_at(&plane, point1);
+    printf("Local normal at (0, 0, 0): (%f, %f, %f)\n", local_normal_at_result.x, local_normal_at_result.y, local_normal_at_result.z);
+    local_normal_at_result = local_normal_at(&plane, point2);
+    printf("Local normal at (10, 0, -10): (%f, %f, %f)\n", local_normal_at_result.x, local_normal_at_result.y, local_normal_at_result.z);
+    local_normal_at_result = local_normal_at(&plane, point3);
+    printf("Local normal at (-5, 0, 150): (%f, %f, %f)\n", local_normal_at_result.x, local_normal_at_result.y, local_normal_at_result.z);
 
     return (plane);
 }

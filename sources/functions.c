@@ -6,7 +6,7 @@
 /*   By: mrinkine <mrinkine@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/16 09:33:18 by mrinkine          #+#    #+#             */
-/*   Updated: 2024/09/07 15:34:51 by mrinkine         ###   ########.fr       */
+/*   Updated: 2024/09/10 14:05:31 by mrinkine         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,16 +19,14 @@ int32_t ft_pixel(int32_t r, int32_t g, int32_t b, int32_t a)
 }
 
 
-
-
 void write_color(t_color col, t_var *var, int x, int y)
 {
     // Translate the [0,1] component values to the byte range [0,255].
-    int ir = (int)(255.999 * col.r);
-    int ig = (int)(255.999 * col.b);
-    int ib = (int)(255.999 * col.g);
-
-    int color = ft_pixel(ir, ig, ib, 255);
+    // int ir = (int)(255.999 * col.r);
+    // int ig = (int)(255.999 * col.b);
+    // int ib = (int)(255.999 * col.g);
+    //printf("R %f G %f B %f \n", col.r, col.b, col.g);
+    int color = ft_pixel(col.r, col.b, col.g, 255);
     mlx_put_pixel(var->testimage, x, y, color);
 }
 

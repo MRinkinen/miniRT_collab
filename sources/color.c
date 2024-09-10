@@ -6,7 +6,7 @@
 /*   By: mrinkine <mrinkine@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/16 09:30:46 by mrinkine          #+#    #+#             */
-/*   Updated: 2024/08/29 12:24:48 by mrinkine         ###   ########.fr       */
+/*   Updated: 2024/09/10 14:05:07 by mrinkine         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,9 +37,13 @@ t_color t_color_create(float r, float g, float b)
 {
 	t_color result;
 
-    result.r = fmax(0.0, fmin(1.0, r));
-    result.g = fmax(0.0, fmin(1.0, g));
-    result.b = fmax(0.0, fmin(1.0, b));
+	// result.r = fmax(0.0, fmin(1.0, r));
+    // result.g = fmax(0.0, fmin(1.0, g));
+    // result.b = fmax(0.0, fmin(1.0, b));
+
+    result.r =  r;
+    result.g =  g;
+    result.b = 	b;
 	return (result);
 }
 

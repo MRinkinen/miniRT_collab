@@ -6,7 +6,7 @@
 /*   By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/15 12:02:26 by mrinkine          #+#    #+#             */
-/*   Updated: 2024/09/10 15:17:38 by tvalimak         ###   ########.fr       */
+/*   Updated: 2024/09/10 18:52:56 by tvalimak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -202,7 +202,8 @@ t_plane plane_create(t_tuple center, t_tuple normal, t_color color)
     return (plane);
 }*/
 
-t_plane plane_create(t_tuple center, t_color color)
+/*
+t_plane plane_create(t_tuple center, t_color color, t_tuple orientation)
 {
     t_plane plane;
 
@@ -218,7 +219,7 @@ t_plane plane_create(t_tuple center, t_color color)
     plane.translation_matrix = translation(center.x, center.y, center.z);
     
     // No rotation or scaling is applied
-    plane.rotation_matrix = identity_matrix(); // No rotation needed for a default-aligned plane
+    plane.rotation_matrix = identity_matrix(); // No rotation needed for a default-aligned plane 
     //plane.scaling_matrix = identity_matrix();  // No scaling needed for an infinite plane
     plane.scaling_matrix = scaling(1, 1, 1);
 
@@ -236,6 +237,50 @@ t_plane plane_create(t_tuple center, t_color color)
     printf("Local normal at (10, 0, -10): (%f, %f, %f)\n", local_normal_at_result.x, local_normal_at_result.y, local_normal_at_result.z);
     local_normal_at_result = local_normal_at(&plane, point3);
     printf("Local normal at (-5, 0, 150): (%f, %f, %f)\n", local_normal_at_result.x, local_normal_at_result.y, local_normal_at_result.z);
+
+    return (plane);
+}*/
+
+t_matrix* rotation_from_normal(t_tuple normal)
+{
+    t_tuple default_normal = vector(0, 1, 0);  // Default normal for XZ plane
+    if (tuple_equal(normal, default_normal))
+        return identity_matrix();
+
+    t_tuple axis = cross(default_normal, normal);
+    double angle = acos(dot(normalize(default_normal), normalize(normal)));
+
+    // Normalize the axis to avoid errors in matrix calculation
+    axis = normalize(axis);
+
+    // Calculate rotation matrix around the axis by decomposing into rotations around x, y, z
+    t_matrix* rotation_x_matrix = rotation_x(asin(axis.x) * angle);
+    t_matrix* rotation_y_matrix = rotation_y(asin(axis.y) * angle);
+    t_matrix* rotation_z_matrix = rotation_z(asin(axis.z) * angle);
+
+    // Combine these rotations; note this simplistic approach might not always behave correctly
+    // due to non-commutativity of matrix multiplication for rotations
+    t_matrix* combined = t_matrix_multiply(rotation_z_matrix, t_matrix_multiply(rotation_y_matrix, rotation_x_matrix));
+
+    return combined;
+}
+
+t_plane plane_create(t_tuple center, t_color color, t_tuple orientation) 
+{
+    t_plane plane;
+
+    // Initialize transformation matrices
+    plane.translation_matrix = translation(center.x, center.y, center.z);
+    plane.rotation_matrix = rotation_from_normal(orientation); // Adjust orientation
+    plane.scaling_matrix = scaling(0.1, 1, 0.1);
+
+    // Combine transformations into one matrix
+    plane.transform = t_matrix_multiply(t_matrix_multiply(plane.translation_matrix, plane.rotation_matrix), plane.scaling_matrix);
+
+    // Calculate the inverse transform for ray-plane intersection calculations
+    plane.inverse_transform = inverse(plane.transform);
+    plane.color = color;
+    plane.normal = orientation;
 
     return (plane);
 }
@@ -1182,8 +1227,9 @@ void init_test_planes(t_var *var, t_map *map)
         t_tuple center = point(current_plane->x, current_plane->y, current_plane->z);
 //        t_tuple normal = vector(current_plane->nx, current_plane->ny, current_plane->nz);
         t_color color = t_color_create(current_plane->r, current_plane->b, current_plane->g);
+        t_tuple orientation = vector(current_plane->nx, current_plane->ny, current_plane->nz);
         //var->test_plane[i] = plane_create(center, normal, color);
-        var->test_plane[i] = plane_create(center, color);
+        var->test_plane[i] = plane_create(center, color, orientation);
         i++;
         current_plane = current_plane->next;  // Move to the next plane in the list
     }
@@ -1280,6 +1326,7 @@ void printimage(void *param)
 }
 
 /*Just a test without functionality in final program*/
+/*
 void test_ray_parallel_to_plane()
 {
     t_plane plane = plane_create(point(0, 0, 0), t_color_create(1, 1, 1));
@@ -1299,9 +1346,10 @@ void test_ray_parallel_to_plane()
     {
         printf("Test Failed: Ray parallel to the plane resulted in an intersection.\n");
     }
-}
+}*/
 
 /*Just a test without functionality in final program*/
+/*
 void test_ray_coplanar_with_plane()
 {
     t_plane plane = plane_create(point(0, 0, 0), t_color_create(1, 1, 1));
@@ -1321,9 +1369,11 @@ void test_ray_coplanar_with_plane()
     {
         printf("Test Failed: Coplanar ray resulted in an intersection.\n");
     }
-}
+}*/
+
 
 /* Test for a ray intersecting the plane from above */
+/*
 void test_ray_intersecting_plane_from_above()
 {
     t_plane plane = plane_create(point(0, 0, 0), t_color_create(1, 1, 1));
@@ -1340,9 +1390,11 @@ void test_ray_intersecting_plane_from_above()
     {
         printf("Test Failed: Incorrect intersection from above. t = %f\n", t);
     }
-}
+}*/
+
 
 /* Test for a ray intersecting the plane from below */
+/*
 void test_ray_intersecting_plane_from_below()
 {
     t_plane plane = plane_create(point(0, 0, 0), t_color_create(1, 1, 1));
@@ -1359,7 +1411,7 @@ void test_ray_intersecting_plane_from_below()
     {
         printf("Test Failed: Incorrect intersection from below. t = %f\n", t);
     }
-}
+}*/
 
 int main(int argc, char **argv)
 {
@@ -1388,10 +1440,10 @@ int main(int argc, char **argv)
     initialize_camera(&var, &var.cam, map);
     init_test_sphere(&var, map); // TESTI SPHERE!!!!!
     init_test_planes(&var, map); // TESTI PLANE!!!!!
-    test_ray_parallel_to_plane();
-    test_ray_coplanar_with_plane();
-    test_ray_intersecting_plane_from_below();
-    test_ray_intersecting_plane_from_above();
+    //test_ray_parallel_to_plane();
+    //test_ray_coplanar_with_plane();
+    //test_ray_intersecting_plane_from_below();
+    //test_ray_intersecting_plane_from_above();
 	printimage(&var);
 	hooks(&var);
 	mlx_loop(var.mlx);

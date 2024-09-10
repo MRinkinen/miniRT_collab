@@ -99,13 +99,12 @@ typedef struct s_plane
 	t_tuple	  normal;
     t_matrix *transform;
     t_matrix *inverse_transform;
-
 	t_matrix *translation_matrix;
 	t_matrix *rotation_matrix;
 	t_matrix *scaling_matrix;
     t_color   color;
-
 	t_tuple	  center;
+	t_tuple   orientation;
     //t_tuple (*local_normal_at)(const struct s_plane *plane, t_tuple point);
 } t_plane;
 

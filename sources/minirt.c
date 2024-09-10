@@ -6,7 +6,7 @@
 /*   By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/15 12:02:26 by mrinkine          #+#    #+#             */
-/*   Updated: 2024/09/10 11:58:58 by tvalimak         ###   ########.fr       */
+/*   Updated: 2024/09/10 15:17:38 by tvalimak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -231,7 +231,6 @@ t_plane plane_create(t_tuple center, t_color color)
     plane.color = color;
     local_normal_at_result = local_normal_at(&plane, point1);
     // Calculate local normal at different points and print them
-    local_normal_at_result = local_normal_at(&plane, point1);
     printf("Local normal at (0, 0, 0): (%f, %f, %f)\n", local_normal_at_result.x, local_normal_at_result.y, local_normal_at_result.z);
     local_normal_at_result = local_normal_at(&plane, point2);
     printf("Local normal at (10, 0, -10): (%f, %f, %f)\n", local_normal_at_result.x, local_normal_at_result.y, local_normal_at_result.z);
@@ -1252,13 +1251,11 @@ void printimage(void *param)
                     break ;
                 }
             }
-
             // Loop over all planes to find the closest hit
             for (int i = 0; i < var->num_planes; i++)
             {
                 float t;
                 int hit = plane_intersect(var->test_plane[i], r, &t);
-
                 // If there is an intersection and it's the closest so far
                 if (hit && t < closest_t)
                 {
@@ -1268,7 +1265,6 @@ void printimage(void *param)
                     break ;
                 }
             }
-
             // If an object was hit, color the pixel with that object's color
             if (hit_something)
             {
@@ -1280,6 +1276,88 @@ void printimage(void *param)
                 write_color(var->ambientl, var, x, y);
             }
         }
+    }
+}
+
+/*Just a test without functionality in final program*/
+void test_ray_parallel_to_plane()
+{
+    t_plane plane = plane_create(point(0, 0, 0), t_color_create(1, 1, 1));
+    t_tuple point1;
+    t_tuple vector1;
+
+    point1 = point(0, 10, 0);
+    vector1 = vector(0, 0, 1);
+    t_ray ray1 = ray(point1, vector1);  // Parallel and not coplanar
+    float t;
+
+    int result = plane_intersect(plane, ray1, &t);
+    if (result == 0)
+    {
+        printf("Test Passed: Ray parallel to the plane resulted in no intersections.\n");
+    } else 
+    {
+        printf("Test Failed: Ray parallel to the plane resulted in an intersection.\n");
+    }
+}
+
+/*Just a test without functionality in final program*/
+void test_ray_coplanar_with_plane()
+{
+    t_plane plane = plane_create(point(0, 0, 0), t_color_create(1, 1, 1));
+    t_tuple point1;
+    t_tuple vector1;
+
+    point1 = point(0, 0, 0);
+    vector1 = vector(0, 0, 1);
+    t_ray ray1 = ray(point1, vector1);  // Coplanar
+    float t;
+
+    int result = plane_intersect(plane, ray1, &t);
+    if (result == 0)
+    {
+        printf("Test Passed: Coplanar ray resulted in no intersections.\n");
+    } else
+    {
+        printf("Test Failed: Coplanar ray resulted in an intersection.\n");
+    }
+}
+
+/* Test for a ray intersecting the plane from above */
+void test_ray_intersecting_plane_from_above()
+{
+    t_plane plane = plane_create(point(0, 0, 0), t_color_create(1, 1, 1));
+    t_tuple point1 = point(0, 1, 0);   // Above the plane
+    t_tuple vector1 = vector(0, -1, 0); // Heading towards the plane
+    t_ray ray1 = ray(point1, vector1);
+    float t;
+
+    int result = plane_intersect(plane, ray1, &t);
+    if (result == 1 && fabs(t - 1) < EPSILON)
+    {
+        printf("Test Passed: Ray from above intersects the plane at t = 1.\n");
+    } else
+    {
+        printf("Test Failed: Incorrect intersection from above. t = %f\n", t);
+    }
+}
+
+/* Test for a ray intersecting the plane from below */
+void test_ray_intersecting_plane_from_below()
+{
+    t_plane plane = plane_create(point(0, 0, 0), t_color_create(1, 1, 1));
+    t_tuple point1 = point(0, -1, 0);  // Below the plane
+    t_tuple vector1 = vector(0, 1, 0); // Heading towards the plane
+    t_ray ray1 = ray(point1, vector1);
+    float t;
+
+    int result = plane_intersect(plane, ray1, &t);
+    if (result == 1 && fabs(t - 1) < EPSILON)
+    {
+        printf("Test Passed: Ray from below intersects the plane at t = 1.\n");
+    } else
+    {
+        printf("Test Failed: Incorrect intersection from below. t = %f\n", t);
     }
 }
 
@@ -1310,6 +1388,10 @@ int main(int argc, char **argv)
     initialize_camera(&var, &var.cam, map);
     init_test_sphere(&var, map); // TESTI SPHERE!!!!!
     init_test_planes(&var, map); // TESTI PLANE!!!!!
+    test_ray_parallel_to_plane();
+    test_ray_coplanar_with_plane();
+    test_ray_intersecting_plane_from_below();
+    test_ray_intersecting_plane_from_above();
 	printimage(&var);
 	hooks(&var);
 	mlx_loop(var.mlx);

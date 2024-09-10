@@ -18,8 +18,8 @@
 #define SCREEN_WIDTH 1500
 #define MAX_OBJECTS 100
 #define PI 3.141592653589793
-#define EPSILON 0.9
-//#define EPSILON 0.00001
+//#define EPSILON 0.9
+#define EPSILON 0.00001
 
 typedef struct
 {

@@ -6,7 +6,7 @@
 /*   By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/10 19:39:44 by tvalimak          #+#    #+#             */
-/*   Updated: 2024/09/08 14:27:08 by tvalimak         ###   ########.fr       */
+/*   Updated: 2024/09/11 15:25:51 by tvalimak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -83,7 +83,7 @@ typedef struct s_planes
 	t_map			*map;
 }				t_planes;
 
-typedef struct s_cylinder
+typedef struct s_cylinders
 {
 	float				x;
 	float				y;
@@ -96,9 +96,9 @@ typedef struct s_cylinder
 	int					r;
 	int					g;
 	int					b;
-	struct s_cylinder	*next;
+	struct s_cylinders	*next;
 	t_map				*map;
-}				t_cylinder;
+}				t_cylinders;
 
 typedef struct s_element_count
 {
@@ -116,8 +116,8 @@ typedef struct s_map
 	t_camera		*camera;
 	t_light			*light;
 	t_spheres		*spheres;
-	t_planes			*planes;
-	t_cylinder		*cylinder;
+	t_planes		*planes;
+	t_cylinders		*cylinders;
 	t_element_count	*element_count;
 }				t_map;
 

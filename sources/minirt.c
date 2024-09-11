@@ -6,7 +6,7 @@
 /*   By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/15 12:02:26 by mrinkine          #+#    #+#             */
-/*   Updated: 2024/09/10 18:52:56 by tvalimak         ###   ########.fr       */
+/*   Updated: 2024/09/11 17:09:23 by tvalimak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,6 +49,69 @@ t_tuple local_normal_at(const t_plane *plane, t_tuple point)
     return normalize(world_normal);
 }
 
+int cylinder_intersect(t_cylinder cyl, t_ray ray, float *t0, float *t1)
+{
+    (void)cyl;
+    // We ignore the y-component because the cylinder is infinite along the y-axis
+    float a = ray.direction.x * ray.direction.x + ray.direction.z * ray.direction.z;
+    // Ray is parallel to the y-axis (if a is approximately zero)
+    if (fabs(a) < EPSILON)
+    {
+        return (0); // No intersection
+    }
+    float b = 2 * (ray.origin.x * ray.direction.x + ray.origin.z * ray.direction.z);
+    float c = ray.origin.x * ray.origin.x + ray.origin.z * ray.origin.z - 1;
+    // Calculate the discriminant
+    float discriminant = b * b - 4 * a * c;
+    // If the discriminant is negative, the ray does not intersect the cylinder
+    if (discriminant < 0)
+    {
+        return (0);
+    }
+    // Calculate the two intersection points using the quadratic formula
+    float sqrt_discriminant = sqrt(discriminant);
+    *t0 = (-b - sqrt_discriminant) / (2 * a);
+    *t1 = (-b + sqrt_discriminant) / (2 * a);
+    // Ensure that t0 is the smaller value and t1 is the larger value
+    if (*t0 > *t1)
+    {
+        float temp = *t0;
+        *t0 = *t1;
+        *t1 = temp;
+    }
+    return (2);  // Two intersections
+}
+
+int plane_intersect(t_plane plane, t_ray r, float *t)
+{
+    float   plane_size;
+
+    plane_size = 10;
+    // Transform ray into the plane's local space using the plane's inverse transform
+    t_tuple transformed_origin = apply_transformation(plane.inverse_transform, &r.origin);
+    t_tuple transformed_direction = apply_transformation(plane.inverse_transform, &r.direction);
+    // Create a transformed ray from the transformed origin and direction
+    t_ray transformed_ray = ray(transformed_origin, transformed_direction);
+    // Avoid division by zero if the ray is parallel to the plane
+    if (fabs(transformed_ray.direction.y) < EPSILON) {
+        return 0;  // Ray is parallel to the plane, no intersection
+    }
+    // Calculate the intersection t value
+    *t = -transformed_ray.origin.y / transformed_ray.direction.y;
+    // Only accept intersections that occur "in front" of the ray origin
+    if (*t >= 0) {
+        // Check if the intersection point is within the bounds of the "finite" plane
+        t_tuple intersection_point = position(transformed_ray, *t);
+
+        // Limit the plane to a finite size (for testing purposes, e.g., a plane_size x plane_size square)
+        if (fabs(intersection_point.x) <= plane_size / 2 && fabs(intersection_point.z) <= plane_size / 2) {
+            return 1; // One intersection within the finite plane bounds
+        }
+    }
+    return (0); // No intersection
+}
+
+/*
 int plane_intersect(t_plane plane, t_ray r, float *t)
 {
     // Transform ray into the plane's local space using the plane's inverse transform
@@ -77,7 +140,7 @@ int plane_intersect(t_plane plane, t_ray r, float *t)
     }
     //printf("No hit to the plane\n");
     return 0; // No intersection
-}
+}*/
 /*
 int plane_intersect(t_plane plane, t_ray r, float *t)
 {
@@ -262,7 +325,31 @@ t_matrix* rotation_from_normal(t_tuple normal)
     // due to non-commutativity of matrix multiplication for rotations
     t_matrix* combined = t_matrix_multiply(rotation_z_matrix, t_matrix_multiply(rotation_y_matrix, rotation_x_matrix));
 
-    return combined;
+    return (combined);
+}
+
+t_cylinder cylinder_create(t_tuple center, float radius, float height, t_color color, t_tuple orientation)
+{
+    t_cylinder cylinder;
+
+    // Initialize transformation matrices
+    cylinder.translation_matrix = translation(center.x, center.y, center.z);
+    cylinder.rotation_matrix = rotation_from_normal(orientation); // Adjust orientation based on the given vector
+    cylinder.scaling_matrix = scaling(radius, height, radius); // Scale by radius in xz and height in y
+
+    // Combine transformations into one matrix
+    cylinder.transform = t_matrix_multiply(t_matrix_multiply(cylinder.translation_matrix, cylinder.rotation_matrix), cylinder.scaling_matrix);
+
+    // Calculate the inverse transform for ray-cylinder intersection calculations
+    cylinder.inverse_transform = inverse(cylinder.transform);
+    
+    // Set other cylinder properties
+    cylinder.color = color;
+    cylinder.radius = radius;
+    cylinder.height = height;
+    cylinder.normal = orientation;
+
+    return cylinder;
 }
 
 t_plane plane_create(t_tuple center, t_color color, t_tuple orientation) 
@@ -272,7 +359,7 @@ t_plane plane_create(t_tuple center, t_color color, t_tuple orientation)
     // Initialize transformation matrices
     plane.translation_matrix = translation(center.x, center.y, center.z);
     plane.rotation_matrix = rotation_from_normal(orientation); // Adjust orientation
-    plane.scaling_matrix = scaling(0.1, 1, 0.1);
+    plane.scaling_matrix = scaling((float)1, (float)1, (float)1);
 
     // Combine transformations into one matrix
     plane.transform = t_matrix_multiply(t_matrix_multiply(plane.translation_matrix, plane.rotation_matrix), plane.scaling_matrix);
@@ -1210,6 +1297,28 @@ void init_ambient_color(t_var *var, t_map *map)
     var->ambientl = multiply_color_scalar(ambient,map->ambient->ratio);
 }
 
+void init_test_cylinders(t_var *var, t_map *map)
+{
+    int i = 0;
+    t_cylinders *current_cylinder = map->cylinders;
+    var->num_cylinders = map->element_count->cylinder;
+    var->test_cylinder = malloc(var->num_cylinders * sizeof(t_cylinder));
+    if (!var->test_cylinder)
+    {
+        // Handle malloc failure (optional)
+        return;
+    }
+    while (current_cylinder != NULL)
+    {
+        t_tuple center = point(current_cylinder->x, current_cylinder->y, current_cylinder->z);
+        t_color color = t_color_create(current_cylinder->r, current_cylinder->b, current_cylinder->g);
+        t_tuple orientation = vector(current_cylinder->nx, current_cylinder->ny, current_cylinder->nz);
+        var->test_cylinder[i] = cylinder_create(center, current_cylinder->diameter, current_cylinder->height, color, orientation);
+        i++;
+        current_cylinder = current_cylinder->next;
+    }
+}
+
 void init_test_planes(t_var *var, t_map *map)
 {
     int i = 0;
@@ -1225,7 +1334,6 @@ void init_test_planes(t_var *var, t_map *map)
     while (current_plane != NULL)
     {
         t_tuple center = point(current_plane->x, current_plane->y, current_plane->z);
-//        t_tuple normal = vector(current_plane->nx, current_plane->ny, current_plane->nz);
         t_color color = t_color_create(current_plane->r, current_plane->b, current_plane->g);
         t_tuple orientation = vector(current_plane->nx, current_plane->ny, current_plane->nz);
         //var->test_plane[i] = plane_create(center, normal, color);
@@ -1294,9 +1402,9 @@ void printimage(void *param)
                     hit_something = true;
                     closest_t = t0;
                     object_color = var->test_sphere[i].color;  // Set color to the sphere's color
-                    break ;
                 }
             }
+
             // Loop over all planes to find the closest hit
             for (int i = 0; i < var->num_planes; i++)
             {
@@ -1308,7 +1416,19 @@ void printimage(void *param)
                     hit_something = true;
                     closest_t = t;
                     object_color = var->test_plane[i].color;  // Set color to the plane's color
-                    break ;
+                }
+            }
+            // Loop over all cylinders to find the closest hit
+            for (int i = 0; i < var->num_cylinders; i++)
+            {
+                float t0, t1;
+                int hit = cylinder_intersect(var->test_cylinder[i], r, &t0, &t1);
+                // If there is an intersection and it's the closest so far
+                if (hit > 0 && t0 < closest_t)
+                {
+                    hit_something = true;
+                    closest_t = t0;
+                    object_color = var->test_cylinder[i].color;  // Set color to the cylinder's color
                 }
             }
             // If an object was hit, color the pixel with that object's color
@@ -1412,6 +1532,93 @@ void test_ray_intersecting_plane_from_below()
         printf("Test Failed: Incorrect intersection from below. t = %f\n", t);
     }
 }*/
+/*
+void test_ray_misses_cylinder()
+{
+    t_tuple center = point(0, 0, 0);
+    t_color color = t_color_create(250, 0, 0);
+    t_tuple orientation = vector(0, 0, 1);
+    t_cylinder cyl = cylinder_create(center, 1, 1, color, orientation);  // Create a default cylinder
+
+    // Example 1: Ray parallel to the cylinder, on the surface
+    t_tuple origin1 = point(1, 0, 0);
+    t_tuple direction1 = normalize(vector(0, 1, 0));
+    t_ray ray1 = ray(origin1, direction1);
+
+    float t0, t1;
+    int result1 = cylinder_intersect(cyl, ray1, &t0, &t1);
+    if (result1 == 0) {
+        printf("Test Passed: Ray misses the cylinder (parallel, on surface).\n");
+    } else {
+        printf("Test Failed: Ray intersects the cylinder.\n");
+    }
+
+    // Example 2: Ray inside the cylinder, parallel to the y-axis
+    t_tuple origin2 = point(0, 0, 0);
+    t_tuple direction2 = normalize(vector(0, 1, 0));
+    t_ray ray2 = ray(origin2, direction2);
+
+    int result2 = cylinder_intersect(cyl, ray2, &t0, &t1);
+    if (result2 == 0) {
+        printf("Test Passed: Ray misses the cylinder (parallel, inside).\n");
+    } else {
+        printf("Test Failed: Ray intersects the cylinder.\n");
+    }
+
+    // Example 3: Ray outside the cylinder, askew
+    t_tuple origin3 = point(0, 0, -5);
+    t_tuple direction3 = normalize(vector(1, 1, 1));
+    t_ray ray3 = ray(origin3, direction3);
+
+    int result3 = cylinder_intersect(cyl, ray3, &t0, &t1);
+    if (result3 == 0) {
+        printf("Test Passed: Ray misses the cylinder (outside, askew).\n");
+    } else {
+        printf("Test Failed: Ray intersects the cylinder.\n");
+    }
+}*/
+/*
+void test_ray_hits_cylinder()
+{
+    t_cylinder cyl = cylinder_create(point(0, 0, 0), 1.0, 2.0, t_color_create(1, 0, 0), vector(0, 1, 0));
+    
+    // First example: Tangent intersection
+    t_ray ray1 = ray(point(1, 0, -5), normalize(vector(0, 0, 1)));
+    float t0, t1;
+    int count = cylinder_intersect(cyl, ray1, &t0, &t1);
+    if (count == 2 && fabs(t0 - 5.0) < EPSILON && fabs(t1 - 5.0) < EPSILON)
+    {
+        printf("Test Passed: Tangent ray intersects at t=5.\n");
+    }
+    else
+    {
+        printf("Test Failed: Tangent ray intersection incorrect.\n");
+    }
+
+    // Second example: Perpendicular intersection through the center
+    t_ray ray2 = ray(point(0, 0, -5), normalize(vector(0, 0, 1)));
+    count = cylinder_intersect(cyl, ray2, &t0, &t1);
+    if (count == 2 && fabs(t0 - 4.0) < EPSILON && fabs(t1 - 6.0) < EPSILON)
+    {
+        printf("Test Passed: Perpendicular ray intersects at t=4 and t=6.\n");
+    }
+    else
+    {
+        printf("Test Failed: Perpendicular ray intersection incorrect.\n");
+    }
+
+    // Third example: Skewed ray hitting the cylinder
+    t_ray ray3 = ray(point(0.5, 0, -5), normalize(vector(0.1, 1, 1)));
+    count = cylinder_intersect(cyl, ray3, &t0, &t1);
+    if (count == 2 && fabs(t0 - 6.80798) < EPSILON && fabs(t1 - 7.08872) < EPSILON)
+    {
+        printf("Test Passed: Skewed ray intersects at t=6.80798 and t=7.08872.\n");
+    }
+    else
+    {
+        printf("Test Failed: Skewed ray intersection incorrect.\n");
+    }
+}*/
 
 int main(int argc, char **argv)
 {
@@ -1440,10 +1647,13 @@ int main(int argc, char **argv)
     initialize_camera(&var, &var.cam, map);
     init_test_sphere(&var, map); // TESTI SPHERE!!!!!
     init_test_planes(&var, map); // TESTI PLANE!!!!!
+    init_test_cylinders(&var, map); // TESTI CYLINDER!!!!
     //test_ray_parallel_to_plane();
     //test_ray_coplanar_with_plane();
     //test_ray_intersecting_plane_from_below();
     //test_ray_intersecting_plane_from_above();
+    //test_ray_misses_cylinder();
+    //test_ray_hits_cylinder();
 	printimage(&var);
 	hooks(&var);
 	mlx_loop(var.mlx);

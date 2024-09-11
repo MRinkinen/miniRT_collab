@@ -6,7 +6,7 @@
 /*   By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/20 11:10:02 by tvalimak          #+#    #+#             */
-/*   Updated: 2024/09/08 14:27:16 by tvalimak         ###   ########.fr       */
+/*   Updated: 2024/09/11 15:26:20 by tvalimak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -98,7 +98,7 @@ int	print_data(t_map *map)
 	}
 
 	// Print Cylinder List
-	t_cylinder *cylinder = map->cylinder;
+	t_cylinders *cylinder = map->cylinders;
 	while (cylinder)
 	{
 		printf("Cylinder:\n");
@@ -135,8 +135,8 @@ int terminate_data(t_map *map, char *error)
     t_spheres *next_sphere;
     t_planes *plane;
     t_planes *next_plane;
-    t_cylinder *cylinder;
-    t_cylinder *next_cylinder;
+    t_cylinders *cylinder;
+    t_cylinders *next_cylinder;
 
     if (error)
         printf("%s\n", error);
@@ -170,7 +170,7 @@ int terminate_data(t_map *map, char *error)
         free(plane);
         plane = next_plane;
     }
-    cylinder = map->cylinder;
+    cylinder = map->cylinders;
     while (cylinder)
     {
         next_cylinder = cylinder->next;

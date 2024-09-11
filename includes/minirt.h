@@ -108,15 +108,21 @@ typedef struct s_plane
     //t_tuple (*local_normal_at)(const struct s_plane *plane, t_tuple point);
 } t_plane;
 
-typedef struct s_cylinders
+typedef struct s_cylinder
 {
+	t_tuple	  normal;
+    t_matrix *transform;
+    t_matrix *inverse_transform;
+	t_matrix *translation_matrix;
+	t_matrix *rotation_matrix;
+	t_matrix *scaling_matrix;
 	t_hittable base;	// Inherit hittable structure
 	t_tuple center;		// Center of the base of the cylinder
 	t_tuple orientation; // Orientation of the cylinder (usually represented by a vector)
 	float radius;		// Radius of the cylinder
 	float height;		// Height of the cylinder
 	t_color color;		// t_color of the cylinder
-} t_cylinders;
+} t_cylinder;
 
 typedef struct s_sphere
 {
@@ -177,10 +183,12 @@ typedef struct s_var
 	t_color ambientl;
 	t_cam cam;
 
-	t_sphere *test_sphere;
-	t_plane	 *test_plane;
-	int num_spheres;
-	int	num_planes;
+	t_sphere 	*test_sphere;
+	t_plane	 	*test_plane;
+	t_cylinder 	*test_cylinder;
+	int 		num_spheres;
+	int			num_planes;
+	int 		num_cylinders;
 } t_var;
 
 

@@ -6,7 +6,7 @@
 /*   By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/15 12:02:26 by mrinkine          #+#    #+#             */
-/*   Updated: 2024/09/11 17:09:23 by tvalimak         ###   ########.fr       */
+/*   Updated: 2024/09/11 17:33:33 by tvalimak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,6 +36,12 @@ int intersect(t_sphere sphere, t_ray ray, float *t0, float *t1) {
         return discriminant == 0 ? 1 : 2; // 1 if tangent, 2 if intersects at two points
     }
 }*/
+
+t_tuple local_normal_at_cylinder(t_cylinder *cyl, t_tuple point)
+{
+    // Compute the normal vector by ignoring the y component (as the cylinder is infinite along the y-axis)
+    return vector(point.x, 0, point.z);  // Normal vector at the given point
+}
 
 t_tuple local_normal_at(const t_plane *plane, t_tuple point) 
 {
@@ -1619,6 +1625,43 @@ void test_ray_hits_cylinder()
         printf("Test Failed: Skewed ray intersection incorrect.\n");
     }
 }*/
+
+void test_normal_vector_on_cylinder()
+{
+    t_cylinder cyl = cylinder_create();  // Assuming a function to create a default cylinder
+
+    // Test case 1
+    t_tuple point1 = point(1, 0, 0);
+    t_tuple normal1 = local_normal_at_cylinder(&cyl, point1);
+    if (tuple_equal(normal1, vector(1, 0, 0)))
+        printf("Test Passed: Normal at point (1, 0, 0) is (1, 0, 0)\n");
+    else
+        printf("Test Failed: Normal at point (1, 0, 0) is incorrect\n");
+
+    // Test case 2
+    t_tuple point2 = point(0, 5, -1);
+    t_tuple normal2 = local_normal_at_cylinder(&cyl, point2);
+    if (tuple_equal(normal2, vector(0, 0, -1)))
+        printf("Test Passed: Normal at point (0, 5, -1) is (0, 0, -1)\n");
+    else
+        printf("Test Failed: Normal at point (0, 5, -1) is incorrect\n");
+
+    // Test case 3
+    t_tuple point3 = point(0, -2, 1);
+    t_tuple normal3 = local_normal_at_cylinder(&cyl, point3);
+    if (tuple_equal(normal3, vector(0, 0, 1)))
+        printf("Test Passed: Normal at point (0, -2, 1) is (0, 0, 1)\n");
+    else
+        printf("Test Failed: Normal at point (0, -2, 1) is incorrect\n");
+
+    // Test case 4
+    t_tuple point4 = point(-1, 1, 0);
+    t_tuple normal4 = local_normal_at_cylinder(&cyl, point4);
+    if (tuple_equal(normal4, vector(-1, 0, 0)))
+        printf("Test Passed: Normal at point (-1, 1, 0) is (-1, 0, 0)\n");
+    else
+        printf("Test Failed: Normal at point (-1, 1, 0) is incorrect\n");
+}
 
 int main(int argc, char **argv)
 {

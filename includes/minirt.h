@@ -122,6 +122,8 @@ typedef struct s_cylinder
 	float radius;		// Radius of the cylinder
 	float height;		// Height of the cylinder
 	t_color color;		// t_color of the cylinder
+	float minimum;
+	float maximum;
 } t_cylinder;
 
 typedef struct s_sphere

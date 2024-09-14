@@ -6,13 +6,25 @@
 /*   By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/15 12:02:26 by mrinkine          #+#    #+#             */
-/*   Updated: 2024/09/13 18:21:33 by tvalimak         ###   ########.fr       */
+/*   Updated: 2024/09/14 17:20:59 by tvalimak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/minirt.h"
 #include "../includes/parsing.h"
 //#include "../includes/test_functions.h"
+
+// Still need to take care for mallocs in functions like for example:
+// t_matrix *scaling();
+// t_matrix *inverse();
+// t_matrix *cofactor_matrix();
+// t_matrix *submatrix();
+// t_matrix *identity_matrix();
+// t_matrix *transpose();
+// t_matrix *t_matrix_multiply();
+// t_matrix *create_2x2_matrix();
+// t_matrix *create_3x3_matrix();
+// t_matrix *create_4x4_matrix();
 
 // On page 188 
 
@@ -38,7 +50,7 @@ int intersect(t_sphere sphere, t_ray ray, float *t0, float *t1) {
         return discriminant == 0 ? 1 : 2; // 1 if tangent, 2 if intersects at two points
     }
 }*/
-
+/*
 t_tuple local_normal_at_cylinder(t_cylinder *cyl, t_tuple point)
 {
     printf("Calculating normal at point: (%f, %f, %f)\n", point.x, point.y, point.z);
@@ -46,6 +58,48 @@ t_tuple local_normal_at_cylinder(t_cylinder *cyl, t_tuple point)
     // t_tuple local_normal = vector(point.x, point.y, point.z); // Default normal for a cylinder along XZ
     t_tuple local_normal = vector(point.x, 0, point.z); // Default normal for a cylinder along XZ
     t_tuple world_normal = apply_transformation(transpose(inverse(cyl->transform)), &local_normal);
+    return normalize(world_normal);
+}*/
+
+t_tuple local_normal_at_cylinder(t_cylinder *cyl, t_tuple point)
+{
+    // Transform the point into the cylinder's local space
+    t_tuple object_point = apply_transformation(cyl->inverse_transform, &point);
+
+    float dist = object_point.x * object_point.x + object_point.z * object_point.z;
+
+    t_tuple local_normal;
+
+    if (dist < 1.0f + EPSILON)
+    {
+        if (object_point.y >= cyl->maximum - EPSILON)
+        {
+            // Top cap
+            local_normal = vector(0, 1, 0);
+        }
+        else if (object_point.y <= cyl->minimum + EPSILON)
+        {
+            // Bottom cap
+            local_normal = vector(0, -1, 0);
+        }
+        else
+        {
+            // Side normal
+            local_normal = vector(object_point.x, 0, object_point.z);
+        }
+    }
+    else
+    {
+        // Side normal
+        local_normal = vector(object_point.x, 0, object_point.z);
+    }
+
+    // Transform the normal back to world space using inverse transpose
+    t_matrix *inverse_transpose = transpose(cyl->inverse_transform);
+    t_tuple world_normal = apply_transformation(inverse_transpose, &local_normal);
+    free(inverse_transpose); // Free if dynamically allocated
+
+    // Normalize the world normal
     return normalize(world_normal);
 }
 
@@ -97,7 +151,7 @@ int cylinder_intersect(t_cylinder cyl, t_ray ray, float *t0, float *t1)
     }
     return (2);  // Two intersections
 }*/
-
+/*
 int cylinder_intersect(t_cylinder cyl, t_ray r, float *t0, float *t1)
 {
     // Transform ray into the cylinder's local space using the cylinder's inverse transform
@@ -159,6 +213,106 @@ int cylinder_intersect(t_cylinder cyl, t_ray r, float *t0, float *t1)
         intersections++;
     }
     return (intersections);
+}*/
+
+bool check_cap(t_ray ray, float t)
+{
+    float x = ray.origin.x + t * ray.direction.x;
+    float z = ray.origin.z + t * ray.direction.z;
+    return (x * x + z * z) <= 1.0f; // Assuming radius is 1 in local space
+}
+
+int cylinder_intersect(t_cylinder cyl, t_ray r, float *t0, float *t1)
+{
+    // Transform ray into the cylinder's local space using the cylinder's inverse transform
+    t_tuple transformed_origin = apply_transformation(cyl.inverse_transform, &r.origin);
+    t_tuple transformed_direction = apply_transformation(cyl.inverse_transform, &r.direction);
+    t_ray transformed_ray = ray(transformed_origin, transformed_direction);
+    // Initialize the number of intersections found
+    int intersections = 0;
+    // ---- Intersect with the cylinder's side ----
+    // Compute the quadratic coefficients
+    float a = transformed_ray.direction.x * transformed_ray.direction.x +
+              transformed_ray.direction.z * transformed_ray.direction.z;
+    // Ray is parallel to the y-axis (if a is approximately zero)
+    if (fabs(a) >= EPSILON)
+    {
+        float b = 2 * (transformed_ray.origin.x * transformed_ray.direction.x +
+                       transformed_ray.origin.z * transformed_ray.direction.z);
+        float c = transformed_ray.origin.x * transformed_ray.origin.x +
+                  transformed_ray.origin.z * transformed_ray.origin.z - 1; // Assuming radius is 1
+        // Calculate the discriminant
+        float discriminant = b * b - 4 * a * c;
+        // If the discriminant is negative, the ray does not intersect the cylinder
+        if (discriminant >= 0)
+        {
+            // Calculate the two intersection points using the quadratic formula
+            float sqrt_discriminant = sqrt(discriminant);
+            float temp_t0 = (-b - sqrt_discriminant) / (2 * a);
+            float temp_t1 = (-b + sqrt_discriminant) / (2 * a);
+            // Ensure that temp_t0 is the smaller value and temp_t1 is the larger value
+            if (temp_t0 > temp_t1)
+            {
+                float temp = temp_t0;
+                temp_t0 = temp_t1;
+                temp_t1 = temp;
+            }
+            // Check the first intersection point
+            float y0 = transformed_ray.origin.y + temp_t0 * transformed_ray.direction.y;
+            if (cyl.minimum < y0 && y0 < cyl.maximum)
+            {
+                *t0 = temp_t0;
+                intersections++;
+            }
+            // Check the second intersection point
+            float y1 = transformed_ray.origin.y + temp_t1 * transformed_ray.direction.y;
+            if (cyl.minimum < y1 && y1 < cyl.maximum)
+            {
+                if (intersections == 0)
+                {
+                    *t0 = temp_t1;
+                }
+                else
+                {
+                    *t1 = temp_t1;
+                }
+                intersections++;
+            }
+        }
+    }
+    // ---- Intersect with the caps ----
+    if (fabs(transformed_ray.direction.y) >= EPSILON)
+    {
+        // Check for intersection with lower end cap (y = cyl.minimum)
+        float t_cap = (cyl.minimum - transformed_ray.origin.y) / transformed_ray.direction.y;
+        if (t_cap >= 0 && check_cap(transformed_ray, t_cap))
+        {
+            if (intersections == 0)
+            {
+                *t0 = t_cap;
+            }
+            else if (intersections == 1)
+            {
+                *t1 = t_cap;
+            }
+            intersections++;
+        }
+        // Check for intersection with upper end cap (y = cyl.maximum)
+        t_cap = (cyl.maximum - transformed_ray.origin.y) / transformed_ray.direction.y;
+        if (t_cap >= 0 && check_cap(transformed_ray, t_cap))
+        {
+            if (intersections == 0)
+            {
+                *t0 = t_cap;
+            }
+            else if (intersections == 1)
+            {
+                *t1 = t_cap;
+            }
+            intersections++;
+        }
+    }
+    return intersections;
 }
 
 int plane_intersect(t_plane plane, t_ray r, float *t)
@@ -179,12 +333,14 @@ int plane_intersect(t_plane plane, t_ray r, float *t)
     // Calculate the intersection t value
     *t = -transformed_ray.origin.y / transformed_ray.direction.y;
     // Only accept intersections that occur "in front" of the ray origin
-    if (*t >= 0) {
+    if (*t >= 0)
+    {
         // Check if the intersection point is within the bounds of the "finite" plane
         t_tuple intersection_point = position(transformed_ray, *t);
 
         // Limit the plane to a finite size (for testing purposes, e.g., a plane_size x plane_size square)
-        if (fabs(intersection_point.x) <= plane_size / 2 && fabs(intersection_point.z) <= plane_size / 2) {
+        if (fabs(intersection_point.x) <= plane_size / 2 && fabs(intersection_point.z) <= plane_size / 2)
+        {
             return 1; // One intersection within the finite plane bounds
         }
     }
@@ -251,9 +407,12 @@ int intersect(t_sphere s, t_ray r, float *t0, float *t1)
     float c = dot(sphere_to_ray, sphere_to_ray) - (s.radius * s.radius);
     float discriminant = (b * b) - (4 * a * c);
 
-    if (discriminant < 0) {
+    if (discriminant < 0)
+    {
         return 0;  // No intersection
-    } else {
+    }
+    else
+    {
         *t0 = (-b - sqrt(discriminant)) / (2 * a);
         *t1 = (-b + sqrt(discriminant)) / (2 * a);
         return 1;  // Intersection found
@@ -383,7 +542,7 @@ t_plane plane_create(t_tuple center, t_color color, t_tuple orientation)
 
     return (plane);
 }*/
-
+/*
 t_matrix* rotation_from_normal(t_tuple normal)
 {
     t_tuple default_normal = vector(0, 1, 0);  // Default normal for XZ plane
@@ -406,6 +565,72 @@ t_matrix* rotation_from_normal(t_tuple normal)
     t_matrix* combined = t_matrix_multiply(rotation_z_matrix, t_matrix_multiply(rotation_y_matrix, rotation_x_matrix));
 
     return (combined);
+}*/
+
+t_matrix* rotation_around_axis(t_tuple axis, float angle)
+{
+    float x = axis.x;
+    float y = axis.y;
+    float z = axis.z;
+
+    float cos_theta = cos(angle);
+    float sin_theta = sin(angle);
+    float one_minus_cos = 1.0f - cos_theta;
+    // Compute the components of the rotation matrix
+    t_matrix* rotation = create_4x4_matrix(
+        cos_theta + x * x * one_minus_cos,
+        x * y * one_minus_cos - z * sin_theta,
+        x * z * one_minus_cos + y * sin_theta,
+        0,
+
+        y * x * one_minus_cos + z * sin_theta,
+        cos_theta + y * y * one_minus_cos,
+        y * z * one_minus_cos - x * sin_theta,
+        0,
+
+        z * x * one_minus_cos - y * sin_theta,
+        z * y * one_minus_cos + x * sin_theta,
+        cos_theta + z * z * one_minus_cos,
+        0,
+
+        0, 0, 0, 1
+    );
+    return (rotation);
+}
+
+t_matrix* rotation_from_normal(t_tuple normal)
+{
+    t_tuple default_normal = vector(0, 1, 0);  // Default normal for the plane
+    t_tuple v1 = normalize(default_normal);
+    t_tuple v2 = normalize(normal);
+
+    // Compute the rotation axis
+    t_tuple axis = cross(v1, v2);
+    float axis_length = magnitude(axis);
+
+    // Check if the normals are parallel or antiparallel
+    if (axis_length < EPSILON)
+    {
+        // Vectors are parallel or antiparallel
+        if (dot(v1, v2) > 0)
+        {
+            // Vectors are parallel; no rotation needed
+            return identity_matrix();
+        }
+        else
+        {
+            // Vectors are opposite; rotate 180 degrees around any perpendicular axis
+            t_tuple arbitrary_axis = vector(1, 0, 0);
+            if (fabs(v1.x) > fabs(v1.y))
+                arbitrary_axis = vector(0, 1, 0);
+            axis = normalize(cross(v1, arbitrary_axis));
+            return rotation_around_axis(axis, PI); // Rotate 180 degrees
+        }
+    }
+    axis = normalize(axis);
+    float angle = acos(dot(v1, v2));
+    // Create rotation matrix using Rodrigues' formula
+    return (rotation_around_axis(axis, angle));
 }
 
 t_cylinder cylinder_create(t_tuple center, float radius, float height, t_color color, t_tuple orientation)
@@ -415,7 +640,7 @@ t_cylinder cylinder_create(t_tuple center, float radius, float height, t_color c
     // Initialize transformation matrices
     cylinder.translation_matrix = translation(center.x, center.y, center.z);
     cylinder.rotation_matrix = rotation_from_normal(orientation); // Adjust orientation based on the given vector
-    cylinder.scaling_matrix = scaling(radius, height, radius); // Scale by radius in xz and height in y
+    cylinder.scaling_matrix = scaling(radius, 1.0f, radius); // Scale by radius in xz and height in y
 
     // Combine transformations into one matrix
     cylinder.transform = t_matrix_multiply(t_matrix_multiply(cylinder.translation_matrix, cylinder.rotation_matrix), cylinder.scaling_matrix);
@@ -434,20 +659,22 @@ t_cylinder cylinder_create(t_tuple center, float radius, float height, t_color c
     cylinder.minimum = -height / 2;
     cylinder.maximum = height / 2;
 
-    return cylinder;
+    return (cylinder);
 }
 
 t_plane plane_create(t_tuple center, t_color color, t_tuple orientation) 
 {
     t_plane plane;
 
+    printf("plane normals: x: %f, y: %f, z: %f, w: %f\n", orientation.x, orientation.y, orientation.z, orientation.w);
     // Initialize transformation matrices
     plane.translation_matrix = translation(center.x, center.y, center.z);
     plane.rotation_matrix = rotation_from_normal(orientation); // Adjust orientation
     plane.scaling_matrix = scaling((float)1, (float)1, (float)1);
 
     // Combine transformations into one matrix
-    plane.transform = t_matrix_multiply(t_matrix_multiply(plane.translation_matrix, plane.rotation_matrix), plane.scaling_matrix);
+    plane.transform = t_matrix_multiply(plane.translation_matrix, t_matrix_multiply(plane.rotation_matrix, plane.scaling_matrix));
+    //plane.transform = t_matrix_multiply(t_matrix_multiply(plane.translation_matrix, plane.rotation_matrix), plane.scaling_matrix);
 
     // Calculate the inverse transform for ray-plane intersection calculations
     plane.inverse_transform = inverse(plane.transform);
@@ -532,30 +759,26 @@ void print_clock_face(t_var *var)
     }
 }
 
-void test_position_function() {
+void test_position_function()
+{
     t_ray r;
     r.origin = point(2, 3, 4);
     r.direction = vector(1, 0, 0);
-
     // Test different values of t
     t_tuple expected;
     t_tuple result;
-
     // t = 0
     result = position(r, 0);
     expected = point(2, 3, 4);
     assert(tuple_equal(result, expected));
-
     // t = 1
     result = position(r, 1);
     expected = point(3, 3, 4);
     assert(tuple_equal(result, expected));
-
     // t = -1
     result = position(r, -1);
     expected = point(1, 3, 4);
     assert(tuple_equal(result, expected));
-
     // t = 2.5
     result = position(r, 2.5);
     expected = point(4.5, 3, 4);
@@ -719,10 +942,8 @@ t_matrix *scaling(float x, float y, float z)
         printf("Error: Memory allocation failed.\n");
         return NULL;
     }
-
     transform->rows = 4;
     transform->cols = 4;
-
     int i = 0, j;
     while (i < 4) {
         j = 0;
@@ -732,7 +953,6 @@ t_matrix *scaling(float x, float y, float z)
         }
         i++;
     }
-
     // Set scaling components
     transform->data[0][0] = x;
     transform->data[1][0] = 0;
@@ -746,7 +966,7 @@ t_matrix *scaling(float x, float y, float z)
     transform->data[1][2] = 0;
     transform->data[2][2] = z;
 
-    return transform;
+    return (transform);
 }
 
 // Function to compare two tuples (for test validation)
@@ -796,36 +1016,34 @@ t_matrix *translation(float x, float y, float z)
     return (transform);
 }
 
-t_matrix *inverse(t_matrix *m) {
+t_matrix *inverse(t_matrix *m)
+{
     // Calculate the determinant first
     float det = determinant(m);
-    if (det == 0.0f) {
+    if (det == 0.0f)
+    {
         printf("Matrix is not invertible.\n");
         exit(1);  // You can handle it better based on your needs.
     }
-
     // Get the cofactor matrix
     t_matrix *cofactor_m = cofactor_matrix(m);
-
     // Get the adjugate matrix (transpose of the cofactor matrix)
     t_matrix *adjugate_m = transpose(cofactor_m);
-
     // Create the inverse matrix by dividing the adjugate matrix by the determinant
     t_matrix *inverse_m = (t_matrix *)malloc(sizeof(t_matrix));
     inverse_m->rows = m->rows;
     inverse_m->cols = m->cols;
-
-    for (int i = 0; i < inverse_m->rows; i++) {
-        for (int j = 0; j < inverse_m->cols; j++) {
+    for (int i = 0; i < inverse_m->rows; i++)
+    {
+        for (int j = 0; j < inverse_m->cols; j++)
+        {
             inverse_m->data[i][j] = adjugate_m->data[i][j] / det;
         }
     }
-
     // Free allocated memory for cofactor and adjugate matrices
     free(cofactor_m);
     free(adjugate_m);
-
-    return inverse_m;
+    return (inverse_m);
 }
 
 t_matrix* cofactor_matrix(const t_matrix *m)
@@ -836,11 +1054,9 @@ t_matrix* cofactor_matrix(const t_matrix *m)
         printf("Error: Memory allocation failed.\n");
         return NULL;
     }
-
     // Initialize the cofactor matrix with the same dimensions as the original matrix
     cofactor_m->rows = m->rows;
     cofactor_m->cols = m->cols;
-
     // Iterate over each element using while loops
     int i = 0;
     while (i < m->rows) {
@@ -852,8 +1068,7 @@ t_matrix* cofactor_matrix(const t_matrix *m)
         }
         i++;
     }
-
-    return cofactor_m;
+    return (cofactor_m);
 }
 
 // Function to check if matrix is invertible
@@ -1018,10 +1233,8 @@ t_matrix* transpose(t_matrix *m)
         printf("Error: Memory allocation failed.\n");
         return NULL;
     }
-
     transposed->rows = m->cols;
     transposed->cols = m->rows;
-
     int i = 0;
     while (i < m->rows)
     {
@@ -1034,8 +1247,7 @@ t_matrix* transpose(t_matrix *m)
         }
         i++;
     }
-
-    return transposed;
+    return (transposed);
 }
 
 // Function to multiply two 4x4 matrices
@@ -1047,7 +1259,6 @@ t_matrix* t_matrix_multiply(t_matrix *a, t_matrix *b)
         printf("Error: Both matrices must be 4x4.\n");
         return NULL;
     }
-
     // Allocate memory for the result matrix
     t_matrix *result = (t_matrix *)malloc(sizeof(t_matrix));
     if (result == NULL)
@@ -1055,10 +1266,8 @@ t_matrix* t_matrix_multiply(t_matrix *a, t_matrix *b)
         printf("Error: Memory allocation failed.\n");
         return NULL;
     }
-
     result->rows = 4;
     result->cols = 4;
-
     // Perform matrix multiplication
     for (int i = 0; i < 4; i++)
     {
@@ -1071,8 +1280,7 @@ t_matrix* t_matrix_multiply(t_matrix *a, t_matrix *b)
             }
         }
     }
-
-    return result;
+    return (result);
 }
 
 t_matrix *create_2x2_matrix(float a, float b, float c, float d)
@@ -1090,7 +1298,7 @@ t_matrix *create_2x2_matrix(float a, float b, float c, float d)
     m->data[0][1] = b;
     m->data[1][0] = c;
     m->data[1][1] = d;
-    return m;
+    return (m);
 }
 
 t_matrix *create_3x3_matrix(float a, float b, float c,
@@ -1115,7 +1323,7 @@ t_matrix *create_3x3_matrix(float a, float b, float c,
     m->data[2][0] = g;
     m->data[2][1] = h;
     m->data[2][2] = i;
-    return m;
+    return (m);
 }
 
 t_matrix *create_4x4_matrix(float a, float b, float c, float d,
@@ -1817,6 +2025,63 @@ void test_truncated_cylinder_intersections()
         }
     }
 }*/
+/*
+void test_cylinder_end_caps_normal()
+{
+    // Create a closed, truncated cylinder
+    t_cylinder cyl = cylinder_create(
+        point(0, 0, 0),       // Center at origin
+        1.0f,                 // Radius
+        2.0f,                 // Height (from y = 1.0f to y = 2.0f)
+        t_color_create(1, 0, 0), // Color (red)
+        vector(0, 1, 0));
+
+    // Set the cylinder's minimum and maximum bounds
+    cyl.minimum = 1.0f;
+    cyl.maximum = 2.0f;
+
+    // Define the test cases
+    struct TestCase {
+        t_tuple point;
+        t_tuple expected_normal;
+    } test_cases[] = {
+        { point(0, 1, 0),     vector(0, -1, 0) },
+        { point(0.5, 1, 0),   vector(0, -1, 0) },
+        { point(0, 1, 0.5),   vector(0, -1, 0) },
+        { point(0, 2, 0),     vector(0, 1, 0)  },
+        { point(0.5, 2, 0),   vector(0, 1, 0)  },
+        { point(0, 2, 0.5),   vector(0, 1, 0)  },
+    };
+
+    int num_tests = sizeof(test_cases) / sizeof(test_cases[0]);
+
+    for (int i = 0; i < num_tests; i++)
+    {
+        // Get the current test case
+        t_tuple test_point = test_cases[i].point;
+        t_tuple expected_normal = test_cases[i].expected_normal;
+
+        // Compute the normal at the test point
+        t_tuple computed_normal = local_normal_at_cylinder(&cyl, test_point);
+
+        // Compare the computed normal with the expected normal
+        if (tuple_equal(computed_normal, expected_normal))
+        {
+            printf("Test %d Passed: Normal at point (%f, %f, %f) is (%f, %f, %f)\n",
+                   i + 1,
+                   test_point.x, test_point.y, test_point.z,
+                   computed_normal.x, computed_normal.y, computed_normal.z);
+        }
+        else
+        {
+            printf("Test %d Failed: Normal at point (%f, %f, %f) is (%f, %f, %f), expected (%f, %f, %f)\n",
+                   i + 1,
+                   test_point.x, test_point.y, test_point.z,
+                   computed_normal.x, computed_normal.y, computed_normal.z,
+                   expected_normal.x, expected_normal.y, expected_normal.z);
+        }
+    }
+}*/
 
 int main(int argc, char **argv)
 {
@@ -1855,10 +2120,11 @@ int main(int argc, char **argv)
     //test_normal_vector_on_cylinder();
     //test_default_cylinder_bounds();
     //test_truncated_cylinder_intersections();
+    //test_cylinder_end_caps_normal();
 	printimage(&var);
 	hooks(&var);
 	mlx_loop(var.mlx);
 	mlx_terminate(var.mlx);
-	terminate_data(map, "program ended successfully\n");
+	terminate_data(map, &var, "program ended successfully\n");
 	return (EXIT_SUCCESS);
 }

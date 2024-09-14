@@ -6,7 +6,7 @@
 /*   By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/10 19:39:44 by tvalimak          #+#    #+#             */
-/*   Updated: 2024/09/11 15:25:51 by tvalimak         ###   ########.fr       */
+/*   Updated: 2024/09/14 13:34:19 by tvalimak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,11 +14,13 @@
 # define PARSING_H
 
 # include "../libft/libft.h"
+# include "./minirt.h"
 
 # include <fcntl.h>
 # include <stdio.h>
 
 typedef struct s_map	t_map;
+typedef struct s_var	t_var;
 
 typedef struct s_ambient
 {
@@ -172,7 +174,7 @@ int		setup_light(char **split, t_map *map);
 int		setup_spheres(char **split, t_map *map);
 int		setup_plane(char **split, t_map *map);
 int		setup_cylinder(char **split, t_map *map);
-int		terminate_data(t_map *map, char *error);
+int 	terminate_data(t_map *map, t_var *var, char *error);
 
 /* ************************************************************************** */
 /*                                 	util functions                            */

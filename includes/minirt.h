@@ -21,6 +21,8 @@
 //#define EPSILON 0.9
 #define EPSILON 0.00001
 
+typedef struct s_map	t_map;
+
 typedef struct
 {
     int rows;
@@ -110,20 +112,20 @@ typedef struct s_plane
 
 typedef struct s_cylinder
 {
-	t_tuple	  normal;
-    t_matrix *transform;
-    t_matrix *inverse_transform;
-	t_matrix *translation_matrix;
-	t_matrix *rotation_matrix;
-	t_matrix *scaling_matrix;
-	t_hittable base;	// Inherit hittable structure
-	t_tuple center;		// Center of the base of the cylinder
-	t_tuple orientation; // Orientation of the cylinder (usually represented by a vector)
-	float radius;		// Radius of the cylinder
-	float height;		// Height of the cylinder
-	t_color color;		// t_color of the cylinder
-	float minimum;
-	float maximum;
+	t_tuple	  	normal;
+    t_matrix 	*transform;
+    t_matrix 	*inverse_transform;
+	t_matrix 	*translation_matrix;
+	t_matrix 	*rotation_matrix;
+	t_matrix 	*scaling_matrix;
+	t_hittable 	base;	// Inherit hittable structure
+	t_tuple 	center;		// Center of the base of the cylinder
+	t_tuple 	orientation; // Orientation of the cylinder (usually represented by a vector)
+	float 		radius;		// Radius of the cylinder
+	float 		height;		// Height of the cylinder
+	t_color 	color;		// t_color of the cylinder
+	float 		minimum;
+	float 		maximum;
 } t_cylinder;
 
 typedef struct s_sphere
@@ -164,7 +166,6 @@ typedef struct s_var
 {
 	mlx_t *mlx;
 	t_vec3 *vector;
-
 
 	float image_width;
 	float image_height;

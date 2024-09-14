@@ -1,6 +1,8 @@
 {
 	"files.associations": {
 		"minirt.h": "c",
-		"mlx42.h": "c"
+		"mlx42.h": "c",
+		"parsing.h": "c",
+		"libft.h": "c"
 	}
 }

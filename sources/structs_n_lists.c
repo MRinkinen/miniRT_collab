@@ -6,7 +6,7 @@
 /*   By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/20 11:10:02 by tvalimak          #+#    #+#             */
-/*   Updated: 2024/09/14 14:35:47 by tvalimak         ###   ########.fr       */
+/*   Updated: 2024/09/16 15:26:51 by tvalimak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -126,14 +126,14 @@ int	print_data(t_map *map)
 	}
 
 	// Print Light List
-	t_light *light = map->light;
-	while (light)
+	t_lights *lights = map->lights;
+	while (lights)
 	{
 		printf("Light:\n");
-		printf("  Position: (%f, %f, %f)\n", light->x, light->y, light->z);
-		printf("  Ratio: %f\n", light->ratio);
-		printf("  t_color: (R: %d, G: %d, B: %d)\n", light->r, light->g, light->b);
-		light = light->next;
+		printf("  Position: (%f, %f, %f)\n", lights->x, lights->y, lights->z);
+		printf("  Ratio: %f\n", lights->ratio);
+		printf("  t_color: (R: %d, G: %d, B: %d)\n", lights->r, lights->g, lights->b);
+		lights = lights->next;
 	}
 
 	// Print Sphere List
@@ -189,9 +189,9 @@ int	print_data(t_map *map)
 int terminate_data(t_map *map, t_var *var, char *error)
 {
 	t_camera *camera;
-    t_light *light;
+    t_lights *lights;
     t_camera *next_camera;
-    t_light *next_light;
+    t_lights *next_light;
     t_spheres *sphere;
     t_spheres *next_sphere;
     t_planes *plane;
@@ -210,12 +210,12 @@ int terminate_data(t_map *map, t_var *var, char *error)
         free(camera);
         camera = next_camera;
     }
-	light = map->light;
-    while (light)
+	lights = map->lights;
+    while (lights)
     {
-        next_light = light->next;
-        free(light);
-        light = next_light;
+        next_light = lights->next;
+        free(lights);
+        lights = next_light;
     }
     sphere = map->spheres;
     while (sphere)

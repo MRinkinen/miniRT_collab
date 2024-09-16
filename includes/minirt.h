@@ -96,6 +96,13 @@ bool hittable_list_hit(const hittable_list *list, const t_ray *r, float tmin, fl
 
 /*Experimental*/
 
+typedef struct s_light
+{
+    t_tuple position;    // Position of the light in the scene
+    t_color intensity;   // Intensity (color) of the light
+    float brightness;    // Brightness ratio in the range [0.0, 1.0]
+} t_light;
+
 typedef struct s_plane
 {
 	t_tuple	  normal;
@@ -145,7 +152,7 @@ typedef struct s_sphere
 
 } t_sphere;
 
-typedef struct
+typedef struct s_cam
 {
 	t_tuple position;
 	t_tuple forward;
@@ -189,12 +196,12 @@ typedef struct s_var
 	t_sphere 	*test_sphere;
 	t_plane	 	*test_plane;
 	t_cylinder 	*test_cylinder;
+	t_light 	*test_light;
 	int 		num_spheres;
 	int			num_planes;
 	int 		num_cylinders;
+	int			num_lights;
 } t_var;
-
-
 
 void initialize_camera(t_var *var, t_cam *camera, t_map *map);
 

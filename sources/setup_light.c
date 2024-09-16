@@ -6,37 +6,37 @@
 /*   By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/18 21:26:31 by tvalimak          #+#    #+#             */
-/*   Updated: 2024/08/20 13:50:04 by tvalimak         ###   ########.fr       */
+/*   Updated: 2024/09/16 15:24:49 by tvalimak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/parsing.h"
 
-static t_light	*setup_light_helper(t_map *map)
+static t_lights	*setup_light_helper(t_map *map)
 {
-	t_light	*temp;
+	t_lights	*temp;
 
-	if (!map->light)
+	if (!map->lights)
 	{
 		printf("inside setup_light_helper 1\n");
-		map->light = malloc(sizeof(t_light));
-		if (!map->light)
+		map->lights = malloc(sizeof(t_lights));
+		if (!map->lights)
 			return (NULL);
-		map->light->next = NULL;
+		map->lights->next = NULL;
 	}
 	else
 	{
 		printf("inside setup_light_helper 2\n");
-		temp = map->light;
+		temp = map->lights;
 		while (temp->next)
 			temp = temp->next;
-		temp->next = malloc(sizeof(t_light));
+		temp->next = malloc(sizeof(t_lights));
 		if (temp->next == NULL)
 			return (NULL);
 		temp->next->next = NULL;
 		return temp->next;
 	}
-	return map->light;
+	return map->lights;
 }
 
 /*∗ identifier: L
@@ -48,13 +48,13 @@ int	setup_light(char **split, t_map *map)
 {
 	char		**rgb;
 	char		**xyz;
-    t_light  	*new_light;
+    t_lights  	*new_light;
 
 	printf("inside setup_light\n");
 	xyz = ft_split(split[1], ',');
 	rgb = ft_split(split[3], ',');
 	new_light = setup_light_helper(map);
-	if (map->light == NULL)
+	if (map->lights == NULL)
 		return (0);
 	printf("inside setup_light 1\n");
 	new_light->x = ft_atof(xyz[0]);

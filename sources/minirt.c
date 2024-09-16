@@ -6,13 +6,23 @@
 /*   By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/15 12:02:26 by mrinkine          #+#    #+#             */
-/*   Updated: 2024/09/14 17:20:59 by tvalimak         ###   ########.fr       */
+/*   Updated: 2024/09/16 18:37:02 by tvalimak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/minirt.h"
 #include "../includes/parsing.h"
 //#include "../includes/test_functions.h"
+
+t_tuple reflect(t_tuple in, t_tuple normal)
+{
+    // Calculate dot product of 'in' and 'normal'
+    double dot_product = dot(in, normal);
+    // Multiply normal vector by 2 * dot_product
+    t_tuple scaled_normal = tuple_multiply(normal, 2 * dot_product);
+    // Subtract scaled normal from the incoming vector
+    return (tuple_subtract(in, scaled_normal));
+}
 
 // Still need to take care for mallocs in functions like for example:
 // t_matrix *scaling();
@@ -704,6 +714,28 @@ t_sphere sphere_create(t_tuple center, float radius, t_color col)
     // Calculate the inverse transform for ray-sphere intersection
     sphere.inverse_transform = inverse(sphere.transform);
     return (sphere);
+}
+
+t_light *point_light(t_tuple position, t_color intensity, float brightness)
+{
+    t_light *light = malloc(sizeof(t_light));
+    if (!light) {
+        // Handle allocation failure
+        return NULL;
+    }
+    light->position = position;
+    // Scale the intensity by the brightness ratio
+    light->intensity = multiply_color_scalar(intensity, brightness);
+    light->brightness = brightness;
+    return (light);
+}
+
+t_light light_create(t_tuple position, t_color intensity)
+{
+    t_light light;
+    light.position = position;
+    light.intensity = intensity;
+    return light;
 }
 
 // Function to multiply a tuple by a scalar
@@ -1589,6 +1621,27 @@ void init_ambient_color(t_var *var, t_map *map)
     var->ambientl = multiply_color_scalar(ambient,map->ambient->ratio);
 }
 
+void init_test_lights(t_var *var, t_map *map)
+{
+    int i = 0;
+    t_lights *current_light = map->lights;
+    var->num_lights = map->element_count->light;
+    var->test_light = malloc(var->num_lights * sizeof(t_light));
+    if (!var->test_light)
+    {
+        // Handle malloc failure (optional)
+        return;
+    }
+    while (current_light != NULL)
+    {
+        t_tuple position = point(current_light->x, current_light->y, current_light->z);
+        t_color intensity = t_color_create(current_light->r, current_light->b, current_light->g);
+        var->test_light[i] = light_create(position, intensity);
+        i++;
+        current_light = current_light->next;
+    }
+}
+
 void init_test_cylinders(t_var *var, t_map *map)
 {
     int i = 0;
@@ -1658,6 +1711,179 @@ void init_test_sphere(t_var *var, t_map *map)
     }
 }
 
+void printimage(void *param)
+{
+    t_var *var = param;
+
+    for (int y = 0; y < (int)var->image_height; y++)
+    {
+        for (int x = 0; x < SCREEN_WIDTH; x++)
+        {
+            float u = (float)x / (float)(SCREEN_WIDTH - 1);
+            float v = (float)y / (float)(var->image_height - 1);
+
+            // Calculate ray direction for each pixel
+            t_tuple ray_direction = normalize(tuple_subtract(
+                tuple_add(var->cam.lower_left_corner,
+                          tuple_add(tuple_multiply(var->cam.horizontal, u),
+                                    tuple_multiply(var->cam.vertical, v))),
+                var->cam.position));
+            t_ray r = ray(var->cam.position, ray_direction);
+
+            bool hit_something = false;
+            float closest_t = INFINITY;
+
+            t_tuple intersection_point;
+            t_tuple intersection_normal;
+            t_color object_color; // Base color of the object
+
+            // Initialize pixel color to ambient light
+            t_color pixel_color = var->ambientl;
+
+            // Find the closest intersection among all objects
+            // Initialize variables to track the closest hit object
+            int hit_object_type = 0; // 1: Sphere, 2: Plane, 3: Cylinder
+            int hit_object_index = -1;
+
+            // Sphere intersections
+            for (int i = 0; i < var->num_spheres; i++)
+            {
+                float t0, t1;
+                int xs = intersect(var->test_sphere[i], r, &t0, &t1);
+
+                if (xs > 0 && t0 < closest_t)
+                {
+                    hit_something = true;
+                    closest_t = t0;
+
+                    // Save intersection details
+                    intersection_point = position(r, t0);
+                    intersection_normal = normalize(tuple_subtract(intersection_point, var->test_sphere[i].center));
+                    object_color = var->test_sphere[i].color;
+
+                    hit_object_type = 1;
+                    hit_object_index = i;
+                }
+            }
+            // Plane intersections
+            for (int i = 0; i < var->num_planes; i++)
+            {
+                float t;
+                int hit = plane_intersect(var->test_plane[i], r, &t);
+
+                if (hit && t < closest_t)
+                {
+                    hit_something = true;
+                    closest_t = t;
+
+                    // Save intersection details
+                    intersection_point = position(r, t);
+                    intersection_normal = var->test_plane[i].normal; // Assuming normal is constant
+                    object_color = var->test_plane[i].color;
+
+                    hit_object_type = 2;
+                    hit_object_index = i;
+                }
+            }
+            // Cylinder intersections
+            for (int i = 0; i < var->num_cylinders; i++)
+            {
+                float t0, t1;
+                int hit = cylinder_intersect(var->test_cylinder[i], r, &t0, &t1);
+
+                if (hit > 0 && t0 < closest_t)
+                {
+                    hit_something = true;
+                    closest_t = t0;
+
+                    // Save intersection details
+                    intersection_point = position(r, t0);
+                    intersection_normal = local_normal_at_cylinder(&var->test_cylinder[i], intersection_point);
+                    object_color = var->test_cylinder[i].color;
+
+                    hit_object_type = 3;
+                    hit_object_index = i;
+                }
+            }
+            if (hit_something)
+            {
+                // Compute the shadow ray
+                t_tuple light_direction = normalize(tuple_subtract(var->test_light->position, intersection_point));
+                t_ray shadow_ray = ray(tuple_add(intersection_point, tuple_multiply(intersection_normal, EPSILON)), light_direction);
+                bool in_shadow = false;
+
+                // Check if the point is in shadow
+                float light_distance = magnitude(tuple_subtract(var->test_light->position, intersection_point));
+
+                // Check for shadows with spheres
+                for (int i = 0; i < var->num_spheres; i++)
+                {
+                    float t0, t1;
+                    int xs = intersect(var->test_sphere[i], shadow_ray, &t0, &t1);
+
+                    if (xs > 0 && t0 < light_distance)
+                    {
+                        in_shadow = true;
+                        break;
+                    }
+                }
+                // Check for shadows with planes
+                if (!in_shadow)
+                {
+                    for (int i = 0; i < var->num_planes; i++)
+                    {
+                        float t;
+                        int hit = plane_intersect(var->test_plane[i], shadow_ray, &t);
+
+                        if (hit && t < light_distance)
+                        {
+                            in_shadow = true;
+                            break;
+                        }
+                    }
+                }
+                // Check for shadows with cylinders
+                if (!in_shadow)
+                {
+                    for (int i = 0; i < var->num_cylinders; i++)
+                    {
+                        float t0, t1;
+                        int hit = cylinder_intersect(var->test_cylinder[i], shadow_ray, &t0, &t1);
+
+                        if (hit > 0 && t0 < light_distance)
+                        {
+                            in_shadow = true;
+                            break;
+                        }
+                    }
+                }
+                if (!in_shadow)
+                {
+                    // Compute diffuse lighting
+                    float light_dot_normal = dot(light_direction, intersection_normal);
+
+                    if (light_dot_normal > 0)
+                    {
+                        float diffuse_intensity = var->test_light->brightness * light_dot_normal;
+
+                        // Scale object color by diffuse intensity and add to ambient light
+                        t_color diffuse = multiply_color_scalar(object_color, diffuse_intensity);
+                        pixel_color = add_colors(pixel_color, diffuse);
+
+                        // Clamp color values between 0 and 1
+                        pixel_color.r = fminf(1.0f, pixel_color.r);
+                        pixel_color.g = fminf(1.0f, pixel_color.g);
+                        pixel_color.b = fminf(1.0f, pixel_color.b);
+                    }
+                }
+            }
+            // Write the color to the pixel
+            write_color(pixel_color, var, x, y);
+        }
+    }
+}
+
+/*
 void printimage(void *param)
 {
     t_var *var;
@@ -1735,7 +1961,7 @@ void printimage(void *param)
             }
         }
     }
-}
+}*/
 
 /*Just a test without functionality in final program*/
 /*
@@ -2082,6 +2308,64 @@ void test_cylinder_end_caps_normal()
         }
     }
 }*/
+/*
+void test_reflect_slanted_surface()
+{
+    t_tuple v = vector(0, -1, 0);
+    double sqrt2_over_2 = sqrt(2) / 2;
+    t_tuple n = vector(sqrt2_over_2, sqrt2_over_2, 0);
+    t_tuple r = reflect(v, n);
+
+    t_tuple expected = vector(1, 0, 0);
+
+    if (tuple_equal(r, expected))
+    {
+        printf("Test 2 Passed: r = (%f, %f, %f)\n", r.x, r.y, r.z);
+    }
+    else
+    {
+        printf("Test 2 Failed: Expected (%f, %f, %f), Got (%f, %f, %f)\n",
+               expected.x, expected.y, expected.z, r.x, r.y, r.z);
+    }
+}*/
+/*
+void test_reflect_45_degrees()
+{
+    t_tuple v = vector(1, -1, 0);
+    t_tuple n = vector(0, 1, 0);
+    t_tuple r = reflect(v, n);
+
+    t_tuple expected = vector(1, 1, 0);
+
+    if (tuple_equal(r, expected))
+    {
+        printf("Test 1 Passed: r = (%f, %f, %f)\n", r.x, r.y, r.z);
+    }
+    else
+    {
+        printf("Test 1 Failed: Expected (%f, %f, %f), Got (%f, %f, %f)\n",
+               expected.x, expected.y, expected.z, r.x, r.y, r.z);
+    }
+}*/
+
+void test_point_light_attributes()
+{
+    t_color intensity = t_color_create(1, 1, 1);
+    t_tuple position = point(0, 0, 0);
+    float brightness = 1.0f; // Full brightness
+
+    t_light *light = point_light(position, intensity, brightness);
+
+    if (tuple_equal(light->position, position) &&
+        compare_colors(light->intensity, intensity)) {
+        printf("Test Passed: Point light has correct position and intensity.\n");
+    } else {
+        printf("Test Failed: Point light attributes are incorrect.\n");
+    }
+
+    // Clean up
+    free(light);
+}
 
 int main(int argc, char **argv)
 {
@@ -2111,6 +2395,7 @@ int main(int argc, char **argv)
     init_test_sphere(&var, map); // TESTI SPHERE!!!!!
     init_test_planes(&var, map); // TESTI PLANE!!!!!
     init_test_cylinders(&var, map); // TESTI CYLINDER!!!!
+    init_test_lights(&var, map); // TESTI LIGHT!!!!
     //test_ray_parallel_to_plane();
     //test_ray_coplanar_with_plane();
     //test_ray_intersecting_plane_from_below();
@@ -2121,6 +2406,9 @@ int main(int argc, char **argv)
     //test_default_cylinder_bounds();
     //test_truncated_cylinder_intersections();
     //test_cylinder_end_caps_normal();
+    //test_reflect_45_degrees();
+    //test_reflect_slanted_surface();
+    //test_point_light_attributes();
 	printimage(&var);
 	hooks(&var);
 	mlx_loop(var.mlx);

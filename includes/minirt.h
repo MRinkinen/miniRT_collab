@@ -27,14 +27,7 @@ typedef struct
     float data[4][4]; // This can hold up to a 4x4 matrix, adjust the size if necessary
 } t_matrix;
 
-// typedef struct
-// {
-//     double red;
-//     double green;
-//     double blue;
-// } t_color;
 
-/* Above is all test_functions.h definitions*/
 
 typedef struct s_tuple
 {
@@ -52,7 +45,8 @@ typedef struct s_color
 	float r;
 	float g;
 	float b;
-} t_color;
+}
+t_color;
 
 typedef struct s_vec
 {
@@ -61,52 +55,36 @@ typedef struct s_vec
 	float z;
 } t_vec3;
 
+typedef struct s_material
+{
+	t_color color;
+	float ambient;
+	float diffuse;
+	float shininess;
+	float specular;
+} t_material;
+
+typedef struct s_point_light
+{
+	t_tuple position;
+	t_color col;
+	float intensity;
+} t_point_light;
+
 typedef struct s_hit
 {
-	t_vec3 p;
-	t_vec3 normal;
+	t_tuple p;
+	t_tuple normal;
 	float t;
 	bool front_face;
 	t_color color;
 } t_hit;
 
-struct hittable;
-void set_face_normal(t_hit *rec, const t_ray *r, const t_vec3 *outward_normal);
-typedef bool (*hit_func)(const struct hittable *, const t_ray *, float, float, t_hit *);
-
-typedef struct hittable
-{
-	hit_func hit;
-} t_hittable;
-
-typedef struct
-{
-	t_hittable *objects[MAX_OBJECTS];
-	int size;
-} hittable_list;
-
-void hittable_list_init(hittable_list *list);
-void hittable_list_clear(hittable_list *list);
-void hittable_list_add(hittable_list *list, t_hittable *object);
-// bool hittable_list_hit(const hittable_list *list, const t_ray *r, float tmin, float tmax, t_hit *rec);
-bool hittable_list_hit(const hittable_list *list, const t_ray *r, float tmin, float tmax, t_hit *rec);
-
-/*Experimental*/
-typedef struct s_cylinders
-{
-	t_hittable base;	// Inherit hittable structure
-	t_vec3 center;		// Center of the base of the cylinder
-	t_vec3 orientation; // Orientation of the cylinder (usually represented by a vector)
-	float radius;		// Radius of the cylinder
-	float height;		// Height of the cylinder
-	t_color color;		// t_color of the cylinder
-} t_cylinders;
-
 typedef struct s_sphere {
     t_tuple center;  // Sphere's center (position)
     float radius;    // Sphere's radius
-    t_color color;   // Sphere's color
-
+    //t_color color;   // Sphere's color
+	t_material mat;
     // Transformation matrices
     t_matrix *transform;        // Combined transformation matrix
     t_matrix *inverse_transform; // Inverse of the combined transformation matrix
@@ -173,12 +151,12 @@ void ft_hook(void *param);
 void hooks(t_var *var);
 int mlxinit(t_var *var, t_map *map);
 
-void printimage(void *param);
+void printimage(void *param, t_map *map);
 
 // bool sphere_hit(const t_hittable *self, const t_ray *r, float tmin, float tmax, t_hit *rec);
 
 //t_sphere sphere_create(t_vec3 center, float radius, t_color col);
-void hittable_init(t_hittable *h, hit_func func);
+//void hittable_init(t_hittable *h, hit_func func);
 
 // t_sphere sphere_create(t_vec3 center, float radius);
 
@@ -219,16 +197,7 @@ t_vec3 ray_origin(const t_ray *r);
 t_vec3 ray_direction(const t_ray *r);
 t_vec3 ray_at(const t_ray *r, float t);
 
-/*Sphere*/
-bool sphere_hit(const t_hittable *self, const t_ray *r, float tmin, float tmax, t_hit *rec);
-bool cylinder_hit(const t_hittable *self, const t_ray *r, float tmin, float tmax, t_hit *rec);
-// bool sphere_hit(const t_hittable *self, const t_ray *ray, t_hit *rec, t_vec3 *intersection_point);
 
-// float hit_sphere(const t_vec3 *center, float radius, const t_ray *r);
-
-// bool hit_sphere2(const t_vec3 center, float radius, const t_ray r);
-
-/*t_color*/
 
 t_color t_color_create(float r, float b, float g);
 t_color color_multiply_scalar(t_color c, float s);
@@ -304,3 +273,56 @@ float       cofactor(const t_matrix *m, int row, int col);
 bool        is_invertible(t_matrix *m);
 
 #endif
+
+// typedef struct
+// {
+//     double red;
+//     double green;
+//     double blue;
+// } t_color;
+
+/* Above is all test_functions.h definitions*/
+
+
+// struct hittable;
+// void set_face_normal(t_hit *rec, const t_ray *r, const t_vec3 *outward_normal);
+// typedef bool (*hit_func)(const struct hittable *, const t_ray *, float, float, t_hit *);
+
+// typedef struct hittable
+// {
+// 	hit_func hit;
+// } t_hittable;
+
+// typedef struct
+// {
+// 	t_hittable *objects[MAX_OBJECTS];
+// 	int size;
+// } hittable_list;
+
+// void hittable_list_init(hittable_list *list);
+// void hittable_list_clear(hittable_list *list);
+// void hittable_list_add(hittable_list *list, t_hittable *object);
+// // bool hittable_list_hit(const hittable_list *list, const t_ray *r, float tmin, float tmax, t_hit *rec);
+// bool hittable_list_hit(const hittable_list *list, const t_ray *r, float tmin, float tmax, t_hit *rec);
+
+// /*Experimental*/
+// typedef struct s_cylinders
+// {
+// 	t_hittable base;	// Inherit hittable structure
+// 	t_vec3 center;		// Center of the base of the cylinder
+// 	t_vec3 orientation; // Orientation of the cylinder (usually represented by a vector)
+// 	float radius;		// Radius of the cylinder
+// 	float height;		// Height of the cylinder
+// 	t_color color;		// t_color of the cylinder
+// } t_cylinders;
+
+/*Sphere*/
+//bool sphere_hit(const t_hittable *self, const t_ray *r, float tmin, float tmax, t_hit *rec);
+//bool cylinder_hit(const t_hittable *self, const t_ray *r, float tmin, float tmax, t_hit *rec);
+// bool sphere_hit(const t_hittable *self, const t_ray *ray, t_hit *rec, t_vec3 *intersection_point);
+
+// float hit_sphere(const t_vec3 *center, float radius, const t_ray *r);
+
+// bool hit_sphere2(const t_vec3 center, float radius, const t_ray r);
+
+/*t_color*/

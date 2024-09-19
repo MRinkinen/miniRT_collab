@@ -6,7 +6,7 @@
 /*   By: mrinkine <mrinkine@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/15 12:02:26 by mrinkine          #+#    #+#             */
-/*   Updated: 2024/09/07 17:59:16 by mrinkine         ###   ########.fr       */
+/*   Updated: 2024/09/10 18:52:32 by mrinkine         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -125,7 +125,7 @@ t_sphere sphere_create(t_tuple center, float radius, t_color col)
     t_sphere sphere;
 
     //hittable_init(&sphere.base, sphere_hit);
-    sphere.color = col;
+    sphere.mat.color = col;
     sphere.center = center;
     sphere.radius = fmax(0, radius);
 
@@ -1067,55 +1067,169 @@ void init_test_sphere(t_var *var, t_map *map)
     }
 }
 
-void printimage(void *param)
+t_tuple reflect(t_tuple t1, t_tuple t2)
 {
-    t_var *var;
-    var = param;
+    t1 =  negate_tuple(t1);
+    return (tuple_add(t1,t2)); // varmasti paskaa!!
 
-    for (int y = 0; y < (int)var->image_height; y++)
-    {
-        for (int x = 0; x < SCREEN_WIDTH; x++)
-        {
-            float u = (float)x / (float)(SCREEN_WIDTH - 1);  // Map pixel x to [0, 1] range
-            float v = (float)y / (float)(var->image_height - 1);  // Map pixel y to [0, 1] range
+}
 
-            // Calculate ray direction for each pixel
+//t_color lighting(t_material material, t_point_light light, t_tuple point, t_tuple eyev, t_tuple normalv)
+t_color lighting(t_material material, t_point_light light, t_tuple point, t_tuple eyev, t_tuple normalv)
+{
+    // Combine the surface color with the light's color/intensity
+    t_color effective_color = color_multiply_scalar(material.color, light.intensity);
+
+    // Find the direction to the light source
+    t_tuple lightv = normalize(tuple_subtract(light.position, point));
+
+    // Compute the ambient contribution
+    t_color ambient = color_multiply_scalar(effective_color, material.ambient);
+
+    // Calculate the dot product of the light vector and the normal vector
+    float light_dot_normal = dot(lightv, normalv);
+
+    t_color diffuse;
+    t_color specular;
+
+    if (light_dot_normal < 0) {
+        // The light is on the other side of the surface, no diffuse or specular contribution
+        diffuse = t_color_create(0, 0, 0);
+        specular = t_color_create(0, 0, 0);
+    } else {
+        // Compute the diffuse contribution
+        diffuse = color_multiply_scalar(effective_color, material.diffuse * light_dot_normal);
+
+        // Reflect the light vector around the normal
+        t_tuple reflectv = reflect(negate_tuple(lightv), normalv);
+
+        // Compute reflect_dot_eye (the cosine of the angle between reflection and view vectors)
+        float reflect_dot_eye = dot(reflectv, eyev);
+
+        if (reflect_dot_eye <= 0) {
+            // The light reflects away from the eye, no specular contribution
+            specular = t_color_create(0, 0, 0);
+        } else {
+            // Compute the specular contribution
+            float factor = pow(reflect_dot_eye, material.shininess);
+            t_color light_intensity_as_color = t_color_create(light.intensity, light.intensity, light.intensity);
+            specular = color_multiply_scalar(light_intensity_as_color, material.specular * factor);
+        }
+    }
+
+    // Add the ambient, diffuse, and specular contributions
+    return color_add(color_add(ambient, diffuse), specular);
+}
+/*
+# combine the surface color with the light's color/intensity
+effective_color ← material.color * light.intensity
+# find the direction to the light source
+lightv ← normalize(light.position - point)
+# compute the ambient contribution
+ambient ← effective_color * material.ambient
+# light_dot_normal represents the cosine of the angle between the
+# light vector and the normal vector. A negative number means the
+# light is on the other side of the surface.
+light_dot_normal ← dot(lightv, normalv)
+if light_dot_normal < 0
+diffuse ← black
+specular ← black
+else
+# compute the diffuse contribution
+
+diffuse ← effective_color * material.diffuse * light_dot_normal
+# reflect_dot_eye represents the cosine of the angle between the
+# reflection vector and the eye vector. A negative number means the
+# light reflects away from the eye.
+reflectv ← reflect(-lightv, normalv)
+reflect_dot_eye ← dot(reflectv, eyev)
+report erratum • discussPutting It Together • 89
+if reflect_dot_eye <= 0
+specular ← black
+else
+# compute the specular contribution
+factor ← pow(reflect_dot_eye, material.shininess)
+specular ← light.intensity * material.specular * factor
+end if
+end if
+# Add the three contributions together to get the final shading
+return ambient + diffuse + specular
+*/
+t_tuple ray_position(t_ray r, float t)
+{
+    // Position along the ray at distance t: origin + t * direction
+    return tuple_add(r.origin, tuple_multiply(r.direction, t));
+}
+
+t_tuple sphere_normal_at(t_sphere s, t_tuple point) {
+    // The normal is the vector from the sphere's center to the surface point
+    t_tuple object_normal = tuple_subtract(point, s.center);
+
+    // Normalize the result to get the unit normal vector
+    return normalize(object_normal);
+}
+
+void printimage(void *param, t_map *map)
+{
+    t_var *var = (t_var *)param;
+    t_point_light light;  // Define the light source (position, intensity, etc.)
+    //t_material material;  // Define the material properties (ambient, diffuse, specular, etc.)
+
+    light.col = t_color_create(map->light->r, map->light->b, map->light->g);
+    light.intensity = map->light->ratio;
+    light.position = point(map->light->x, map->light->y, map->light->z);
+
+
+    // Loop over each pixel on the image
+    for (int y = 0; y < (int)var->image_height; y++) {
+        for (int x = 0; x < SCREEN_WIDTH; x++) {
+            // Calculate u, v for mapping pixel coordinates to screen space
+            float u = (float)x / (float)(SCREEN_WIDTH - 1);
+            float v = (float)y / (float)(var->image_height - 1);
+
+            // Compute ray direction from camera for each pixel
             t_tuple ray_direction = normalize(tuple_subtract(
-                tuple_add(var->cam.lower_left_corner,
-                    tuple_add(tuple_multiply(var->cam.horizontal, u),
-                              tuple_multiply(var->cam.vertical, v))),
+                tuple_add(var->cam.lower_left_corner, tuple_add(
+                    tuple_multiply(var->cam.horizontal, u),
+                    tuple_multiply(var->cam.vertical, v))),
                 var->cam.position));
             t_ray r = ray(var->cam.position, ray_direction);
 
-            bool hit_something = false;
-            t_color sphere_color = var->ambientl;  // Default to ambient light color if no sphere is hit
-            float closest_t = INFINITY;  // Track the closest intersection
+            // Initialize intersection variables
+            float t0, t1;
+            t_color final_color = var->ambientl;
+            bool hit_anything = false;
 
-            // Loop over all spheres to find the closest hit
-            for (int i = 0; i < var->num_spheres; i++)
-            {
-                float t0, t1;
+            // Loop through all spheres to check for intersections
+            for (int i = 0; i < map->element_count->sphere; i++) {
                 int xs = intersect(var->test_sphere[i], r, &t0, &t1);
 
-                // If there is an intersection and it's the closest so far
-                if (xs > 0 && t0 < closest_t)
-                {
-                    hit_something = true;
-                    closest_t = t0;
-                    sphere_color = var->test_sphere[i].color;  // Set color to the sphere's color
-                    break;
+                if (xs > 0) {  // If an intersection occurs
+                    hit_anything = true;
+
+                    // Calculate point of intersection and normal at that point
+                    t_tuple hit_point = ray_position(r, t0);  // Get the intersection point
+                    t_tuple normalv = sphere_normal_at(var->test_sphere[i], hit_point);  // Normal at the intersection
+                    t_tuple eyev = negate_tuple(r.direction);  // The view direction (eye vector)
+
+                    // Calculate the lighting at the intersection point
+                    t_color lighting_result = lighting(var->test_sphere[i].mat, light, hit_point, eyev, normalv);
+
+                    // Mix ambient, diffuse, and specular contributions
+                    final_color = lighting_result;
+                    break;  // Stop after the first hit (you could check for the closest hit instead)
                 }
             }
 
-            // If a sphere was hit, color the pixel with that sphere's color
-            if (hit_something)
+            // Write the computed color to the image
+            if (hit_anything)
             {
-                write_color(sphere_color, var, x, y);
+                //final_color = multiply_colors(final_color, var->ambientl);
+                write_color(final_color, var, x, y);  // Write the lit color
             }
             else
             {
-                // No hit, apply ambient light color
-                write_color(var->ambientl, var, x, y);
+                write_color(var->ambientl, var, x, y);  // Write ambient color for no hit
             }
         }
     }
@@ -1147,7 +1261,7 @@ int main(int argc, char **argv)
     init_ambient_color(&var, map);
     initialize_camera(&var, &var.cam, map);
     init_test_sphere(&var, map); // TESTI SPHERE!!!!!
-	printimage(&var);
+	printimage(&var, map);
 	hooks(&var);
 	mlx_loop(var.mlx);
 	mlx_terminate(var.mlx);

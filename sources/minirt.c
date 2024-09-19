@@ -12,7 +12,7 @@
 
 #include "../includes/minirt.h"
 #include "../includes/parsing.h"
-//#include "../includes/test_functions.h"
+// #include "../includes/test_functions.h"
 
 /*
 int intersect(t_sphere sphere, t_ray ray, float *t0, float *t1) {
@@ -37,22 +37,52 @@ int intersect(t_sphere sphere, t_ray ray, float *t0, float *t1) {
     }
 }*/
 
-int intersect(t_sphere s, t_ray r, float *t0, float *t1) {
+int intersect(t_sphere s, t_ray r, float *t0, float *t1)
+{
     // Calculate vector from ray origin to sphere center
     t_tuple sphere_to_ray = tuple_subtract(r.origin, s.center);
 
-    float a = dot(r.direction, r.direction);  // Always 1 since the direction is normalized
+    float a = dot(r.direction, r.direction); // Always 1 since the direction is normalized
     float b = 2 * dot(sphere_to_ray, r.direction);
     float c = dot(sphere_to_ray, sphere_to_ray) - (s.radius * s.radius);
     float discriminant = (b * b) - (4 * a * c);
 
-    if (discriminant < 0) {
-        return 0;  // No intersection
-    } else {
+    if (discriminant < 0)
+    {
+        return 0; // No intersection
+    }
+    else
+    {
         *t0 = (-b - sqrt(discriminant)) / (2 * a);
         *t1 = (-b + sqrt(discriminant)) / (2 * a);
-        return 1;  // Intersection found
+        return 1; // Intersection found
     }
+}
+
+bool hit_sphere(const t_sphere *sphere, const t_ray *ray, float *t)
+{
+    t_tuple oc = tuple_subtract(ray->origin, sphere->center);
+    float a = dot(ray->direction, ray->direction);
+    float b = 2.0f * dot(oc, ray->direction);
+    float c = dot(oc, oc) - sphere->radius * sphere->radius;
+    float discriminant = b * b - 4 * a * c;
+
+    if (discriminant > 0)
+    {
+        float temp = (-b - sqrt(discriminant)) / (2.0f * a);
+        if (temp < *t && temp > 0.001f)
+        {
+            *t = temp;
+            return true;
+        }
+        temp = (-b + sqrt(discriminant)) / (2.0f * a);
+        if (temp < *t && temp > 0.001f)
+        {
+            *t = temp;
+            return true;
+        }
+    }
+    return false;
 }
 
 // int intersect(t_sphere s, t_ray r, float *t0, float *t1) {
@@ -120,16 +150,16 @@ int intersect(t_sphere s, t_ray r, float *t0, float *t1) {
 //     return s;
 // }
 
-t_sphere sphere_create(t_tuple center, float radius, t_color col)
+t_sphere sphere_create(t_tuple center, float radius, t_material material)
 {
     t_sphere sphere;
 
-    //hittable_init(&sphere.base, sphere_hit);
-    sphere.mat.color = col;
+    // hittable_init(&sphere.base, sphere_hit);
+    sphere.mat = material; // Assign the material to the sphere
     sphere.center = center;
     sphere.radius = fmax(0, radius);
 
-     // Initialize transformation matrices
+    // Initialize transformation matrices
     sphere.translation_matrix = translation(center.x, center.y, center.z);
     sphere.rotation_matrix = identity_matrix(); // No rotation initially
     sphere.scaling_matrix = scaling(radius, radius, radius);
@@ -139,13 +169,13 @@ t_sphere sphere_create(t_tuple center, float radius, t_color col)
 
     // Calculate the inverse transform for ray-sphere intersection
     sphere.inverse_transform = inverse(sphere.transform);
-    return (sphere);
+    return sphere;
 }
 
 // Function to multiply a tuple by a scalar
 t_tuple tuple_multiply(t_tuple t, double scalar)
 {
-    return tuple(t.x * scalar, t.y * scalar, t.z * scalar, t.w);  // Preserves w
+    return tuple(t.x * scalar, t.y * scalar, t.z * scalar, t.w); // Preserves w
 }
 
 // Computes a point along the ray at parameter t
@@ -167,27 +197,31 @@ void print_clock_face(t_var *var)
     int hours = 360;
     float angle_per_hour = (float)3.1415 / 180; // 2 * M_PI / 12
 
-	printf("Center: (%f, %f)\n", CENTER_X, CENTER_Y);
-	printf("Camera fov: %f\n", var->fov);
+    printf("Center: (%f, %f)\n", CENTER_X, CENTER_Y);
+    printf("Camera fov: %f\n", var->fov);
 
     // Draw each hour mark
-    for (int hour = 0; hour < hours; hour++) {
+    for (int hour = 0; hour < hours; hour++)
+    {
         t_matrix *rotation = rotation_y(angle_per_hour * hour);
         t_tuple hour_pos = apply_transformation(rotation, &twelve_oclock);
 
-    // Scale and translate position
-    float px = CENTER_X + (float)(hour_pos.x * CLOCK_RADIUS);
-    float py = CENTER_Y - (float)(hour_pos.z * CLOCK_RADIUS);  // Adjust y-axis if necessary
+        // Scale and translate position
+        float px = CENTER_X + (float)(hour_pos.x * CLOCK_RADIUS);
+        float py = CENTER_Y - (float)(hour_pos.z * CLOCK_RADIUS); // Adjust y-axis if necessary
 
-    printf("Hour %d: px = %f, py = %f\n", hour, px, py);
+        printf("Hour %d: px = %f, py = %f\n", hour, px, py);
 
         // Draw a small square around the hour mark
-        for (int dx = -MARK_SIZE / 2; dx <= MARK_SIZE / 2; dx++) {
-            for (int dy = -MARK_SIZE / 2; dy <= MARK_SIZE / 2; dy++) {
+        for (int dx = -MARK_SIZE / 2; dx <= MARK_SIZE / 2; dx++)
+        {
+            for (int dy = -MARK_SIZE / 2; dy <= MARK_SIZE / 2; dy++)
+            {
                 int final_px = px + dx;
                 int final_py = py + dy;
-                if (final_px >= 0 && final_px < var->image_width && final_py >= 0 && final_py < var->image_height) {
-                    write_color(t_color_create(0, 0, 0), var, final_px, final_py);  // Draw black mark
+                if (final_px >= 0 && final_px < var->image_width && final_py >= 0 && final_py < var->image_height)
+                {
+                    write_color(t_color_create(0, 0, 0), var, final_px, final_py); // Draw black mark
                 }
             }
         }
@@ -195,7 +229,8 @@ void print_clock_face(t_var *var)
     }
 }
 
-void test_position_function() {
+void test_position_function()
+{
     t_ray r;
     r.origin = point(2, 3, 4);
     r.direction = vector(1, 0, 0);
@@ -235,7 +270,6 @@ t_ray ray(t_tuple origin, t_tuple direction)
     new_ray.direction = direction;
     return new_ray;
 }
-
 
 // void printimage(void *param, t_map *map)
 // {
@@ -297,15 +331,14 @@ t_matrix *tuple_to_matrix(t_tuple *t)
         t->x, 0, 0, 0,
         t->y, 0, 0, 0,
         t->z, 0, 0, 0,
-        t->w, 0, 0, 0
-    );
+        t->w, 0, 0, 0);
     return m;
 }
 
 // Function to create a shearing matrix
-t_matrix* shearing(float xy, float xz, float yx, float yz, float zx, float zy)
+t_matrix *shearing(float xy, float xz, float yx, float yz, float zx, float zy)
 {
-    t_matrix* shear = identity_matrix(); // Initialize as identity matrix
+    t_matrix *shear = identity_matrix(); // Initialize as identity matrix
 
     // Set the shearing components
     shear->data[0][1] = xy;
@@ -321,7 +354,7 @@ t_matrix* shearing(float xy, float xz, float yx, float yz, float zx, float zy)
 // Function to create a rotation matrix around the Z-axis
 t_matrix *rotation_z(float radians)
 {
-    t_matrix* rotation = identity_matrix(); // Initialize as identity matrix
+    t_matrix *rotation = identity_matrix(); // Initialize as identity matrix
 
     // Set the rotation components
     rotation->data[0][0] = cos(radians);
@@ -333,7 +366,7 @@ t_matrix *rotation_z(float radians)
 }
 
 // Function to create a rotation matrix around the Y-axis
-t_matrix* rotation_y(float radians)
+t_matrix *rotation_y(float radians)
 {
     t_matrix *transform = identity_matrix(); // Initialize as identity matrix
 
@@ -378,7 +411,8 @@ t_matrix *inverse_scaling(float x, float y, float z)
 t_matrix *scaling(float x, float y, float z)
 {
     t_matrix *transform = (t_matrix *)malloc(sizeof(t_matrix));
-    if (transform == NULL) {
+    if (transform == NULL)
+    {
         printf("Error: Memory allocation failed.\n");
         return NULL;
     }
@@ -387,9 +421,11 @@ t_matrix *scaling(float x, float y, float z)
     transform->cols = 4;
 
     int i = 0, j;
-    while (i < 4) {
+    while (i < 4)
+    {
         j = 0;
-        while (j < 4) {
+        while (j < 4)
+        {
             transform->data[i][j] = (i == j) ? 1.0f : 0.0f;
             j++;
         }
@@ -434,7 +470,8 @@ t_matrix *inverse_translation(t_matrix *transform)
 }
 
 // Function to multiply a 4x4 matrix by a point (assumed to be a 4x1 vector)
-t_tuple multiply_matrix_tuple(t_matrix *m, t_tuple *p) {
+t_tuple multiply_matrix_tuple(t_matrix *m, t_tuple *p)
+{
     t_tuple result;
 
     result.x = m->data[0][0] * p->x + m->data[0][1] * p->y + m->data[0][2] * p->z + m->data[0][3] * p->w;
@@ -446,7 +483,8 @@ t_tuple multiply_matrix_tuple(t_matrix *m, t_tuple *p) {
 }
 
 // Function to create a 4x4 translation matrix
-t_matrix *translation(float x, float y, float z) {
+t_matrix *translation(float x, float y, float z)
+{
     // Initialize the identity matrix
     t_matrix *transform = identity_matrix();
 
@@ -458,12 +496,14 @@ t_matrix *translation(float x, float y, float z) {
     return (transform);
 }
 
-t_matrix *inverse(t_matrix *m) {
+t_matrix *inverse(t_matrix *m)
+{
     // Calculate the determinant first
     float det = determinant(m);
-    if (det == 0.0f) {
+    if (det == 0.0f)
+    {
         printf("Matrix is not invertible.\n");
-        exit(1);  // You can handle it better based on your needs.
+        exit(1); // You can handle it better based on your needs.
     }
 
     // Get the cofactor matrix
@@ -477,8 +517,10 @@ t_matrix *inverse(t_matrix *m) {
     inverse_m->rows = m->rows;
     inverse_m->cols = m->cols;
 
-    for (int i = 0; i < inverse_m->rows; i++) {
-        for (int j = 0; j < inverse_m->cols; j++) {
+    for (int i = 0; i < inverse_m->rows; i++)
+    {
+        for (int j = 0; j < inverse_m->cols; j++)
+        {
             inverse_m->data[i][j] = adjugate_m->data[i][j] / det;
         }
     }
@@ -490,11 +532,12 @@ t_matrix *inverse(t_matrix *m) {
     return inverse_m;
 }
 
-t_matrix* cofactor_matrix(const t_matrix *m)
+t_matrix *cofactor_matrix(const t_matrix *m)
 {
     // Allocate memory for the cofactor matrix
     t_matrix *cofactor_m = (t_matrix *)malloc(sizeof(t_matrix));
-    if (cofactor_m == NULL) {
+    if (cofactor_m == NULL)
+    {
         printf("Error: Memory allocation failed.\n");
         return NULL;
     }
@@ -505,9 +548,11 @@ t_matrix* cofactor_matrix(const t_matrix *m)
 
     // Iterate over each element using while loops
     int i = 0;
-    while (i < m->rows) {
+    while (i < m->rows)
+    {
         int j = 0;
-        while (j < m->cols) {
+        while (j < m->cols)
+        {
             // Calculate the cofactor for element (i, j)
             cofactor_m->data[i][j] = cofactor(m, i, j);
             j++;
@@ -540,7 +585,7 @@ float cofactor(const t_matrix *m, int row, int col)
 }
 
 // Function to return submatrix of a given matrix
-t_matrix* submatrix(const t_matrix *m, int remove_row, int remove_col)
+t_matrix *submatrix(const t_matrix *m, int remove_row, int remove_col)
 {
     int new_rows = m->rows - 1;
     int new_cols = m->cols - 1;
@@ -639,7 +684,7 @@ float determinant(const t_matrix *m)
 }
 
 // Function to create an identity matrix
-t_matrix* identity_matrix()
+t_matrix *identity_matrix()
 {
     t_matrix *identity = (t_matrix *)malloc(sizeof(t_matrix));
     if (identity == NULL)
@@ -671,7 +716,7 @@ t_matrix* identity_matrix()
 }
 
 // Function to transpose a matrix
-t_matrix* transpose(t_matrix *m)
+t_matrix *transpose(t_matrix *m)
 {
     // Allocate memory for the transposed matrix
     t_matrix *transposed = (t_matrix *)malloc(sizeof(t_matrix));
@@ -701,7 +746,7 @@ t_matrix* transpose(t_matrix *m)
 }
 
 // Function to multiply two 4x4 matrices
-t_matrix* t_matrix_multiply(t_matrix *a, t_matrix *b)
+t_matrix *t_matrix_multiply(t_matrix *a, t_matrix *b)
 {
     // Ensure both matrices are 4x4
     if (a->rows != 4 || a->cols != 4 || b->rows != 4 || b->cols != 4)
@@ -756,8 +801,8 @@ t_matrix *create_2x2_matrix(float a, float b, float c, float d)
 }
 
 t_matrix *create_3x3_matrix(float a, float b, float c,
-                           float d, float e, float f,
-                           float g, float h, float i)
+                            float d, float e, float f,
+                            float g, float h, float i)
 {
     t_matrix *m = (t_matrix *)malloc(sizeof(t_matrix));
     if (m == NULL)
@@ -781,9 +826,9 @@ t_matrix *create_3x3_matrix(float a, float b, float c,
 }
 
 t_matrix *create_4x4_matrix(float a, float b, float c, float d,
-                           float e, float f, float g, float h,
-                           float i, float j, float k, float l,
-                           float m, float n, float o, float p)
+                            float e, float f, float g, float h,
+                            float i, float j, float k, float l,
+                            float m, float n, float o, float p)
 {
     t_matrix *matrix = (t_matrix *)malloc(sizeof(t_matrix));
     if (matrix == NULL)
@@ -999,7 +1044,8 @@ bool magnitude_equal(t_tuple v, double expected_magnitude)
 t_tuple normalize(t_tuple v)
 {
     double mag = magnitude(v);
-    if (mag == 0) {
+    if (mag == 0)
+    {
         // Handling the case where magnitude is zero (though it's not expected for valid vectors)
         return vector(0, 0, 0);
     }
@@ -1018,20 +1064,23 @@ t_tuple cross(t_tuple a, t_tuple b)
     return vector(
         a.y * b.z - a.z * b.y,
         a.z * b.x - a.x * b.z,
-        a.x * b.y - a.y * b.x
-    );
+        a.x * b.y - a.y * b.x);
 }
 
-
 // Helper function to compare two matrices
-int matrices_are_equal(t_matrix *m1, t_matrix *m2) {
-    if (m1->rows != m2->rows || m1->cols != m2->cols) {
+int matrices_are_equal(t_matrix *m1, t_matrix *m2)
+{
+    if (m1->rows != m2->rows || m1->cols != m2->cols)
+    {
         return 0;
     }
 
-    for (int i = 0; i < m1->rows; i++) {
-        for (int j = 0; j < m1->cols; j++) {
-            if (!equal(m1->data[i][j], m2->data[i][j])) {
+    for (int i = 0; i < m1->rows; i++)
+    {
+        for (int j = 0; j < m1->cols; j++)
+        {
+            if (!equal(m1->data[i][j], m2->data[i][j]))
+            {
                 return 0;
             }
         }
@@ -1040,14 +1089,53 @@ int matrices_are_equal(t_matrix *m1, t_matrix *m2) {
 }
 void init_ambient_color(t_var *var, t_map *map)
 {
-    t_color ambient = t_color_create(map->ambient->r,map->ambient->b,map->ambient->g);
-    var->ambientl = multiply_color_scalar(ambient,map->ambient->ratio);
+    t_color ambient = t_color_create(map->ambient->r, map->ambient->b, map->ambient->g);
+    var->ambientl = multiply_color_scalar(ambient, map->ambient->ratio);
+}
+
+// void init_test_sphere(t_var *var, t_map *map)
+// {
+//     int i = 0;
+//     t_spheres *current_sphere = map->spheres; // Create a temporary pointer to traverse the list
+//     var->num_spheres = map->element_count->sphere;
+//     var->test_sphere = malloc(var->num_spheres * sizeof(t_sphere));
+//     if (!var->test_sphere)
+//     {
+//         // Handle malloc failure (optional)
+//         return;
+//     }
+
+//     while (current_sphere != NULL)
+//     {
+//         t_tuple center = point(current_sphere->x, current_sphere->y, current_sphere->z);
+//         float size = current_sphere->diameter;
+//         t_color color = t_color_create(current_sphere->r, current_sphere->b, current_sphere->g);
+//         var->test_sphere[i] = sphere_create(center, size, color);
+//         i++;
+//         current_sphere = current_sphere->next; // Move to the next sphere in the list
+//     }
+// }
+
+t_material create_material(t_color color, float ambient, float diffuse, float specular, float shininess)
+{
+    t_material material;
+    material.color = color;
+    material.ambient = ambient;
+    material.diffuse = diffuse;
+    material.specular = specular;
+    material.shininess = shininess;
+    return material;
+}
+
+t_material create_default_material(t_color color)
+{
+    return create_material(color, DEFAULT_AMBIENT, DEFAULT_DIFFUSE, DEFAULT_SPECULAR, DEFAULT_SHININESS);
 }
 
 void init_test_sphere(t_var *var, t_map *map)
 {
     int i = 0;
-    t_spheres *current_sphere = map->spheres;  // Create a temporary pointer to traverse the list
+    t_spheres *current_sphere = map->spheres; // Create a temporary pointer to traverse the list
     var->num_spheres = map->element_count->sphere;
     var->test_sphere = malloc(var->num_spheres * sizeof(t_sphere));
     if (!var->test_sphere)
@@ -1059,26 +1147,27 @@ void init_test_sphere(t_var *var, t_map *map)
     while (current_sphere != NULL)
     {
         t_tuple center = point(current_sphere->x, current_sphere->y, current_sphere->z);
-        float size = current_sphere->diameter;
-        t_color color = t_color_create(current_sphere->r, current_sphere->b, current_sphere->g);
-        var->test_sphere[i] = sphere_create(center, size, color);
+        float size = current_sphere->diameter / 2.0f; // Assuming diameter is given, convert to radius
+        t_color color = t_color_create(current_sphere->r, current_sphere->g, current_sphere->b);
+        t_material material = create_default_material(color);
+        // t_material material = create_material(color, current_sphere->ambient, current_sphere->diffuse, current_sphere->specular, current_sphere->shininess);
+        var->test_sphere[i] = sphere_create(center, size, material);
         i++;
-        current_sphere = current_sphere->next;  // Move to the next sphere in the list
+        current_sphere = current_sphere->next; // Move to the next sphere in the list
     }
 }
 
 t_tuple reflect(t_tuple t1, t_tuple t2)
 {
-    t1 =  negate_tuple(t1);
-    return (tuple_add(t1,t2)); // varmasti paskaa!!
-
+    t1 = negate_tuple(t1);
+    return (tuple_add(t1, t2)); // varmasti paskaa!!
 }
 
-//t_color lighting(t_material material, t_point_light light, t_tuple point, t_tuple eyev, t_tuple normalv)
+// t_color lighting(t_material material, t_point_light light, t_tuple point, t_tuple eyev, t_tuple normalv)
 t_color lighting(t_material material, t_point_light light, t_tuple point, t_tuple eyev, t_tuple normalv)
 {
     // Combine the surface color with the light's color/intensity
-    t_color effective_color = color_multiply_scalar(material.color, light.intensity);
+    t_color effective_color = multiply_colors(material.color, light.color);
 
     // Find the direction to the light source
     t_tuple lightv = normalize(tuple_subtract(light.position, point));
@@ -1092,11 +1181,14 @@ t_color lighting(t_material material, t_point_light light, t_tuple point, t_tupl
     t_color diffuse;
     t_color specular;
 
-    if (light_dot_normal < 0) {
+    if (light_dot_normal < 0)
+    {
         // The light is on the other side of the surface, no diffuse or specular contribution
         diffuse = t_color_create(0, 0, 0);
         specular = t_color_create(0, 0, 0);
-    } else {
+    }
+    else
+    {
         // Compute the diffuse contribution
         diffuse = color_multiply_scalar(effective_color, material.diffuse * light_dot_normal);
 
@@ -1106,14 +1198,16 @@ t_color lighting(t_material material, t_point_light light, t_tuple point, t_tupl
         // Compute reflect_dot_eye (the cosine of the angle between reflection and view vectors)
         float reflect_dot_eye = dot(reflectv, eyev);
 
-        if (reflect_dot_eye <= 0) {
+        if (reflect_dot_eye <= 0)
+        {
             // The light reflects away from the eye, no specular contribution
             specular = t_color_create(0, 0, 0);
-        } else {
+        }
+        else
+        {
             // Compute the specular contribution
             float factor = pow(reflect_dot_eye, material.shininess);
-            t_color light_intensity_as_color = t_color_create(light.intensity, light.intensity, light.intensity);
-            specular = color_multiply_scalar(light_intensity_as_color, material.specular * factor);
+            specular = color_multiply_scalar(light.color, material.specular * factor);
         }
     }
 
@@ -1161,7 +1255,8 @@ t_tuple ray_position(t_ray r, float t)
     return tuple_add(r.origin, tuple_multiply(r.direction, t));
 }
 
-t_tuple sphere_normal_at(t_sphere s, t_tuple point) {
+t_tuple sphere_normal_at(t_sphere s, t_tuple point)
+{
     // The normal is the vector from the sphere's center to the surface point
     t_tuple object_normal = tuple_subtract(point, s.center);
 
@@ -1169,20 +1264,115 @@ t_tuple sphere_normal_at(t_sphere s, t_tuple point) {
     return normalize(object_normal);
 }
 
+// void printimage(void *param, t_map *map)
+// {
+//     t_var *var = (t_var *)param;
+//     t_point_light light; // Define the light source (position, intensity, etc.)
+//     // t_material material;  // Define the material properties (ambient, diffuse, specular, etc.)
+
+//     light.color = t_color_create(map->light->r, map->light->b, map->light->g);
+//     light.intensity = map->light->ratio;
+//     light.position = point(map->light->x, map->light->y, map->light->z);
+
+//     // Loop over each pixel on the image
+//     for (int y = 0; y < (int)var->image_height; y++)
+//     {
+//         for (int x = 0; x < SCREEN_WIDTH; x++)
+//         {
+//             // Calculate u, v for mapping pixel coordinates to screen space
+//             float u = (float)x / (float)(SCREEN_WIDTH - 1);
+//             float v = (float)y / (float)(var->image_height - 1);
+
+//             // Compute ray direction from camera for each pixel
+//             t_tuple ray_direction = normalize(tuple_subtract(
+//                 tuple_add(var->cam.lower_left_corner, tuple_add(
+//                                                           tuple_multiply(var->cam.horizontal, u),
+//                                                           tuple_multiply(var->cam.vertical, v))),
+//                 var->cam.position));
+//             t_ray r = ray(var->cam.position, ray_direction);
+
+//             // Initialize intersection variables
+//             float t0, t1;
+//             t_color final_color = var->ambientl;
+//             bool hit_anything = false;
+
+//             // Loop through all spheres to check for intersections
+//             for (int i = 0; i < map->element_count->sphere; i++)
+//             {
+//                 int xs = intersect(var->test_sphere[i], r, &t0, &t1);
+
+//                 if (xs > 0)
+//                 { // If an intersection occurs
+//                     hit_anything = true;
+
+//                     // Calculate point of intersection and normal at that point
+//                     t_tuple hit_point = ray_position(r, t0);                            // Get the intersection point
+//                     t_tuple normalv = sphere_normal_at(var->test_sphere[i], hit_point); // Normal at the intersection
+//                     t_tuple eyev = negate_tuple(r.direction);                           // The view direction (eye vector)
+
+//                     // Calculate the lighting at the intersection point
+//                     t_color lighting_result = lighting(var->test_sphere[i].mat, light, hit_point, eyev, normalv);
+
+//                     // Mix ambient, diffuse, and specular contributions
+//                     final_color = lighting_result;
+//                     break; // Stop after the first hit (you could check for the closest hit instead)
+//                 }
+//             }
+
+//             // Write the computed color to the image
+//             if (hit_anything)
+//             {
+//                 // final_color = multiply_colors(final_color, var->ambientl);
+//                 write_color(final_color, var, x, y); // Write the lit color
+//             }
+//             else
+//             {
+//                 write_color(var->ambientl, var, x, y); // Write ambient color for no hit
+//             }
+//         }
+//     }
+// }
+
+t_color calculate_lighting(t_var *var, const t_sphere *sphere, const t_point_light *light, const t_tuple *point, const t_tuple *normal)
+{
+    t_color ambient = color_multiply_scalar(sphere->mat.color, sphere->mat.ambient);
+
+    t_tuple light_dir = normalize(tuple_subtract(light->position, *point));
+    float diff = fmax(dot(*normal, light_dir), 0.0f);
+    t_color diffuse = color_multiply_scalar(multiply_colors(sphere->mat.color, light->color), sphere->mat.diffuse * diff);
+
+    t_tuple view_dir = normalize(tuple_subtract(var->cam.position, *point));
+    t_tuple reflect_dir = reflect(negate_tuple(light_dir), *normal);
+    float spec = pow(fmax(dot(view_dir, reflect_dir), 0.0f), sphere->mat.shininess);
+    t_color specular = color_multiply_scalar(multiply_colors(light->color, t_color_create(1.0f, 1.0f, 1.0f)), sphere->mat.specular * spec);
+
+    return color_add(color_add(ambient, diffuse), specular);
+}
+
+t_point_light create_light(t_tuple position, t_color color, float intensity)
+{
+    t_point_light light;
+    light.position = position;
+    light.color = color;
+    light.intensity = intensity;
+    return light;
+}
+t_tuple ray_at(t_ray ray, float t)
+{
+    return tuple_add(ray.origin, tuple_multiply(ray.direction, t));
+}
+
 void printimage(void *param, t_map *map)
 {
     t_var *var = (t_var *)param;
-    t_point_light light;  // Define the light source (position, intensity, etc.)
-    //t_material material;  // Define the material properties (ambient, diffuse, specular, etc.)
 
-    light.col = t_color_create(map->light->r, map->light->b, map->light->g);
-    light.intensity = map->light->ratio;
-    light.position = point(map->light->x, map->light->y, map->light->z);
-
+    t_point_light light = create_light(point(map->light->x, map->light->y, map->light->z), t_color_create(map->light->r, map->light->g, map->light->b), map->light->ratio); // Define the light source (position, intensity, etc.)
 
     // Loop over each pixel on the image
-    for (int y = 0; y < (int)var->image_height; y++) {
-        for (int x = 0; x < SCREEN_WIDTH; x++) {
+    for (int y = 0; y < (int)var->image_height; y++)
+    {
+        for (int x = 0; x < SCREEN_WIDTH; x++)
+        {
             // Calculate u, v for mapping pixel coordinates to screen space
             float u = (float)x / (float)(SCREEN_WIDTH - 1);
             float v = (float)y / (float)(var->image_height - 1);
@@ -1190,46 +1380,36 @@ void printimage(void *param, t_map *map)
             // Compute ray direction from camera for each pixel
             t_tuple ray_direction = normalize(tuple_subtract(
                 tuple_add(var->cam.lower_left_corner, tuple_add(
-                    tuple_multiply(var->cam.horizontal, u),
-                    tuple_multiply(var->cam.vertical, v))),
+                                                          tuple_multiply(var->cam.horizontal, u),
+                                                          tuple_multiply(var->cam.vertical, v))),
                 var->cam.position));
             t_ray r = ray(var->cam.position, ray_direction);
 
             // Initialize intersection variables
-            float t0, t1;
+            float closest_t = INFINITY;
             t_color final_color = var->ambientl;
             bool hit_anything = false;
 
             // Loop through all spheres to check for intersections
-            for (int i = 0; i < map->element_count->sphere; i++) {
-                int xs = intersect(var->test_sphere[i], r, &t0, &t1);
-
-                if (xs > 0) {  // If an intersection occurs
+            for (int i = 0; i < map->element_count->sphere; i++)
+            {
+                if (hit_sphere(&var->test_sphere[i], &r, &closest_t))
+                {
                     hit_anything = true;
-
-                    // Calculate point of intersection and normal at that point
-                    t_tuple hit_point = ray_position(r, t0);  // Get the intersection point
-                    t_tuple normalv = sphere_normal_at(var->test_sphere[i], hit_point);  // Normal at the intersection
-                    t_tuple eyev = negate_tuple(r.direction);  // The view direction (eye vector)
-
-                    // Calculate the lighting at the intersection point
-                    t_color lighting_result = lighting(var->test_sphere[i].mat, light, hit_point, eyev, normalv);
-
-                    // Mix ambient, diffuse, and specular contributions
-                    final_color = lighting_result;
-                    break;  // Stop after the first hit (you could check for the closest hit instead)
+                    t_tuple hit_point = ray_at(r, closest_t);
+                    t_tuple normal = normalize(tuple_subtract(hit_point, var->test_sphere[i].center));
+                    final_color = calculate_lighting(var, &var->test_sphere[i], &light, &hit_point, &normal);
                 }
             }
 
-            // Write the computed color to the image
+            // Write the final color to the image
             if (hit_anything)
             {
-                //final_color = multiply_colors(final_color, var->ambientl);
-                write_color(final_color, var, x, y);  // Write the lit color
+                write_color(final_color, var, x, y); // Write the lit color
             }
             else
             {
-                write_color(var->ambientl, var, x, y);  // Write ambient color for no hit
+                write_color(var->ambientl, var, x, y); // Write ambient color for no hit
             }
         }
     }
@@ -1237,34 +1417,34 @@ void printimage(void *param, t_map *map)
 
 int main(int argc, char **argv)
 {
-	t_var var;
-	t_element_count element_count;
-	t_map *map;
+    t_var var;
+    t_element_count element_count;
+    t_map *map;
 
-	if (argc != 2)
-	{
-		ft_printf("Error in arguments, just give a map filename\n");
-		return (0);
-	}
-	ft_memset(&element_count, 0, sizeof(t_element_count));
-	map = malloc(sizeof(t_map));
-	setup_data(&element_count, map);
-	if (!map)
-		return (0);
-	if (read_to_parse(&element_count, map, argv) == 0)
-		return (0);
-	print_data(map);
-	printf("image width: %f\n", var.image_width);
-	printf("image height: %f\n", var.image_height);
-	if (mlxinit(&var, map) == EXIT_FAILURE)
-		return (EXIT_FAILURE);
+    if (argc != 2)
+    {
+        ft_printf("Error in arguments, just give a map filename\n");
+        return (0);
+    }
+    ft_memset(&element_count, 0, sizeof(t_element_count));
+    map = malloc(sizeof(t_map));
+    setup_data(&element_count, map);
+    if (!map)
+        return (0);
+    if (read_to_parse(&element_count, map, argv) == 0)
+        return (0);
+    print_data(map);
+    printf("image width: %f\n", var.image_width);
+    printf("image height: %f\n", var.image_height);
+    if (mlxinit(&var, map) == EXIT_FAILURE)
+        return (EXIT_FAILURE);
     init_ambient_color(&var, map);
     initialize_camera(&var, &var.cam, map);
     init_test_sphere(&var, map); // TESTI SPHERE!!!!!
-	printimage(&var, map);
-	hooks(&var);
-	mlx_loop(var.mlx);
-	mlx_terminate(var.mlx);
-	terminate_data(map, "program ended successfully\n");
-	return (EXIT_SUCCESS);
+    printimage(&var, map);
+    hooks(&var);
+    mlx_loop(var.mlx);
+    mlx_terminate(var.mlx);
+    terminate_data(map, "program ended successfully\n");
+    return (EXIT_SUCCESS);
 }

@@ -6,7 +6,7 @@
 /*   By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/15 12:02:26 by mrinkine          #+#    #+#             */
-/*   Updated: 2024/10/08 17:11:58 by tvalimak         ###   ########.fr       */
+/*   Updated: 2024/10/08 18:59:05 by tvalimak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -210,7 +210,7 @@ int plane_intersect(t_plane plane, t_ray r, float *t)
     float   plane_size;
 
     plane_size = 10;
-    print_matrix(plane.transform);
+    //print_matrix(plane.transform);
     // Transform ray into the plane's local space using the plane's inverse transform
     //t_tuple transformed_origin = apply_transformation(plane.inverse_transform, &r.origin);
     //t_tuple transformed_direction = apply_transformation(plane.inverse_transform, &r.direction);
@@ -365,7 +365,8 @@ t_plane plane_create(t_tuple center, t_color color, t_tuple orientation)
     printf("plane normals: x: %f, y: %f, z: %f, w: %f\n", orientation.x, orientation.y, orientation.z, orientation.w);
     // Initialize transformation matrices
     plane.translation_matrix = translation(center.x, center.y, center.z);
-    plane.rotation_matrix = rotation_from_normal(orientation); // Adjust orientation
+    //plane.rotation_matrix = rotation_from_normal(orientation); // Adjust orientation
+    plane.rotation_matrix = identity_matrix();
     plane.scaling_matrix = scaling((float)1, (float)1, (float)1);
 
     // Combine transformations into one matrix

@@ -6,7 +6,7 @@
 /*   By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/15 12:02:26 by mrinkine          #+#    #+#             */
-/*   Updated: 2024/10/08 19:04:48 by tvalimak         ###   ########.fr       */
+/*   Updated: 2024/10/08 19:08:20 by tvalimak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -369,8 +369,8 @@ t_plane plane_create(t_tuple center, t_color color, t_tuple orientation)
     printf("plane normals: x: %f, y: %f, z: %f, w: %f\n", orientation.x, orientation.y, orientation.z, orientation.w);
     // Initialize transformation matrices
     plane.translation_matrix = translation(center.x, center.y, center.z);
-    //plane.rotation_matrix = rotation_from_normal(orientation); // Adjust orientation
-    plane.rotation_matrix = identity_matrix();
+    plane.rotation_matrix = rotation_from_normal(orientation); // Adjust orientation
+    //plane.rotation_matrix = identity_matrix();
     plane.scaling_matrix = scaling((float)1, (float)1, (float)1);
 
     // Combine transformations into one matrix

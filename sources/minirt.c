@@ -6,13 +6,14 @@
 /*   By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/15 12:02:26 by mrinkine          #+#    #+#             */
-/*   Updated: 2024/10/08 18:59:05 by tvalimak         ###   ########.fr       */
+/*   Updated: 2024/10/08 19:04:48 by tvalimak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/minirt.h"
 #include "../includes/parsing.h"
 //#include "../includes/test_functions.h"
+
 
 t_tuple reflect(t_tuple in, t_tuple normal)
 {
@@ -23,6 +24,9 @@ t_tuple reflect(t_tuple in, t_tuple normal)
     // Subtract scaled normal from the incoming vector
     return (tuple_subtract(in, scaled_normal));
 }
+
+// Take care of orientation vector as well, check that the orientations work
+// and dont accept 0,0,0 as direction
 
 // Still need to take care for mallocs in functions like for example:
 // t_matrix *scaling();

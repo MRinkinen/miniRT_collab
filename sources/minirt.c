@@ -6,7 +6,7 @@
 /*   By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/15 12:02:26 by mrinkine          #+#    #+#             */
-/*   Updated: 2024/10/08 16:05:39 by tvalimak         ###   ########.fr       */
+/*   Updated: 2024/10/08 17:11:58 by tvalimak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -192,11 +192,25 @@ int cylinder_intersect(t_cylinder cyl, t_ray r, float *t0, float *t1)
     return intersections;
 }
 
+void print_matrix(t_matrix *matrix)
+{
+    printf("Matrix (%d x %d):\n", matrix->rows, matrix->cols);
+    for (int i = 0; i < matrix->rows; i++)
+    {
+        for (int j = 0; j < matrix->cols; j++)
+        {
+            printf("%f\t", matrix->data[i][j]); // Print each element
+        }
+        printf("\n"); // Newline after each row
+    }
+}
+
 int plane_intersect(t_plane plane, t_ray r, float *t)
 {
     float   plane_size;
 
     plane_size = 10;
+    print_matrix(plane.transform);
     // Transform ray into the plane's local space using the plane's inverse transform
     //t_tuple transformed_origin = apply_transformation(plane.inverse_transform, &r.origin);
     //t_tuple transformed_direction = apply_transformation(plane.inverse_transform, &r.direction);
@@ -355,8 +369,8 @@ t_plane plane_create(t_tuple center, t_color color, t_tuple orientation)
     plane.scaling_matrix = scaling((float)1, (float)1, (float)1);
 
     // Combine transformations into one matrix
-    plane.transform = t_matrix_multiply(plane.translation_matrix, t_matrix_multiply(plane.rotation_matrix, plane.scaling_matrix));
-    //plane.transform = t_matrix_multiply(t_matrix_multiply(plane.translation_matrix, plane.rotation_matrix), plane.scaling_matrix);
+    //plane.transform = t_matrix_multiply(plane.translation_matrix, t_matrix_multiply(plane.rotation_matrix, plane.scaling_matrix));
+    plane.transform = t_matrix_multiply(t_matrix_multiply(plane.translation_matrix, plane.rotation_matrix), plane.scaling_matrix);
 
     // Calculate the inverse transform for ray-plane intersection calculations
     plane.inverse_transform = inverse(plane.transform);

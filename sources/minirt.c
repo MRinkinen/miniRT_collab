@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minirt.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mrinkine <mrinkine@student.42.fr>          +#+  +:+       +#+        */
+/*   By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/15 12:02:26 by mrinkine          #+#    #+#             */
-/*   Updated: 2024/09/07 17:59:16 by mrinkine         ###   ########.fr       */
+/*   Updated: 2024/10/08 16:05:39 by tvalimak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,30 +14,221 @@
 #include "../includes/parsing.h"
 //#include "../includes/test_functions.h"
 
-/*
-int intersect(t_sphere sphere, t_ray ray, float *t0, float *t1) {
-    // Calculate vector from sphere center to ray origin
-    t_tuple oc = tuple_subtract(ray.origin, sphere.center);
+t_tuple reflect(t_tuple in, t_tuple normal)
+{
+    // Calculate dot product of 'in' and 'normal'
+    double dot_product = dot(in, normal);
+    // Multiply normal vector by 2 * dot_product
+    t_tuple scaled_normal = tuple_multiply(normal, 2 * dot_product);
+    // Subtract scaled normal from the incoming vector
+    return (tuple_subtract(in, scaled_normal));
+}
 
-    // Calculate coefficients for the quadratic formula
-    float a = dot(ray.direction, ray.direction); // Assuming you have a `dot` function for t_tuple
-    float b = 2.0 * dot(oc, ray.direction);
-    float c = dot(oc, oc) - sphere.radius * sphere.radius;
+// Still need to take care for mallocs in functions like for example:
+// t_matrix *scaling();
+// t_matrix *inverse();
+// t_matrix *cofactor_matrix();
+// t_matrix *submatrix();
+// t_matrix *identity_matrix();
+// t_matrix *transpose();
+// t_matrix *t_matrix_multiply();
+// t_matrix *create_2x2_matrix();
+// t_matrix *create_3x3_matrix();
+// t_matrix *create_4x4_matrix();
 
-    // Calculate the discriminant
-    float discriminant = b * b - 4 * a * c;
+// On page 188 
 
-    if (discriminant < 0) {
-        return 0; // No intersection
-    } else {
-        float sqrt_discriminant = sqrt(discriminant);
-        *t0 = (-b - sqrt_discriminant) / (2 * a);
-        *t1 = (-b + sqrt_discriminant) / (2 * a);
-        return discriminant == 0 ? 1 : 2; // 1 if tangent, 2 if intersects at two points
+t_tuple local_normal_at_cylinder(t_cylinder *cyl, t_tuple point)
+{
+    // Transform the point into the cylinder's local space
+    t_tuple object_point = apply_transformation(cyl->inverse_transform, &point);
+
+    float dist = object_point.x * object_point.x + object_point.z * object_point.z;
+
+    t_tuple local_normal;
+
+    if (dist < 1.0f + EPSILON)
+    {
+        if (object_point.y >= cyl->maximum - EPSILON)
+        {
+            // Top cap
+            local_normal = vector(0, 1, 0);
+        }
+        else if (object_point.y <= cyl->minimum + EPSILON)
+        {
+            // Bottom cap
+            local_normal = vector(0, -1, 0);
+        }
+        else
+        {
+            // Side normal
+            local_normal = vector(object_point.x, 0, object_point.z);
+        }
     }
-}*/
+    else
+    {
+        // Side normal
+        local_normal = vector(object_point.x, 0, object_point.z);
+    }
 
-int intersect(t_sphere s, t_ray r, float *t0, float *t1) {
+    // Transform the normal back to world space using inverse transpose
+    t_matrix *inverse_transpose = transpose(cyl->inverse_transform);
+    t_tuple world_normal = apply_transformation(inverse_transpose, &local_normal);
+    free(inverse_transpose); // Free if dynamically allocated
+
+    // Normalize the world normal
+    return normalize(world_normal);
+}
+
+t_tuple local_normal_at(const t_plane *plane, t_tuple point) 
+{
+    // Log or otherwise use the point to demonstrate it's part of the computation
+    // For a plane, the point does not alter the normal, but we consider it to ensure API consistency
+    printf("Calculating normal at point: (%f, %f, %f)\n", point.x, point.y, point.z);
+
+    // If transformations are applied to the plane, adjust the normal vector accordingly.
+    t_tuple local_normal = vector(0, 1, 0); // Default normal for a plane along XZ.
+    t_tuple world_normal = apply_transformation(transpose(inverse(plane->transform)), &local_normal);
+    return normalize(world_normal);
+}
+
+bool check_cap(t_ray ray, float t)
+{
+    float x = ray.origin.x + t * ray.direction.x;
+    float z = ray.origin.z + t * ray.direction.z;
+    return (x * x + z * z) <= 1.0f; // Assuming radius is 1 in local space
+}
+
+int cylinder_intersect(t_cylinder cyl, t_ray r, float *t0, float *t1)
+{
+    // Transform ray into the cylinder's local space using the cylinder's inverse transform
+    t_tuple transformed_origin = apply_transformation(cyl.inverse_transform, &r.origin);
+    t_tuple transformed_direction = apply_transformation(cyl.inverse_transform, &r.direction);
+    t_ray transformed_ray = ray(transformed_origin, transformed_direction);
+    // Initialize the number of intersections found
+    int intersections = 0;
+    // ---- Intersect with the cylinder's side ----
+    // Compute the quadratic coefficients
+    float a = transformed_ray.direction.x * transformed_ray.direction.x +
+              transformed_ray.direction.z * transformed_ray.direction.z;
+    // Ray is parallel to the y-axis (if a is approximately zero)
+    if (fabs(a) >= EPSILON)
+    {
+        float b = 2 * (transformed_ray.origin.x * transformed_ray.direction.x +
+                       transformed_ray.origin.z * transformed_ray.direction.z);
+        float c = transformed_ray.origin.x * transformed_ray.origin.x +
+                  transformed_ray.origin.z * transformed_ray.origin.z - 1; // Assuming radius is 1
+        // Calculate the discriminant
+        float discriminant = b * b - 4 * a * c;
+        // If the discriminant is negative, the ray does not intersect the cylinder
+        if (discriminant >= 0)
+        {
+            // Calculate the two intersection points using the quadratic formula
+            float sqrt_discriminant = sqrt(discriminant);
+            float temp_t0 = (-b - sqrt_discriminant) / (2 * a);
+            float temp_t1 = (-b + sqrt_discriminant) / (2 * a);
+            // Ensure that temp_t0 is the smaller value and temp_t1 is the larger value
+            if (temp_t0 > temp_t1)
+            {
+                float temp = temp_t0;
+                temp_t0 = temp_t1;
+                temp_t1 = temp;
+            }
+            // Check the first intersection point
+            float y0 = transformed_ray.origin.y + temp_t0 * transformed_ray.direction.y;
+            if (cyl.minimum < y0 && y0 < cyl.maximum)
+            {
+                *t0 = temp_t0;
+                intersections++;
+            }
+            // Check the second intersection point
+            float y1 = transformed_ray.origin.y + temp_t1 * transformed_ray.direction.y;
+            if (cyl.minimum < y1 && y1 < cyl.maximum)
+            {
+                if (intersections == 0)
+                {
+                    *t0 = temp_t1;
+                }
+                else
+                {
+                    *t1 = temp_t1;
+                }
+                intersections++;
+            }
+        }
+    }
+    // ---- Intersect with the caps ----
+    if (fabs(transformed_ray.direction.y) >= EPSILON)
+    {
+        // Check for intersection with lower end cap (y = cyl.minimum)
+        float t_cap = (cyl.minimum - transformed_ray.origin.y) / transformed_ray.direction.y;
+        if (t_cap >= 0 && check_cap(transformed_ray, t_cap))
+        {
+            if (intersections == 0)
+            {
+                *t0 = t_cap;
+            }
+            else if (intersections == 1)
+            {
+                *t1 = t_cap;
+            }
+            intersections++;
+        }
+        // Check for intersection with upper end cap (y = cyl.maximum)
+        t_cap = (cyl.maximum - transformed_ray.origin.y) / transformed_ray.direction.y;
+        if (t_cap >= 0 && check_cap(transformed_ray, t_cap))
+        {
+            if (intersections == 0)
+            {
+                *t0 = t_cap;
+            }
+            else if (intersections == 1)
+            {
+                *t1 = t_cap;
+            }
+            intersections++;
+        }
+    }
+    return intersections;
+}
+
+int plane_intersect(t_plane plane, t_ray r, float *t)
+{
+    float   plane_size;
+
+    plane_size = 10;
+    // Transform ray into the plane's local space using the plane's inverse transform
+    //t_tuple transformed_origin = apply_transformation(plane.inverse_transform, &r.origin);
+    //t_tuple transformed_direction = apply_transformation(plane.inverse_transform, &r.direction);
+    t_tuple transformed_origin = apply_transformation(plane.transform, &r.origin);
+    t_tuple transformed_direction = apply_transformation(plane.transform, &r.direction);
+    // Create a transformed ray from the transformed origin and direction
+    t_ray transformed_ray = ray(transformed_origin, transformed_direction);
+    // Avoid division by zero if the ray is parallel to the plane
+    if (fabs(transformed_ray.direction.y) < EPSILON)
+    {
+        return 0;  // Ray is parallel to the plane, no intersection
+    }
+    // Calculate the intersection t value
+    *t = -transformed_ray.origin.y / transformed_ray.direction.y;
+    // Only accept intersections that occur "in front" of the ray origin
+    if (*t >= 0)
+    {
+        // Check if the intersection point is within the bounds of the "finite" plane
+        t_tuple intersection_point = position(transformed_ray, *t);
+
+        // Limit the plane to a finite size (for testing purposes, e.g., a plane_size x plane_size square)
+        if (fabs(intersection_point.x) <= plane_size / 2 && fabs(intersection_point.z) <= plane_size / 2)
+        {
+            return 1; // One intersection within the finite plane bounds
+        }
+    }
+    return (0); // No intersection
+}
+
+
+int intersect(t_sphere s, t_ray r, float *t0, float *t1)
+{
     // Calculate vector from ray origin to sphere center
     t_tuple sphere_to_ray = tuple_subtract(r.origin, s.center);
 
@@ -46,79 +237,134 @@ int intersect(t_sphere s, t_ray r, float *t0, float *t1) {
     float c = dot(sphere_to_ray, sphere_to_ray) - (s.radius * s.radius);
     float discriminant = (b * b) - (4 * a * c);
 
-    if (discriminant < 0) {
+    if (discriminant < 0)
+    {
         return 0;  // No intersection
-    } else {
+    }
+    else
+    {
         *t0 = (-b - sqrt(discriminant)) / (2 * a);
         *t1 = (-b + sqrt(discriminant)) / (2 * a);
         return 1;  // Intersection found
     }
 }
 
-// int intersect(t_sphere s, t_ray r, float *t0, float *t1) {
-//     // Sphere center at the origin for simplicity
-//     t_tuple sphere_to_ray = tuple_subtract(r.origin, point(0, 0, -10));
+t_matrix* rotation_around_axis(t_tuple axis, float angle)
+{
+    float x = axis.x;
+    float y = axis.y;
+    float z = axis.z;
 
-//     float a = dot(r.direction, r.direction);
-//     float b = 2 * dot(sphere_to_ray, r.direction);
-//     float c = dot(sphere_to_ray, sphere_to_ray) - s.radius * s.radius;
-//     float discriminant = b * b - 4 * a * c;
+    float cos_theta = cos(angle);
+    float sin_theta = sin(angle);
+    float one_minus_cos = 1.0f - cos_theta;
+    // Compute the components of the rotation matrix
+    t_matrix* rotation = create_4x4_matrix(
+        cos_theta + x * x * one_minus_cos,
+        x * y * one_minus_cos - z * sin_theta,
+        x * z * one_minus_cos + y * sin_theta,
+        0,
 
-//     if (discriminant < 0) {
-//         return 0;  // No intersections
-//     } else {
-//         *t0 = (-b - sqrt(discriminant)) / (2 * a);
-//         *t1 = (-b + sqrt(discriminant)) / (2 * a);
-//         return 2;  // Two intersections
-//     }
-// }
+        y * x * one_minus_cos + z * sin_theta,
+        cos_theta + y * y * one_minus_cos,
+        y * z * one_minus_cos - x * sin_theta,
+        0,
 
-// int intersect(t_sphere sphere, t_ray ray, float *t0, float *t1)
-// {
-//     t_tuple oc = tuple_subtract(ray.origin, sphere.center);
-//     float a = dot(ray.direction, ray.direction);
-//     float b = 2.0 * dot(oc, ray.direction);
-//     float c = dot(oc, oc) - sphere.radius * sphere.radius;
-//     float discriminant = b * b - 4 * a * c;
+        z * x * one_minus_cos - y * sin_theta,
+        z * y * one_minus_cos + x * sin_theta,
+        cos_theta + z * z * one_minus_cos,
+        0,
 
-//     if (discriminant < 0) {
-//         return 0; // No intersection
-//     } else {
-//         float sqrt_discriminant = sqrt(discriminant);
-//         float root1 = (-b - sqrt_discriminant) / (2 * a);
-//         float root2 = (-b + sqrt_discriminant) / (2 * a);
+        0, 0, 0, 1
+    );
+    return (rotation);
+}
 
-//         if (root1 > root2) {
-//             float temp = root1;
-//             root1 = root2;
-//             root2 = temp;
-//         }
+t_matrix* rotation_from_normal(t_tuple normal)
+{
+    t_tuple default_normal = vector(0, 1, 0);  // Default normal for the plane
+    t_tuple v1 = normalize(default_normal);
+    t_tuple v2 = normalize(normal);
 
-//         if (root1 >= 0) {
-//             *t0 = root1;
-//             if (root2 >= 0) {
-//                 *t1 = root2;
-//                 return 2; // Two intersections
-//             }
-//             *t1 = *t0; // Only one intersection is valid and ahead
-//             return 1;
-//         }
-//         if (root2 >= 0) {
-//             *t0 = *t1 = root2; // Only the second intersection is valid and ahead
-//             return 1;
-//         }
-//         return 0; // Both intersections are behind
-//     }
-// }
+    // Compute the rotation axis
+    t_tuple axis = cross(v1, v2);
+    float axis_length = magnitude(axis);
 
-// t_sphere sphere_create()
-// {
-//     t_sphere s;
-//     s.center = point(0, 0, 0); // Center at world origin
-//     s.radius = 1.0; // Unit sphere
-//     s.color = t_color_create(1,0,0);
-//     return s;
-// }
+    // Check if the normals are parallel or antiparallel
+    if (axis_length < EPSILON)
+    {
+        // Vectors are parallel or antiparallel
+        if (dot(v1, v2) > 0)
+        {
+            // Vectors are parallel; no rotation needed
+            return identity_matrix();
+        }
+        else
+        {
+            // Vectors are opposite; rotate 180 degrees around any perpendicular axis
+            t_tuple arbitrary_axis = vector(1, 0, 0);
+            if (fabs(v1.x) > fabs(v1.y))
+                arbitrary_axis = vector(0, 1, 0);
+            axis = normalize(cross(v1, arbitrary_axis));
+            return rotation_around_axis(axis, PI); // Rotate 180 degrees
+        }
+    }
+    axis = normalize(axis);
+    float angle = acos(dot(v1, v2));
+    // Create rotation matrix using Rodrigues' formula
+    return (rotation_around_axis(axis, angle));
+}
+
+t_cylinder cylinder_create(t_tuple center, float radius, float height, t_color color, t_tuple orientation)
+{
+    t_cylinder cylinder;
+
+    // Initialize transformation matrices
+    cylinder.translation_matrix = translation(center.x, center.y, center.z);
+    cylinder.rotation_matrix = rotation_from_normal(orientation); // Adjust orientation based on the given vector
+    cylinder.scaling_matrix = scaling(radius, 1.0f, radius); // Scale by radius in xz and height in y
+
+    // Combine transformations into one matrix
+    cylinder.transform = t_matrix_multiply(t_matrix_multiply(cylinder.translation_matrix, cylinder.rotation_matrix), cylinder.scaling_matrix);
+
+    // Calculate the inverse transform for ray-cylinder intersection calculations
+    cylinder.inverse_transform = inverse(cylinder.transform);
+    
+    // Set other cylinder properties
+    cylinder.color = color;
+    cylinder.radius = radius;
+    cylinder.height = height;
+    cylinder.normal = orientation;
+
+    //cylinder.minimum = -INFINITY;
+    //cylinder.maximum = INFINITY;
+    cylinder.minimum = -height / 2;
+    cylinder.maximum = height / 2;
+
+    return (cylinder);
+}
+
+t_plane plane_create(t_tuple center, t_color color, t_tuple orientation) 
+{
+    t_plane plane;
+
+    printf("plane normals: x: %f, y: %f, z: %f, w: %f\n", orientation.x, orientation.y, orientation.z, orientation.w);
+    // Initialize transformation matrices
+    plane.translation_matrix = translation(center.x, center.y, center.z);
+    plane.rotation_matrix = rotation_from_normal(orientation); // Adjust orientation
+    plane.scaling_matrix = scaling((float)1, (float)1, (float)1);
+
+    // Combine transformations into one matrix
+    plane.transform = t_matrix_multiply(plane.translation_matrix, t_matrix_multiply(plane.rotation_matrix, plane.scaling_matrix));
+    //plane.transform = t_matrix_multiply(t_matrix_multiply(plane.translation_matrix, plane.rotation_matrix), plane.scaling_matrix);
+
+    // Calculate the inverse transform for ray-plane intersection calculations
+    plane.inverse_transform = inverse(plane.transform);
+    plane.color = color;
+    plane.normal = orientation;
+
+    return (plane);
+}
 
 t_sphere sphere_create(t_tuple center, float radius, t_color col)
 {
@@ -140,6 +386,28 @@ t_sphere sphere_create(t_tuple center, float radius, t_color col)
     // Calculate the inverse transform for ray-sphere intersection
     sphere.inverse_transform = inverse(sphere.transform);
     return (sphere);
+}
+
+t_light *point_light(t_tuple position, t_color intensity, float brightness)
+{
+    t_light *light = malloc(sizeof(t_light));
+    if (!light) {
+        // Handle allocation failure
+        return NULL;
+    }
+    light->position = position;
+    // Scale the intensity by the brightness ratio
+    light->intensity = multiply_color_scalar(intensity, brightness);
+    light->brightness = brightness;
+    return (light);
+}
+
+t_light light_create(t_tuple position, t_color intensity)
+{
+    t_light light;
+    light.position = position;
+    light.intensity = intensity;
+    return light;
 }
 
 // Function to multiply a tuple by a scalar
@@ -195,30 +463,26 @@ void print_clock_face(t_var *var)
     }
 }
 
-void test_position_function() {
+void test_position_function()
+{
     t_ray r;
     r.origin = point(2, 3, 4);
     r.direction = vector(1, 0, 0);
-
     // Test different values of t
     t_tuple expected;
     t_tuple result;
-
     // t = 0
     result = position(r, 0);
     expected = point(2, 3, 4);
     assert(tuple_equal(result, expected));
-
     // t = 1
     result = position(r, 1);
     expected = point(3, 3, 4);
     assert(tuple_equal(result, expected));
-
     // t = -1
     result = position(r, -1);
     expected = point(1, 3, 4);
     assert(tuple_equal(result, expected));
-
     // t = 2.5
     result = position(r, 2.5);
     expected = point(4.5, 3, 4);
@@ -235,43 +499,6 @@ t_ray ray(t_tuple origin, t_tuple direction)
     new_ray.direction = direction;
     return new_ray;
 }
-
-
-// void printimage(void *param, t_map *map)
-// {
-// 	t_var *var;
-//  	var = param;
-// 	(void)map;
-//     t_sphere s = sphere_create();
-//     t_tuple camera_position = point(0, 0, 0);  // Assuming the camera is at (0,0,0)
-//     t_ray r = ray(camera_position, normalize(tuple_subtract(position, camera_position)));
-
-// 	for (int y = 0; y < (int)var->image_height; y++)
-// 	{
-// 		for (int x = 0; x < SCREEN_WIDTH; x++)
-// 		{
-//             float t0, t1;
-//             t_tuple _ray_origin = point((float)x, (float)y, 0);
-//             t_tuple position = point((float)x, (float)y, -10);
-//             t_ray r = ray(_ray_origin,normalize(tuple_subtract(position,_ray_origin)));
-//             int xs = intersect(s, r ,&t0 , &t1);
-//             if (xs > 0) {
-//             // Intersection, color the pixel (e.g., red)
-//                 write_color(t_color_create(255, 0, 0), var, y, x);
-//             } else {
-//                 // No intersection, leave it black
-//                 write_color(t_color_create(0, 0, 0), var, y, x);
-//             }
-// 		}
-// 	}
-//     // test_no_intersection();
-//     // test_tangent_intersection();
-//     // test_ray_origin_inside_sphere();
-//     // test_sphere_behind_ray();
-//     // test_sphere_at_origin();
-//     //test_position_function();
-// 	//print_clock_face(var);
-// }
 
 // Multiplies a transformation matrix by a tuple and returns the transformed tuple
 t_tuple apply_transformation(t_matrix *transformation, t_tuple *point)
@@ -382,10 +609,8 @@ t_matrix *scaling(float x, float y, float z)
         printf("Error: Memory allocation failed.\n");
         return NULL;
     }
-
     transform->rows = 4;
     transform->cols = 4;
-
     int i = 0, j;
     while (i < 4) {
         j = 0;
@@ -395,7 +620,6 @@ t_matrix *scaling(float x, float y, float z)
         }
         i++;
     }
-
     // Set scaling components
     transform->data[0][0] = x;
     transform->data[1][0] = 0;
@@ -409,7 +633,7 @@ t_matrix *scaling(float x, float y, float z)
     transform->data[1][2] = 0;
     transform->data[2][2] = z;
 
-    return transform;
+    return (transform);
 }
 
 // Function to compare two tuples (for test validation)
@@ -417,15 +641,6 @@ bool tuple_equal(t_tuple t1, t_tuple t2)
 {
     return equal(t1.x, t2.x) && equal(t1.y, t2.y) && equal(t1.z, t2.z) && equal(t1.w, t2.w);
 }
-/*
-// Function to check if two tuples (points or vectors) are equal
-int tuple_equal(t_tuple *a, t_tuple *b) {
-    const float epsilon = 0.00001f;
-    return (fabs(a->x - b->x) < epsilon &&
-            fabs(a->y - b->y) < epsilon &&
-            fabs(a->z - b->z) < epsilon &&
-            fabs(a->w - b->w) < epsilon);
-}*/
 
 // Function to create the inverse of a translation matrix using while loops
 t_matrix *inverse_translation(t_matrix *transform)
@@ -446,7 +661,8 @@ t_tuple multiply_matrix_tuple(t_matrix *m, t_tuple *p) {
 }
 
 // Function to create a 4x4 translation matrix
-t_matrix *translation(float x, float y, float z) {
+t_matrix *translation(float x, float y, float z) 
+{
     // Initialize the identity matrix
     t_matrix *transform = identity_matrix();
 
@@ -458,36 +674,34 @@ t_matrix *translation(float x, float y, float z) {
     return (transform);
 }
 
-t_matrix *inverse(t_matrix *m) {
+t_matrix *inverse(t_matrix *m)
+{
     // Calculate the determinant first
     float det = determinant(m);
-    if (det == 0.0f) {
+    if (det == 0.0f)
+    {
         printf("Matrix is not invertible.\n");
         exit(1);  // You can handle it better based on your needs.
     }
-
     // Get the cofactor matrix
     t_matrix *cofactor_m = cofactor_matrix(m);
-
     // Get the adjugate matrix (transpose of the cofactor matrix)
     t_matrix *adjugate_m = transpose(cofactor_m);
-
     // Create the inverse matrix by dividing the adjugate matrix by the determinant
     t_matrix *inverse_m = (t_matrix *)malloc(sizeof(t_matrix));
     inverse_m->rows = m->rows;
     inverse_m->cols = m->cols;
-
-    for (int i = 0; i < inverse_m->rows; i++) {
-        for (int j = 0; j < inverse_m->cols; j++) {
+    for (int i = 0; i < inverse_m->rows; i++)
+    {
+        for (int j = 0; j < inverse_m->cols; j++)
+        {
             inverse_m->data[i][j] = adjugate_m->data[i][j] / det;
         }
     }
-
     // Free allocated memory for cofactor and adjugate matrices
     free(cofactor_m);
     free(adjugate_m);
-
-    return inverse_m;
+    return (inverse_m);
 }
 
 t_matrix* cofactor_matrix(const t_matrix *m)
@@ -498,11 +712,9 @@ t_matrix* cofactor_matrix(const t_matrix *m)
         printf("Error: Memory allocation failed.\n");
         return NULL;
     }
-
     // Initialize the cofactor matrix with the same dimensions as the original matrix
     cofactor_m->rows = m->rows;
     cofactor_m->cols = m->cols;
-
     // Iterate over each element using while loops
     int i = 0;
     while (i < m->rows) {
@@ -514,8 +726,7 @@ t_matrix* cofactor_matrix(const t_matrix *m)
         }
         i++;
     }
-
-    return cofactor_m;
+    return (cofactor_m);
 }
 
 // Function to check if matrix is invertible
@@ -680,10 +891,8 @@ t_matrix* transpose(t_matrix *m)
         printf("Error: Memory allocation failed.\n");
         return NULL;
     }
-
     transposed->rows = m->cols;
     transposed->cols = m->rows;
-
     int i = 0;
     while (i < m->rows)
     {
@@ -696,8 +905,7 @@ t_matrix* transpose(t_matrix *m)
         }
         i++;
     }
-
-    return transposed;
+    return (transposed);
 }
 
 // Function to multiply two 4x4 matrices
@@ -709,7 +917,6 @@ t_matrix* t_matrix_multiply(t_matrix *a, t_matrix *b)
         printf("Error: Both matrices must be 4x4.\n");
         return NULL;
     }
-
     // Allocate memory for the result matrix
     t_matrix *result = (t_matrix *)malloc(sizeof(t_matrix));
     if (result == NULL)
@@ -717,10 +924,8 @@ t_matrix* t_matrix_multiply(t_matrix *a, t_matrix *b)
         printf("Error: Memory allocation failed.\n");
         return NULL;
     }
-
     result->rows = 4;
     result->cols = 4;
-
     // Perform matrix multiplication
     for (int i = 0; i < 4; i++)
     {
@@ -733,8 +938,7 @@ t_matrix* t_matrix_multiply(t_matrix *a, t_matrix *b)
             }
         }
     }
-
-    return result;
+    return (result);
 }
 
 t_matrix *create_2x2_matrix(float a, float b, float c, float d)
@@ -752,7 +956,7 @@ t_matrix *create_2x2_matrix(float a, float b, float c, float d)
     m->data[0][1] = b;
     m->data[1][0] = c;
     m->data[1][1] = d;
-    return m;
+    return (m);
 }
 
 t_matrix *create_3x3_matrix(float a, float b, float c,
@@ -777,7 +981,7 @@ t_matrix *create_3x3_matrix(float a, float b, float c,
     m->data[2][0] = g;
     m->data[2][1] = h;
     m->data[2][2] = i;
-    return m;
+    return (m);
 }
 
 t_matrix *create_4x4_matrix(float a, float b, float c, float d,
@@ -1022,7 +1226,6 @@ t_tuple cross(t_tuple a, t_tuple b)
     );
 }
 
-
 // Helper function to compare two matrices
 int matrices_are_equal(t_matrix *m1, t_matrix *m2) {
     if (m1->rows != m2->rows || m1->cols != m2->cols) {
@@ -1042,6 +1245,73 @@ void init_ambient_color(t_var *var, t_map *map)
 {
     t_color ambient = t_color_create(map->ambient->r,map->ambient->b,map->ambient->g);
     var->ambientl = multiply_color_scalar(ambient,map->ambient->ratio);
+}
+
+void init_test_lights(t_var *var, t_map *map)
+{
+    int i = 0;
+    t_lights *current_light = map->lights;
+    var->num_lights = map->element_count->light;
+    var->test_light = malloc(var->num_lights * sizeof(t_light));
+    if (!var->test_light)
+    {
+        // Handle malloc failure (optional)
+        return;
+    }
+    while (current_light != NULL)
+    {
+        t_tuple position = point(current_light->x, current_light->y, current_light->z);
+        t_color intensity = t_color_create(current_light->r, current_light->b, current_light->g);
+        var->test_light[i] = light_create(position, intensity);
+        i++;
+        current_light = current_light->next;
+    }
+}
+
+void init_test_cylinders(t_var *var, t_map *map)
+{
+    int i = 0;
+    t_cylinders *current_cylinder = map->cylinders;
+    var->num_cylinders = map->element_count->cylinder;
+    var->test_cylinder = malloc(var->num_cylinders * sizeof(t_cylinder));
+    if (!var->test_cylinder)
+    {
+        // Handle malloc failure (optional)
+        return;
+    }
+    while (current_cylinder != NULL)
+    {
+        t_tuple center = point(current_cylinder->x, current_cylinder->y, current_cylinder->z);
+        t_color color = t_color_create(current_cylinder->r, current_cylinder->b, current_cylinder->g);
+        t_tuple orientation = vector(current_cylinder->nx, current_cylinder->ny, current_cylinder->nz);
+        var->test_cylinder[i] = cylinder_create(center, current_cylinder->diameter, current_cylinder->height, color, orientation);
+        i++;
+        current_cylinder = current_cylinder->next;
+    }
+}
+
+void init_test_planes(t_var *var, t_map *map)
+{
+    int i = 0;
+    t_planes *current_plane = map->planes;  // Assuming map has a 'planes' linked list
+    var->num_planes = map->element_count->plane;  // Assuming map has an element count for planes
+    var->test_plane = malloc(var->num_planes * sizeof(t_plane));
+    if (!var->test_plane)
+    {
+        // Handle malloc failure (optional)
+        return;
+    }
+
+    while (current_plane != NULL)
+    {
+        t_tuple center = point(current_plane->x, current_plane->y, current_plane->z);
+        t_color color = t_color_create(current_plane->r, current_plane->b, current_plane->g);
+        t_tuple orientation = vector(current_plane->nx, current_plane->ny, current_plane->nz);
+        //var->test_plane[i] = plane_create(center, normal, color);
+        var->test_plane[i] = plane_create(center, color, orientation);
+        i++;
+        current_plane = current_plane->next;  // Move to the next plane in the list
+    }
 }
 
 void init_test_sphere(t_var *var, t_map *map)
@@ -1069,56 +1339,121 @@ void init_test_sphere(t_var *var, t_map *map)
 
 void printimage(void *param)
 {
-    t_var *var;
-    var = param;
+    t_var *var = param;
 
     for (int y = 0; y < (int)var->image_height; y++)
     {
         for (int x = 0; x < SCREEN_WIDTH; x++)
         {
-            float u = (float)x / (float)(SCREEN_WIDTH - 1);  // Map pixel x to [0, 1] range
-            float v = (float)y / (float)(var->image_height - 1);  // Map pixel y to [0, 1] range
+            float u = (float)x / (float)(SCREEN_WIDTH - 1);
+            float v = (float)y / (float)(var->image_height - 1);
 
             // Calculate ray direction for each pixel
             t_tuple ray_direction = normalize(tuple_subtract(
                 tuple_add(var->cam.lower_left_corner,
-                    tuple_add(tuple_multiply(var->cam.horizontal, u),
-                              tuple_multiply(var->cam.vertical, v))),
+                          tuple_add(tuple_multiply(var->cam.horizontal, u),
+                                    tuple_multiply(var->cam.vertical, v))),
                 var->cam.position));
             t_ray r = ray(var->cam.position, ray_direction);
 
             bool hit_something = false;
-            t_color sphere_color = var->ambientl;  // Default to ambient light color if no sphere is hit
-            float closest_t = INFINITY;  // Track the closest intersection
+            float closest_t = INFINITY;
 
-            // Loop over all spheres to find the closest hit
+            t_tuple intersection_point;
+            t_tuple intersection_normal;
+            t_color object_color; // Base color of the object
+
+            // Initialize pixel color to ambient light
+            //t_color pixel_color = var->ambientl;
+            object_color = var->ambientl;
+
+            // Find the closest intersection among all objects
+            // Initialize variables to track the closest hit object
+            int hit_object_type = 0; // 1: Sphere, 2: Plane, 3: Cylinder
+            int hit_object_index = -1;
+
+            // Sphere intersections
             for (int i = 0; i < var->num_spheres; i++)
             {
                 float t0, t1;
                 int xs = intersect(var->test_sphere[i], r, &t0, &t1);
 
-                // If there is an intersection and it's the closest so far
                 if (xs > 0 && t0 < closest_t)
                 {
                     hit_something = true;
                     closest_t = t0;
-                    sphere_color = var->test_sphere[i].color;  // Set color to the sphere's color
-                    break;
+
+                    // Save intersection details
+                    intersection_point = position(r, t0);
+                    intersection_normal = normalize(tuple_subtract(intersection_point, var->test_sphere[i].center));
+                    object_color = var->test_sphere[i].color;
+
+                    hit_object_type = 1;
+                    hit_object_index = i;
                 }
             }
+            // Plane intersections
+            for (int i = 0; i < var->num_planes; i++)
+            {
+                float t;
+                int hit = plane_intersect(var->test_plane[i], r, &t);
 
-            // If a sphere was hit, color the pixel with that sphere's color
-            if (hit_something)
-            {
-                write_color(sphere_color, var, x, y);
+                if (hit && t < closest_t)
+                {
+                    hit_something = true;
+                    closest_t = t;
+
+                    // Save intersection details
+                    intersection_point = position(r, t);
+                    intersection_normal = var->test_plane[i].normal; // Assuming normal is constant
+                    object_color = var->test_plane[i].color;
+
+                    hit_object_type = 2;
+                    hit_object_index = i;
+                }
             }
-            else
+            // Cylinder intersections
+            for (int i = 0; i < var->num_cylinders; i++)
             {
-                // No hit, apply ambient light color
-                write_color(var->ambientl, var, x, y);
+                float t0, t1;
+                int hit = cylinder_intersect(var->test_cylinder[i], r, &t0, &t1);
+
+                if (hit > 0 && t0 < closest_t)
+                {
+                    hit_something = true;
+                    closest_t = t0;
+
+                    // Save intersection details
+                    intersection_point = position(r, t0);
+                    intersection_normal = local_normal_at_cylinder(&var->test_cylinder[i], intersection_point);
+                    object_color = var->test_cylinder[i].color;
+
+                    hit_object_type = 3;
+                    hit_object_index = i;
+                }
             }
+            write_color(object_color, var, x, y);
         }
     }
+}
+
+void test_point_light_attributes()
+{
+    t_color intensity = t_color_create(1, 1, 1);
+    t_tuple position = point(0, 0, 0);
+    float brightness = 1.0f; // Full brightness
+
+    t_light *light = point_light(position, intensity, brightness);
+
+    if (tuple_equal(light->position, position) &&
+        compare_colors(light->intensity, intensity)) {
+        printf("Test Passed: Point light has correct position and intensity.\n");
+    } else {
+        printf("Test Failed: Point light attributes are incorrect.\n");
+    }
+
+    // Clean up
+    free(light);
 }
 
 int main(int argc, char **argv)
@@ -1147,10 +1482,13 @@ int main(int argc, char **argv)
     init_ambient_color(&var, map);
     initialize_camera(&var, &var.cam, map);
     init_test_sphere(&var, map); // TESTI SPHERE!!!!!
+    init_test_planes(&var, map); // TESTI PLANE!!!!!
+    init_test_cylinders(&var, map); // TESTI CYLINDER!!!!
+    init_test_lights(&var, map); // TESTI LIGHT!!!!
 	printimage(&var);
 	hooks(&var);
 	mlx_loop(var.mlx);
 	mlx_terminate(var.mlx);
-	terminate_data(map, "program ended successfully\n");
+	terminate_data(map, &var, "program ended successfully\n");
 	return (EXIT_SUCCESS);
 }

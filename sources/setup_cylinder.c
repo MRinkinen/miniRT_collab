@@ -6,45 +6,45 @@
 /*   By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/19 10:33:48 by tvalimak          #+#    #+#             */
-/*   Updated: 2024/08/20 13:49:58 by tvalimak         ###   ########.fr       */
+/*   Updated: 2024/09/11 15:25:54 by tvalimak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/parsing.h"
 
-static t_cylinder	*setup_cylinder_helper(t_map *map)
+static t_cylinders	*setup_cylinder_helper(t_map *map)
 {
-	t_cylinder	*temp;
+	t_cylinders	*temp;
 
-	if (!map->cylinder)
+	if (!map->cylinders)
 	{
 		printf("inside setup_cylinder_helper 1\n");
-		map->cylinder = malloc(sizeof(t_cylinder));
-		if (!map->cylinder)
+		map->cylinders = malloc(sizeof(t_cylinders));
+		if (!map->cylinders)
 			return (NULL);
-		map->cylinder->next = NULL;
+		map->cylinders->next = NULL;
 	}
 	else
 	{
 		printf("inside setup_cylinder_helper 2\n");
-		temp = map->cylinder;
+		temp = map->cylinders;
 		while (temp->next)
 			temp = temp->next;
-		temp->next = malloc(sizeof(t_cylinder));
+		temp->next = malloc(sizeof(t_cylinders));
 		if (temp->next == NULL)
 			return (NULL);
 		temp->next->next = NULL;
-		return temp->next;
+		return (temp->next);
 	}
-	return map->cylinder;
+	return (map->cylinders);
 }
 
 int	setup_cylinder(char **split, t_map *map)
 {
-	char	    **xyz;
-	char	    **nxyz;
-    char        **rgb;
-    t_cylinder  *new_cylinder;
+	char	    	**xyz;
+	char	    	**nxyz;
+    char        	**rgb;
+    t_cylinders  	*new_cylinder;
 
     printf("inside setup_cylinder\n");
 	xyz = ft_split(split[1], ',');

@@ -6,7 +6,7 @@
 /*   By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/10 19:39:44 by tvalimak          #+#    #+#             */
-/*   Updated: 2024/09/03 20:54:36 by tvalimak         ###   ########.fr       */
+/*   Updated: 2024/09/16 15:25:24 by tvalimak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,11 +14,13 @@
 # define PARSING_H
 
 # include "../libft/libft.h"
+# include "./minirt.h"
 
 # include <fcntl.h>
 # include <stdio.h>
 
 typedef struct s_map	t_map;
+typedef struct s_var	t_var;
 
 typedef struct s_ambient
 {
@@ -42,7 +44,7 @@ typedef struct s_camera
 	t_map			*map;
 }				t_camera;
 
-typedef struct s_light
+typedef struct s_lights
 {
 	float			x;
 	float			y;
@@ -51,9 +53,9 @@ typedef struct s_light
 	int				r;
 	int				g;
 	int				b;
-	struct s_light	*next;
+	struct s_lights	*next;
 	t_map			*map;
-}				t_light;
+}				t_lights;
 
 typedef struct s_spheres
 {
@@ -68,7 +70,7 @@ typedef struct s_spheres
 	t_map				*map;
 }				t_spheres;
 
-typedef struct s_plane
+typedef struct s_planes
 {
 	float			x;
 	float			y;
@@ -79,11 +81,11 @@ typedef struct s_plane
 	int				r;
 	int				g;
 	int				b;
-	struct s_plane	*next;
+	struct s_planes	*next;
 	t_map			*map;
-}				t_plane;
+}				t_planes;
 
-typedef struct s_cylinder
+typedef struct s_cylinders
 {
 	float				x;
 	float				y;
@@ -96,9 +98,9 @@ typedef struct s_cylinder
 	int					r;
 	int					g;
 	int					b;
-	struct s_cylinder	*next;
+	struct s_cylinders	*next;
 	t_map				*map;
-}				t_cylinder;
+}				t_cylinders;
 
 typedef struct s_element_count
 {
@@ -114,10 +116,10 @@ typedef struct s_map
 {
 	t_ambient		*ambient;
 	t_camera		*camera;
-	t_light			*light;
+	t_lights		*lights;
 	t_spheres		*spheres;
-	t_plane			*plane;
-	t_cylinder		*cylinder;
+	t_planes		*planes;
+	t_cylinders		*cylinders;
 	t_element_count	*element_count;
 }				t_map;
 
@@ -172,7 +174,7 @@ int		setup_light(char **split, t_map *map);
 int		setup_spheres(char **split, t_map *map);
 int		setup_plane(char **split, t_map *map);
 int		setup_cylinder(char **split, t_map *map);
-int		terminate_data(t_map *map, char *error);
+int 	terminate_data(t_map *map, t_var *var, char *error);
 
 /* ************************************************************************** */
 /*                                 	util functions                            */

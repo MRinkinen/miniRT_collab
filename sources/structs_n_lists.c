@@ -3,14 +3,75 @@
 /*                                                        :::      ::::::::   */
 /*   structs_n_lists.c                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mrinkine <mrinkine@student.42.fr>          +#+  +:+       +#+        */
+/*   By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/20 11:10:02 by tvalimak          #+#    #+#             */
-/*   Updated: 2024/09/05 19:11:11 by mrinkine         ###   ########.fr       */
+/*   Updated: 2024/09/16 15:26:51 by tvalimak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+#include "../includes/minirt.h"
 #include "../includes/parsing.h"
+
+void free_matrix(t_matrix *matrix)
+{
+    if (matrix)
+        free(matrix);
+}
+
+void free_sphere(t_sphere *sphere)
+{
+    if (sphere->transform)
+        free_matrix(sphere->transform);
+
+    if (sphere->inverse_transform)
+        free_matrix(sphere->inverse_transform);
+
+    if (sphere->translation_matrix)
+        free_matrix(sphere->translation_matrix);
+
+    if (sphere->rotation_matrix)
+        free_matrix(sphere->rotation_matrix);
+
+    if (sphere->scaling_matrix)
+        free_matrix(sphere->scaling_matrix);
+}
+
+void free_plane(t_plane *plane)
+{
+    if (plane->transform)
+        free_matrix(plane->transform);
+
+    if (plane->inverse_transform)
+        free_matrix(plane->inverse_transform);
+
+    if (plane->translation_matrix)
+        free_matrix(plane->translation_matrix);
+
+    if (plane->rotation_matrix)
+        free_matrix(plane->rotation_matrix);
+
+    if (plane->scaling_matrix)
+        free_matrix(plane->scaling_matrix);
+}
+
+void free_cylinder(t_cylinder *cylinder)
+{
+    if (cylinder->transform)
+        free_matrix(cylinder->transform);
+
+    if (cylinder->inverse_transform)
+        free_matrix(cylinder->inverse_transform);
+
+    if (cylinder->translation_matrix)
+        free_matrix(cylinder->translation_matrix);
+
+    if (cylinder->rotation_matrix)
+        free_matrix(cylinder->rotation_matrix);
+
+    if (cylinder->scaling_matrix)
+        free_matrix(cylinder->scaling_matrix);
+}
 
 int	free_split(char **split)
 {
@@ -65,14 +126,14 @@ int	print_data(t_map *map)
 	}
 
 	// Print Light List
-	t_light *light = map->light;
-	while (light)
+	t_lights *lights = map->lights;
+	while (lights)
 	{
 		printf("Light:\n");
-		printf("  Position: (%f, %f, %f)\n", light->x, light->y, light->z);
-		printf("  Ratio: %f\n", light->ratio);
-		printf("  t_color: (R: %d, G: %d, B: %d)\n", light->r, light->g, light->b);
-		light = light->next;
+		printf("  Position: (%f, %f, %f)\n", lights->x, lights->y, lights->z);
+		printf("  Ratio: %f\n", lights->ratio);
+		printf("  t_color: (R: %d, G: %d, B: %d)\n", lights->r, lights->g, lights->b);
+		lights = lights->next;
 	}
 
 	// Print Sphere List
@@ -87,7 +148,7 @@ int	print_data(t_map *map)
 	}
 
 	// Print Plane List
-	t_plane *plane = map->plane;
+	t_planes *plane = map->planes;
 	while (plane)
 	{
 		printf("Plane:\n");
@@ -98,7 +159,7 @@ int	print_data(t_map *map)
 	}
 
 	// Print Cylinder List
-	t_cylinder *cylinder = map->cylinder;
+	t_cylinders *cylinder = map->cylinders;
 	while (cylinder)
 	{
 		printf("Cylinder:\n");
@@ -125,18 +186,18 @@ int	print_data(t_map *map)
 	return 0;
 }
 
-int terminate_data(t_map *map, char *error)
+int terminate_data(t_map *map, t_var *var, char *error)
 {
 	t_camera *camera;
-    t_light *light;
+    t_lights *lights;
     t_camera *next_camera;
-    t_light *next_light;
+    t_lights *next_light;
     t_spheres *sphere;
     t_spheres *next_sphere;
-    t_plane *plane;
-    t_plane *next_plane;
-    t_cylinder *cylinder;
-    t_cylinder *next_cylinder;
+    t_planes *plane;
+    t_planes *next_plane;
+    t_cylinders *cylinder;
+    t_cylinders *next_cylinder;
 
     if (error)
         printf("%s\n", error);
@@ -149,12 +210,12 @@ int terminate_data(t_map *map, char *error)
         free(camera);
         camera = next_camera;
     }
-	light = map->light;
-    while (light)
+	lights = map->lights;
+    while (lights)
     {
-        next_light = light->next;
-        free(light);
-        light = next_light;
+        next_light = lights->next;
+        free(lights);
+        lights = next_light;
     }
     sphere = map->spheres;
     while (sphere)
@@ -163,14 +224,14 @@ int terminate_data(t_map *map, char *error)
         free(sphere);
         sphere = next_sphere;
     }
-    plane = map->plane;
+    plane = map->planes;
     while (plane)
     {
         next_plane = plane->next;
         free(plane);
         plane = next_plane;
     }
-    cylinder = map->cylinder;
+    cylinder = map->cylinders;
     while (cylinder)
     {
         next_cylinder = cylinder->next;
@@ -178,5 +239,35 @@ int terminate_data(t_map *map, char *error)
         cylinder = next_cylinder;
     }
     free(map);
+    // Free spheres
+    if (var->test_sphere)
+    {
+        for (int i = 0; i < var->num_spheres; i++)
+        {
+            free_sphere(&(var->test_sphere[i]));
+        }
+        free(var->test_sphere);
+        var->test_sphere = NULL; // Avoid dangling pointer
+    }
+    // Free planes
+    if (var->test_plane)
+    {
+        for (int i = 0; i < var->num_planes; i++)
+        {
+            free_plane(&(var->test_plane[i]));
+        }
+        free(var->test_plane);
+        var->test_plane = NULL;
+    }
+    // Free cylinders
+    if (var->test_cylinder)
+    {
+        for (int i = 0; i < var->num_cylinders; i++)
+        {
+            free_cylinder(&(var->test_cylinder[i]));
+        }
+        free(var->test_cylinder);
+        var->test_cylinder = NULL;
+    }
     return (1);
 }

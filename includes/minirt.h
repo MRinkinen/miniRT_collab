@@ -18,7 +18,10 @@
 #define SCREEN_WIDTH 1500
 #define MAX_OBJECTS 100
 #define PI 3.141592653589793
+//#define EPSILON 0.9
 #define EPSILON 0.00001
+
+typedef struct s_map	t_map;
 
 typedef struct
 {
@@ -92,17 +95,48 @@ void hittable_list_add(hittable_list *list, t_hittable *object);
 bool hittable_list_hit(const hittable_list *list, const t_ray *r, float tmin, float tmax, t_hit *rec);
 
 /*Experimental*/
-typedef struct s_cylinders
-{
-	t_hittable base;	// Inherit hittable structure
-	t_vec3 center;		// Center of the base of the cylinder
-	t_vec3 orientation; // Orientation of the cylinder (usually represented by a vector)
-	float radius;		// Radius of the cylinder
-	float height;		// Height of the cylinder
-	t_color color;		// t_color of the cylinder
-} t_cylinders;
 
-typedef struct s_sphere {
+typedef struct s_light
+{
+    t_tuple position;    // Position of the light in the scene
+    t_color intensity;   // Intensity (color) of the light
+    float brightness;    // Brightness ratio in the range [0.0, 1.0]
+} t_light;
+
+typedef struct s_plane
+{
+	t_tuple	  normal;
+    t_matrix *transform;
+    t_matrix *inverse_transform;
+	t_matrix *translation_matrix;
+	t_matrix *rotation_matrix;
+	t_matrix *scaling_matrix;
+    t_color   color;
+	t_tuple	  center;
+	t_tuple   orientation;
+    //t_tuple (*local_normal_at)(const struct s_plane *plane, t_tuple point);
+} t_plane;
+
+typedef struct s_cylinder
+{
+	t_tuple	  	normal;
+    t_matrix 	*transform;
+    t_matrix 	*inverse_transform;
+	t_matrix 	*translation_matrix;
+	t_matrix 	*rotation_matrix;
+	t_matrix 	*scaling_matrix;
+	t_hittable 	base;	// Inherit hittable structure
+	t_tuple 	center;		// Center of the base of the cylinder
+	t_tuple 	orientation; // Orientation of the cylinder (usually represented by a vector)
+	float 		radius;		// Radius of the cylinder
+	float 		height;		// Height of the cylinder
+	t_color 	color;		// t_color of the cylinder
+	float 		minimum;
+	float 		maximum;
+} t_cylinder;
+
+typedef struct s_sphere
+{
     t_tuple center;  // Sphere's center (position)
     float radius;    // Sphere's radius
     t_color color;   // Sphere's color
@@ -118,7 +152,7 @@ typedef struct s_sphere {
 
 } t_sphere;
 
-typedef struct
+typedef struct s_cam
 {
 	t_tuple position;
 	t_tuple forward;
@@ -140,7 +174,6 @@ typedef struct s_var
 	mlx_t *mlx;
 	t_vec3 *vector;
 
-
 	float image_width;
 	float image_height;
 
@@ -160,11 +193,15 @@ typedef struct s_var
 	t_color ambientl;
 	t_cam cam;
 
-	t_sphere *test_sphere;
-	int num_spheres;
+	t_sphere 	*test_sphere;
+	t_plane	 	*test_plane;
+	t_cylinder 	*test_cylinder;
+	t_light 	*test_light;
+	int 		num_spheres;
+	int			num_planes;
+	int 		num_cylinders;
+	int			num_lights;
 } t_var;
-
-
 
 void initialize_camera(t_var *var, t_cam *camera, t_map *map);
 

@@ -6,37 +6,37 @@
 /*   By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/19 10:24:59 by tvalimak          #+#    #+#             */
-/*   Updated: 2024/08/20 13:50:09 by tvalimak         ###   ########.fr       */
+/*   Updated: 2024/09/08 14:22:03 by tvalimak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/parsing.h"
 
-static t_plane	*setup_plane_helper(t_map *map)
+static t_planes	*setup_plane_helper(t_map *map)
 {
-	t_plane	*temp;
+	t_planes	*temp;
 
-	if (!map->plane)
+	if (!map->planes)
 	{
 		printf("inside setup_plane_helper 1\n");
-		map->plane = malloc(sizeof(t_plane));
-		if (!map->plane)
+		map->planes = malloc(sizeof(t_planes));
+		if (!map->planes)
 			return (NULL);
-		map->plane->next = NULL;
+		map->planes->next = NULL;
 	}
 	else
 	{
 		printf("inside setup_plane_helper 2\n");
-		temp = map->plane;
+		temp = map->planes;
 		while (temp->next)
 			temp = temp->next;
-		temp->next = malloc(sizeof(t_plane));
+		temp->next = malloc(sizeof(t_planes));
 		if (temp->next == NULL)
 			return (NULL);
 		temp->next->next = NULL;
 		return temp->next;
 	}
-	return map->plane;
+	return map->planes;
 }
 
 /* identifier: pl
@@ -49,14 +49,14 @@ int	setup_plane(char **split, t_map *map)
 	char	**xyz;
 	char	**nxyz;
     char    **rgb;
-    t_plane  *new_plane;
+    t_planes  *new_plane;
 
 	printf("inside setup_plane\n");
 	xyz = ft_split(split[1], ',');
 	nxyz = ft_split(split[2], ',');
     rgb = ft_split(split[3], ',');
 	new_plane = setup_plane_helper(map);
-	if (map->plane == NULL)
+	if (map->planes == NULL)
 		return (0);
 	new_plane->x = ft_atof(xyz[0]);
 	new_plane->y = ft_atof(xyz[1]);

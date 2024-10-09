@@ -6,7 +6,7 @@
 /*   By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/20 11:19:13 by tvalimak          #+#    #+#             */
-/*   Updated: 2024/08/20 18:30:10 by tvalimak         ###   ########.fr       */
+/*   Updated: 2024/10/09 14:10:55 by tvalimak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -108,6 +108,45 @@ int degree_check(char *str, int min, int max)
 }
 // 3d normalized orientation vector. In range [-1,1] for each x,y,z axis:
 // 0.0,0.0,1.0
+
+int vectors_check(char *str)
+{
+    int i;
+    char **split;
+    double x, y, z;
+
+    i = 0;
+    split = ft_split(str, ',');
+    if (!split[0] || !split[1] || !split[2] || split[3])
+    {
+        printf("returning 0 from vectors check 0\n");
+        return (free_split(split));
+    }
+    x = ft_atof(split[0]);
+    y = ft_atof(split[1]);
+    z = ft_atof(split[2]);
+    // Check if all vector coordinates are zero
+    if (x == 0.0 && y == 0.0 && z == 0.0)
+    {
+        printf("returning 0 from vectors check (zero vector)\n");
+        return (free_split(split));
+    }
+    while (split[i])
+    {
+        if (decimal_check(split[i], -1, 1) == 0)
+        {
+            printf("returning 0 from vectors check 1\n");
+            return (free_split(split));
+        }
+        i++;
+    }
+    free_split(split);
+    printf("returning 1 from vectors check\n");
+    return (1);
+}
+
+/*
+The old function
 int vectors_check(char *str)
 {
     int i;
@@ -128,4 +167,4 @@ int vectors_check(char *str)
     free_split(split);
     printf("returning 1 from vectors_check\n");
     return (1);
-}
+}*/

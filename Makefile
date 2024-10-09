@@ -16,7 +16,7 @@ LIBFTNAME = libft.a
 LIBFTDIR = ./libft/
 INCLUDEDIR = ./includes/
 CC = cc
-CFLAGS = -Wall -Wextra -Werror
+CFLAGS = -Wall -Wextra #-Werror
 LIBFT = $(LIBFTDIR)$(LIBFTNAME)
 MLX = MLX42/build/libmlx42.a
 

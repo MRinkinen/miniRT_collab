@@ -6,7 +6,7 @@
 /*   By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/15 12:02:26 by mrinkine          #+#    #+#             */
-/*   Updated: 2024/10/08 19:08:20 by tvalimak         ###   ########.fr       */
+/*   Updated: 2024/10/09 14:29:49 by tvalimak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -300,6 +300,52 @@ t_matrix* rotation_around_axis(t_tuple axis, float angle)
 
 t_matrix* rotation_from_normal(t_tuple normal)
 {
+    t_tuple default_normal = vector(0, 1, 0);  // Default normal for the cylinder's y-axis
+    t_tuple v1 = normalize(default_normal);
+    t_tuple v2 = normalize(normal);
+
+    // Check for axis-aligned cases directly
+    if (fabs(v2.x - 1.0) < EPSILON && fabs(v2.y) < EPSILON && fabs(v2.z) < EPSILON)
+    {
+        // Align with the x-axis
+        return rotation_around_axis(vector(0, 0, 1), -PI / 2);  // Rotate -90 degrees around the z-axis
+    }
+    else if (fabs(v2.z - 1.0) < EPSILON && fabs(v2.x) < EPSILON && fabs(v2.y) < EPSILON)
+    {
+        // Align with the z-axis (this seems to already be working correctly)
+        return identity_matrix();  // No rotation needed, it's already aligned
+    }
+
+    // Compute the rotation axis using the cross product
+    t_tuple axis = cross(v1, v2);
+    float axis_length = magnitude(axis);
+
+    // Handle the parallel/antiparallel case
+    if (axis_length < EPSILON)
+    {
+        if (dot(v1, v2) > 0)
+        {
+            return identity_matrix();  // No rotation needed
+        }
+        else
+        {
+            // Rotate 180 degrees around any perpendicular axis
+            t_tuple arbitrary_axis = vector(1, 0, 0);
+            if (fabs(v1.x) > fabs(v1.y))
+                arbitrary_axis = vector(0, 1, 0);
+            axis = normalize(cross(v1, arbitrary_axis));
+            return rotation_around_axis(axis, PI);  // Rotate 180 degrees
+        }
+    }
+
+    axis = normalize(axis);
+    float angle = acos(dot(v1, v2));
+    return (rotation_around_axis(axis, angle));
+}
+
+/*
+t_matrix* rotation_from_normal(t_tuple normal)
+{
     t_tuple default_normal = vector(0, 1, 0);  // Default normal for the plane
     t_tuple v1 = normalize(default_normal);
     t_tuple v2 = normalize(normal);
@@ -331,7 +377,7 @@ t_matrix* rotation_from_normal(t_tuple normal)
     float angle = acos(dot(v1, v2));
     // Create rotation matrix using Rodrigues' formula
     return (rotation_around_axis(axis, angle));
-}
+}*/
 
 t_cylinder cylinder_create(t_tuple center, float radius, float height, t_color color, t_tuple orientation)
 {
@@ -1378,18 +1424,12 @@ void printimage(void *param)
             bool hit_something = false;
             float closest_t = INFINITY;
 
-            t_tuple intersection_point;
-            t_tuple intersection_normal;
+            //t_tuple intersection_point;
             t_color object_color; // Base color of the object
 
             // Initialize pixel color to ambient light
             //t_color pixel_color = var->ambientl;
             object_color = var->ambientl;
-
-            // Find the closest intersection among all objects
-            // Initialize variables to track the closest hit object
-            int hit_object_type = 0; // 1: Sphere, 2: Plane, 3: Cylinder
-            int hit_object_index = -1;
 
             // Sphere intersections
             for (int i = 0; i < var->num_spheres; i++)
@@ -1403,12 +1443,9 @@ void printimage(void *param)
                     closest_t = t0;
 
                     // Save intersection details
-                    intersection_point = position(r, t0);
-                    intersection_normal = normalize(tuple_subtract(intersection_point, var->test_sphere[i].center));
+                    //intersection_point = position(r, t0);
+                    //intersection_normal = normalize(tuple_subtract(intersection_point, var->test_sphere[i].center));
                     object_color = var->test_sphere[i].color;
-
-                    hit_object_type = 1;
-                    hit_object_index = i;
                 }
             }
             // Plane intersections
@@ -1423,12 +1460,9 @@ void printimage(void *param)
                     closest_t = t;
 
                     // Save intersection details
-                    intersection_point = position(r, t);
-                    intersection_normal = var->test_plane[i].normal; // Assuming normal is constant
+                    //intersection_point = position(r, t);
+                    //intersection_normal = var->test_plane[i].normal; // Assuming normal is constant
                     object_color = var->test_plane[i].color;
-
-                    hit_object_type = 2;
-                    hit_object_index = i;
                 }
             }
             // Cylinder intersections
@@ -1443,12 +1477,9 @@ void printimage(void *param)
                     closest_t = t0;
 
                     // Save intersection details
-                    intersection_point = position(r, t0);
-                    intersection_normal = local_normal_at_cylinder(&var->test_cylinder[i], intersection_point);
+                    //intersection_point = position(r, t0);
+                    //intersection_normal = local_normal_at_cylinder(&var->test_cylinder[i], intersection_point);
                     object_color = var->test_cylinder[i].color;
-
-                    hit_object_type = 3;
-                    hit_object_index = i;
                 }
             }
             write_color(object_color, var, x, y);

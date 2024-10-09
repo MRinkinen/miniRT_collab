@@ -6,7 +6,7 @@
 /*   By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/15 12:02:26 by mrinkine          #+#    #+#             */
-/*   Updated: 2024/10/09 14:29:49 by tvalimak         ###   ########.fr       */
+/*   Updated: 2024/10/09 20:02:15 by tvalimak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -103,6 +103,311 @@ bool check_cap(t_ray ray, float t)
     return (x * x + z * z) <= 1.0f; // Assuming radius is 1 in local space
 }
 
+// The transformed rays origin z value somehow ends up being -20
+int cylinder_intersect(t_cylinder cyl, t_ray r, float *t0, float *t1)
+{
+    printf("Intersecting ray origin: (%f, %f, %f)\n", r.origin.x, r.origin.y, r.origin.z);
+    // Transform ray into the cylinder's local space using the cylinder's inverse transform
+    t_tuple transformed_origin = apply_transformation(cyl.inverse_transform, &r.origin);
+    t_tuple transformed_direction = apply_transformation(cyl.inverse_transform, &r.direction);
+    t_ray transformed_ray = ray(transformed_origin, transformed_direction);
+    printf("Transformed ray origin: (%f, %f, %f)\n", transformed_ray.origin.x, transformed_ray.origin.y, transformed_ray.origin.z);
+    
+    // Initialize the number of intersections found
+    int intersections = 0;
+
+    // ---- Intersect with the cylinder's side ----
+    float a = transformed_ray.direction.x * transformed_ray.direction.x +
+              transformed_ray.direction.z * transformed_ray.direction.z;
+
+    // Ray is parallel to the cylinder's y-axis
+    if (fabs(a) >= EPSILON)
+    {
+        float b = 2 * (transformed_ray.origin.x * transformed_ray.direction.x +
+                       transformed_ray.origin.z * transformed_ray.direction.z);
+        float c = transformed_ray.origin.x * transformed_ray.origin.x +
+                  transformed_ray.origin.z * transformed_ray.origin.z - 1; // Assuming radius is 1
+
+        // Calculate the discriminant
+        float discriminant = b * b - 4 * a * c;
+
+        // If the discriminant is non-negative, the ray may intersect the cylinder
+        if (discriminant >= 0)
+        {
+            // Calculate the two intersection points using the quadratic formula
+            float sqrt_discriminant = sqrt(discriminant);
+            float temp_t0 = (-b - sqrt_discriminant) / (2 * a);
+            float temp_t1 = (-b + sqrt_discriminant) / (2 * a);
+            
+            // Ensure that temp_t0 is the smaller value and temp_t1 is the larger value
+            if (temp_t0 > temp_t1)
+            {
+                float temp = temp_t0;
+                temp_t0 = temp_t1;
+                temp_t1 = temp;
+            }
+            // Check the first intersection point
+            float y0 = transformed_ray.origin.y + temp_t0 * transformed_ray.direction.y;
+            if (cyl.minimum < y0 && y0 < cyl.maximum)
+            {
+                *t0 = temp_t0;
+                intersections++;
+            }
+            // Check the second intersection point
+            float y1 = transformed_ray.origin.y + temp_t1 * transformed_ray.direction.y;
+            if (cyl.minimum < y1 && y1 < cyl.maximum)
+            {
+                if (intersections == 0)
+                {
+                    *t0 = temp_t1;
+                }
+                else
+                {
+                    *t1 = temp_t1;
+                }
+                intersections++;
+            }
+        }
+    }
+    // ---- Intersect with the caps ----
+    if (fabs(transformed_ray.direction.y) >= EPSILON)
+    {
+        // Check for intersection with the lower end cap (y = cyl.minimum)
+        float t_cap = (cyl.minimum - transformed_ray.origin.y) / transformed_ray.direction.y;
+        if (t_cap >= 0 && check_cap(transformed_ray, t_cap))
+        {
+            if (intersections == 0)
+            {
+                *t0 = t_cap;
+            }
+            else if (intersections == 1)
+            {
+                *t1 = t_cap;
+            }
+            intersections++;
+        }
+        
+        // Check for intersection with the upper end cap (y = cyl.maximum)
+        t_cap = (cyl.maximum - transformed_ray.origin.y) / transformed_ray.direction.y;
+        if (t_cap >= 0 && check_cap(transformed_ray, t_cap))
+        {
+            if (intersections == 0)
+            {
+                *t0 = t_cap;
+            }
+            else if (intersections == 1)
+            {
+                *t1 = t_cap;
+            }
+            intersections++;
+        }
+    }
+    // Validate the Z coordinates of the intersection points
+    if (intersections > 0)
+    {
+        // Validate Z coordinates for both t0 and t1
+        if (intersections == 1)
+        {
+            // If only t0 is set, check its Z coordinate
+            float z0 = transformed_ray.origin.z + *t0 * transformed_ray.direction.z;
+            if (z0 < 0) // Adjust this condition based on the cylinder's orientation
+            {
+                intersections = 0; // Discard t0 if it's behind the ray's origin
+            }
+        }
+        else if (intersections == 2)
+        {
+            float z0 = transformed_ray.origin.z + *t0 * transformed_ray.direction.z;
+            float z1 = transformed_ray.origin.z + *t1 * transformed_ray.direction.z;
+
+            // Check both Z coordinates
+            if (z0 < 0) // Adjust based on the cylinder's orientation
+            {
+                *t0 = *t1; // Discard t0 if it's behind the ray's origin
+                intersections = 1;
+            }
+            if (z1 < 0 && z0 >= 0)
+            {
+                intersections = 1; // If only t1 is behind, discard it
+            }
+        }
+    }
+    // Only print output if there were valid intersections
+    if (intersections > 0)
+    {
+        printf("Valid intersections found: %d\n", intersections);
+        if (intersections == 1)
+        {
+            printf("t0: %f\n", *t0);
+        }
+        else if (intersections == 2)
+        {
+            printf("t0: %f, t1: %f\n", *t0, *t1);
+        }
+    }
+    // Only print output if there were valid intersections
+    if (intersections > 0)
+    {
+        printf("Valid intersections found: %d\n", intersections);
+        printf("Intersecting ray origin: (%f, %f, %f)\n", transformed_ray.origin.x, transformed_ray.origin.y, transformed_ray.origin.z);
+        printf("Intersecting ray direction: (%f, %f, %f)\n", transformed_ray.direction.x, transformed_ray.direction.y, transformed_ray.direction.z);
+
+        if (intersections == 1)
+        {
+            printf("t0: %f\n", *t0);
+            // Calculate and print intersection position for t0
+            float intersection_pos0_x = transformed_ray.origin.x + *t0 * transformed_ray.direction.x;
+            float intersection_pos0_y = transformed_ray.origin.y + *t0 * transformed_ray.direction.y;
+            float intersection_pos0_z = transformed_ray.origin.z + *t0 * transformed_ray.direction.z;
+            printf("Intersection position for t0: (%f, %f, %f)\n", intersection_pos0_x, intersection_pos0_y, intersection_pos0_z);
+        }
+        else if (intersections == 2)
+        {
+            printf("t0: %f, t1: %f\n", *t0, *t1);
+            
+            // Calculate and print intersection position for t0
+            float intersection_pos0_x = transformed_ray.origin.x + *t0 * transformed_ray.direction.x;
+            float intersection_pos0_y = transformed_ray.origin.y + *t0 * transformed_ray.direction.y;
+            float intersection_pos0_z = transformed_ray.origin.z + *t0 * transformed_ray.direction.z;
+            printf("Intersection position for t0: (%f, %f, %f)\n", intersection_pos0_x, intersection_pos0_y, intersection_pos0_z);
+
+            // Calculate and print intersection position for t1
+            float intersection_pos1_x = transformed_ray.origin.x + *t1 * transformed_ray.direction.x;
+            float intersection_pos1_y = transformed_ray.origin.y + *t1 * transformed_ray.direction.y;
+            float intersection_pos1_z = transformed_ray.origin.z + *t1 * transformed_ray.direction.z;
+            printf("Intersection position for t1: (%f, %f, %f)\n", intersection_pos1_x, intersection_pos1_y, intersection_pos1_z);
+        }
+    }
+    return intersections;
+}
+
+/*
+int cylinder_intersect(t_cylinder cyl, t_ray r, float *t0, float *t1)
+{
+    // Transform ray into the cylinder's local space using the cylinder's inverse transform
+    t_tuple transformed_origin = apply_transformation(cyl.inverse_transform, &r.origin);
+    t_tuple transformed_direction = apply_transformation(cyl.inverse_transform, &r.direction);
+    t_ray transformed_ray = ray(transformed_origin, transformed_direction);
+    // Initialize the number of intersections found
+    int intersections = 0;
+    // ---- Intersect with the cylinder's side ----
+    float a = transformed_ray.direction.x * transformed_ray.direction.x +
+              transformed_ray.direction.z * transformed_ray.direction.z;
+    // Ray is parallel to the cylinder's y-axis
+    if (fabs(a) >= EPSILON)
+    {
+        float b = 2 * (transformed_ray.origin.x * transformed_ray.direction.x +
+                       transformed_ray.origin.z * transformed_ray.direction.z);
+        float c = transformed_ray.origin.x * transformed_ray.origin.x +
+                  transformed_ray.origin.z * transformed_ray.origin.z - 1; // Assuming radius is 1
+
+        // Calculate the discriminant
+        float discriminant = b * b - 4 * a * c;
+        // If the discriminant is negative, the ray does not intersect the cylinder
+        if (discriminant >= 0)
+        {
+            // Calculate the two intersection points using the quadratic formula
+            float sqrt_discriminant = sqrt(discriminant);
+            float temp_t0 = (-b - sqrt_discriminant) / (2 * a);
+            float temp_t1 = (-b + sqrt_discriminant) / (2 * a);
+            // Ensure that temp_t0 is the smaller value and temp_t1 is the larger value
+            if (temp_t0 > temp_t1)
+            {
+                float temp = temp_t0;
+                temp_t0 = temp_t1;
+                temp_t1 = temp;
+            }
+            // Check the first intersection point
+            float y0 = transformed_ray.origin.y + temp_t0 * transformed_ray.direction.y;
+            if (cyl.minimum < y0 && y0 < cyl.maximum)
+            {
+                *t0 = temp_t0;
+                intersections++;
+            }
+            // Check the second intersection point
+            float y1 = transformed_ray.origin.y + temp_t1 * transformed_ray.direction.y;
+            if (cyl.minimum < y1 && y1 < cyl.maximum)
+            {
+                if (intersections == 0)
+                {
+                    *t0 = temp_t1;
+                }
+                else
+                {
+                    *t1 = temp_t1;
+                }
+                intersections++;
+            }
+        }
+    }
+    // ---- Intersect with the caps ----
+    if (fabs(transformed_ray.direction.y) >= EPSILON)
+    {
+        // Check for intersection with the lower end cap (y = cyl.minimum)
+        float t_cap = (cyl.minimum - transformed_ray.origin.y) / transformed_ray.direction.y;
+        if (t_cap >= 0 && check_cap(transformed_ray, t_cap))
+        {
+            if (intersections == 0)
+            {
+                *t0 = t_cap;
+            }
+            else if (intersections == 1)
+            {
+                *t1 = t_cap;
+            }
+            intersections++;
+        }
+        // Check for intersection with the upper end cap (y = cyl.maximum)
+        t_cap = (cyl.maximum - transformed_ray.origin.y) / transformed_ray.direction.y;
+        if (t_cap >= 0 && check_cap(transformed_ray, t_cap))
+        {
+            if (intersections == 0)
+            {
+                *t0 = t_cap;
+            }
+            else if (intersections == 1)
+            {
+                *t1 = t_cap;
+            }
+            intersections++;
+        }
+    }
+    // If the cylinder is positioned in the negative Z direction,
+    // we need to check that the Z coordinate of the intersection points is valid
+    if (intersections > 0)
+    {
+        if (intersections == 1)
+        {
+            // If only t0 is set, check its Z coordinate
+            float z0 = transformed_ray.origin.z + *t0 * transformed_ray.direction.z;
+            if (z0 < 0) // Adjust this condition based on the cylinder's orientation
+            {
+                // t0 is behind the ray's origin
+                intersections = 0; // No valid intersection
+            }
+        }
+        else if (intersections == 2)
+        {
+            // Check both t0 and t1
+            float z0 = transformed_ray.origin.z + *t0 * transformed_ray.direction.z;
+            float z1 = transformed_ray.origin.z + *t1 * transformed_ray.direction.z;
+
+            if (z0 < 0) // Adjust based on the cylinder's orientation
+            {
+                *t0 = *t1; // Discard t0 if it's behind the ray's origin
+                intersections = 1;
+            }
+            if (z1 < 0 && z0 >= 0)
+            {
+                // If only t1 is behind, discard it
+                intersections = 1;
+            }
+        }
+    }
+    return (intersections);
+}*/
+
+/*
 int cylinder_intersect(t_cylinder cyl, t_ray r, float *t0, float *t1)
 {
     // Transform ray into the cylinder's local space using the cylinder's inverse transform
@@ -207,7 +512,7 @@ void print_matrix(t_matrix *matrix)
         }
         printf("\n"); // Newline after each row
     }
-}
+}*/
 
 int plane_intersect(t_plane plane, t_ray r, float *t)
 {
@@ -244,27 +549,27 @@ int plane_intersect(t_plane plane, t_ray r, float *t)
     return (0); // No intersection
 }
 
+int intersect(t_sphere sphere, t_ray ray, float *t0, float *t1) {
+    t_tuple oc = tuple_subtract(ray.origin, sphere.center);
+    float a = dot(ray.direction, ray.direction); // Should be 1 if normalized
+    float b = 2.0 * dot(oc, ray.direction);
+    float c = dot(oc, oc) - sphere.radius * sphere.radius;
 
-int intersect(t_sphere s, t_ray r, float *t0, float *t1)
-{
-    // Calculate vector from ray origin to sphere center
-    t_tuple sphere_to_ray = tuple_subtract(r.origin, s.center);
+    float discriminant = b * b - 4 * a * c;
 
-    float a = dot(r.direction, r.direction);  // Always 1 since the direction is normalized
-    float b = 2 * dot(sphere_to_ray, r.direction);
-    float c = dot(sphere_to_ray, sphere_to_ray) - (s.radius * s.radius);
-    float discriminant = (b * b) - (4 * a * c);
-
-    if (discriminant < 0)
+    if (discriminant >= 0) 
     {
-        return 0;  // No intersection
+        *t0 = (-b - sqrt(discriminant)) / (2.0 * a);
+        *t1 = (-b + sqrt(discriminant)) / (2.0 * a);
+        
+        // Check if the intersection points are valid in the ray's direction
+        if (*t0 > 0 || *t1 > 0) {
+            printf("Intersection Points: t0 = %f, t1 = %f\n", *t0, *t1);
+            return 1; // Intersection found
+        }
     }
-    else
-    {
-        *t0 = (-b - sqrt(discriminant)) / (2 * a);
-        *t1 = (-b + sqrt(discriminant)) / (2 * a);
-        return 1;  // Intersection found
-    }
+    // If you reach here, there are no valid intersections
+    return 0; // No intersection
 }
 
 t_matrix* rotation_around_axis(t_tuple axis, float angle)
@@ -433,6 +738,7 @@ t_plane plane_create(t_tuple center, t_color color, t_tuple orientation)
 
 t_sphere sphere_create(t_tuple center, float radius, t_color col)
 {
+    printf("Creating sphere at (%f, %f, %f) with radius %f\n", center.x, center.y, center.z, radius);
     t_sphere sphere;
 
     //hittable_init(&sphere.base, sphere_hit);
@@ -444,6 +750,9 @@ t_sphere sphere_create(t_tuple center, float radius, t_color col)
     sphere.translation_matrix = translation(center.x, center.y, center.z);
     sphere.rotation_matrix = identity_matrix(); // No rotation initially
     sphere.scaling_matrix = scaling(radius, radius, radius);
+    printf("CHECK THIIIS!!!!\n");
+    printf("Sphere Center Z: %f\n", center.z);
+    printf("Translation Matrix Z-component: %f\n", sphere.translation_matrix->data[2][3]);
 
     // Combine transformations into one matrix
     sphere.transform = t_matrix_multiply(t_matrix_multiply(sphere.translation_matrix, sphere.rotation_matrix), sphere.scaling_matrix);
@@ -1419,6 +1728,7 @@ void printimage(void *param)
                           tuple_add(tuple_multiply(var->cam.horizontal, u),
                                     tuple_multiply(var->cam.vertical, v))),
                 var->cam.position));
+            
             t_ray r = ray(var->cam.position, ray_direction);
 
             bool hit_something = false;

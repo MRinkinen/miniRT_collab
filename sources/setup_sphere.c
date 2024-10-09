@@ -6,7 +6,7 @@
 /*   By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/19 09:59:52 by tvalimak          #+#    #+#             */
-/*   Updated: 2024/08/20 16:30:51 by tvalimak         ###   ########.fr       */
+/*   Updated: 2024/10/09 19:27:40 by tvalimak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,6 +44,35 @@ static t_spheres	*setup_spheres_helper(t_map *map)
 ∗ the sphere diameter: 12.6
 ∗ R,G,B colors in range [0-255]: 10, 0, 255*/
 
+int setup_spheres(char **split, t_map *map)
+{
+    char **rgb;
+    char **xyz;
+    t_spheres *new_sphere;
+
+    printf("inside setup_sphere\n");
+    new_sphere = setup_spheres_helper(map);
+    rgb = ft_split(split[3], ',');
+    xyz = ft_split(split[1], ',');
+    
+    // Inverting the Y-coordinate for left-handed system
+    new_sphere->x = ft_atof(xyz[0]);
+    new_sphere->y = -ft_atof(xyz[1]);
+    new_sphere->z = ft_atof(xyz[2]);
+    
+    new_sphere->diameter = ft_atof(split[2]);
+    new_sphere->r = ft_atoi(rgb[0]);
+    new_sphere->g = ft_atoi(rgb[1]);
+    new_sphere->b = ft_atoi(rgb[2]);
+    
+    free_split(rgb);
+    free_split(xyz);
+    printf("end of setup_sphere\n");
+    return (1);
+}
+
+
+/*
 int	setup_spheres(char **split, t_map *map)
 {
 	char	**rgb;
@@ -65,4 +94,4 @@ int	setup_spheres(char **split, t_map *map)
     free_split(xyz);
 	printf("end of setup_sphere\n");
 	return (1);
-}
+}*/

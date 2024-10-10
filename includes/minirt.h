@@ -39,6 +39,13 @@ typedef struct
 
 /* Above is all test_functions.h definitions*/
 
+typedef enum e_objecttype
+{
+    SPHERE,
+    CYLINDER,
+    PLANE
+} t_objecttype;
+
 typedef struct s_tuple
 {
     double x, y, z, w;
@@ -73,26 +80,26 @@ typedef struct s_hit
 	t_color color;
 } t_hit;
 
-struct hittable;
-void set_face_normal(t_hit *rec, const t_ray *r, const t_vec3 *outward_normal);
-typedef bool (*hit_func)(const struct hittable *, const t_ray *, float, float, t_hit *);
+// struct hittable;
+// void set_face_normal(t_hit *rec, const t_ray *r, const t_vec3 *outward_normal);
+// typedef bool (*hit_func)(const struct hittable *, const t_ray *, float, float, t_hit *);
 
-typedef struct hittable
-{
-	hit_func hit;
-} t_hittable;
+// typedef struct hittable
+// {
+// 	hit_func hit;
+// } t_hittable;
 
-typedef struct
-{
-	t_hittable *objects[MAX_OBJECTS];
-	int size;
-} hittable_list;
+// typedef struct
+// {
+// 	t_hittable *objects[MAX_OBJECTS];
+// 	int size;
+// } hittable_list;
 
-void hittable_list_init(hittable_list *list);
-void hittable_list_clear(hittable_list *list);
-void hittable_list_add(hittable_list *list, t_hittable *object);
+// void hittable_list_init(hittable_list *list);
+// void hittable_list_clear(hittable_list *list);
+// void hittable_list_add(hittable_list *list, t_hittable *object);
+// // bool hittable_list_hit(const hittable_list *list, const t_ray *r, float tmin, float tmax, t_hit *rec);
 // bool hittable_list_hit(const hittable_list *list, const t_ray *r, float tmin, float tmax, t_hit *rec);
-bool hittable_list_hit(const hittable_list *list, const t_ray *r, float tmin, float tmax, t_hit *rec);
 
 /*Experimental*/
 
@@ -101,6 +108,8 @@ typedef struct s_light
     t_tuple position;    // Position of the light in the scene
     t_color intensity;   // Intensity (color) of the light
     float brightness;    // Brightness ratio in the range [0.0, 1.0]
+	float cutoff_angle; // in degrees
+	t_tuple direction;
 } t_light;
 
 typedef struct s_plane
@@ -114,6 +123,7 @@ typedef struct s_plane
     t_color   color;
 	t_tuple	  center;
 	t_tuple   orientation;
+	t_tuple   point;
     //t_tuple (*local_normal_at)(const struct s_plane *plane, t_tuple point);
 } t_plane;
 
@@ -125,7 +135,7 @@ typedef struct s_cylinder
 	t_matrix 	*translation_matrix;
 	t_matrix 	*rotation_matrix;
 	t_matrix 	*scaling_matrix;
-	t_hittable 	base;	// Inherit hittable structure
+	//t_hittable 	base;	// Inherit hittable structure
 	t_tuple 	center;		// Center of the base of the cylinder
 	t_tuple 	orientation; // Orientation of the cylinder (usually represented by a vector)
 	float 		radius;		// Radius of the cylinder
@@ -167,7 +177,23 @@ typedef struct s_cam
 	t_tuple horizontal;
 	t_tuple vertical;
 	t_tuple lower_left_corner;
+
+	t_tuple u, v, w;
+    float lens_radius;
 } t_cam;
+
+typedef union u_objectdata
+{
+    t_sphere sphere;
+    t_cylinder cylinder;
+    t_plane plane;
+} u_objectdata;
+
+typedef struct s_object
+{
+    t_objecttype type;
+    u_objectdata data;
+} t_object;
 
 typedef struct s_var
 {
@@ -201,6 +227,8 @@ typedef struct s_var
 	int			num_planes;
 	int 		num_cylinders;
 	int			num_lights;
+	int 		num_objects;
+	t_object 	*objects;
 } t_var;
 
 void initialize_camera(t_var *var, t_cam *camera, t_map *map);
@@ -215,7 +243,7 @@ void printimage(void *param);
 // bool sphere_hit(const t_hittable *self, const t_ray *r, float tmin, float tmax, t_hit *rec);
 
 //t_sphere sphere_create(t_vec3 center, float radius, t_color col);
-void hittable_init(t_hittable *h, hit_func func);
+//void hittable_init(t_hittable *h, hit_func func);
 
 // t_sphere sphere_create(t_vec3 center, float radius);
 
@@ -224,41 +252,41 @@ void write_color(t_color col, t_var *var, int x, int y);
 // void write_color(FILE* out, const t_vec3* pixel_color);
 
 /*Vector 3*/
-float 	calculate_distance(t_vec3 vec_a, t_vec3 vec_b);
-t_vec3 	t_vec3_create(float e0, float e1, float e2);
-t_vec3 	t_vec3_multiply_scalar(const t_vec3 *v, float t);
-t_vec3 	t_vec3_add_vectors(const t_vec3 *u, const t_vec3 *v);
-t_vec3 	t_vec3_divide_scalar(const t_vec3 *v, float t);
-t_vec3 	t_vec3_multiply_vectors(const t_vec3 *u, const t_vec3 *v);
-t_vec3 	t_vec3_subtract_vectors(const t_vec3 *u, const t_vec3 *v);
-float 	t_vec3_magnitude_squared(const t_vec3 *v);
-float 	t_vec3_magnitude(const t_vec3 *v);
+// float 	calculate_distance(t_vec3 vec_a, t_vec3 vec_b);
+// t_vec3 	t_vec3_create(float e0, float e1, float e2);
+// t_vec3 	t_vec3_multiply_scalar(const t_vec3 *v, float t);
+// t_vec3 	t_vec3_add_vectors(const t_vec3 *u, const t_vec3 *v);
+// t_vec3 	t_vec3_divide_scalar(const t_vec3 *v, float t);
+// t_vec3 	t_vec3_multiply_vectors(const t_vec3 *u, const t_vec3 *v);
+// t_vec3 	t_vec3_subtract_vectors(const t_vec3 *u, const t_vec3 *v);
+// float 	t_vec3_magnitude_squared(const t_vec3 *v);
+// float 	t_vec3_magnitude(const t_vec3 *v);
 
-t_vec3 	*t_vec3_divide(t_vec3 *v, float t);
-t_vec3 	*t_vec3_multiply(t_vec3 *v, float t);
-t_vec3 	*t_vec3_add(t_vec3 *v, const t_vec3 *u);
+// t_vec3 	*t_vec3_divide(t_vec3 *v, float t);
+// t_vec3 	*t_vec3_multiply(t_vec3 *v, float t);
+// t_vec3 	*t_vec3_add(t_vec3 *v, const t_vec3 *u);
 
-float 	t_vec3_dot(const t_vec3 *u, const t_vec3 *v);
-t_vec3 	t_vec3_cross(const t_vec3 *u, const t_vec3 *v);
-t_vec3 	t_vec3_unit_vector(const t_vec3 *v);
+// float 	t_vec3_dot(const t_vec3 *u, const t_vec3 *v);
+// t_vec3 	t_vec3_cross(const t_vec3 *u, const t_vec3 *v);
+// t_vec3 	t_vec3_unit_vector(const t_vec3 *v);
 
-t_vec3 	reflect_vector(t_vec3 v, t_vec3 n);
-t_vec3 	normalize_vector(t_vec3 v);
+// t_vec3 	reflect_vector(t_vec3 v, t_vec3 n);
+// t_vec3 	normalize_vector(t_vec3 v);
 
-t_vec3 	t_vec3_negate(const t_vec3 *vec);
+// t_vec3 	t_vec3_negate(const t_vec3 *vec);
 
-void	t_vec3_print(const t_vec3 *vec);
+// void	t_vec3_print(const t_vec3 *vec);
 
 /* t_ray */
 
-t_ray ray_create(const t_vec3 *origin, const t_vec3 *direction);
-t_vec3 ray_origin(const t_ray *r);
-t_vec3 ray_direction(const t_ray *r);
-t_vec3 ray_at(const t_ray *r, float t);
+// t_ray ray_create(const t_vec3 *origin, const t_vec3 *direction);
+// t_vec3 ray_origin(const t_ray *r);
+// t_vec3 ray_direction(const t_ray *r);
+// t_vec3 ray_at(const t_ray *r, float t);
 
 /*Sphere*/
-bool sphere_hit(const t_hittable *self, const t_ray *r, float tmin, float tmax, t_hit *rec);
-bool cylinder_hit(const t_hittable *self, const t_ray *r, float tmin, float tmax, t_hit *rec);
+//bool sphere_hit(const t_hittable *self, const t_ray *r, float tmin, float tmax, t_hit *rec);
+//bool cylinder_hit(const t_hittable *self, const t_ray *r, float tmin, float tmax, t_hit *rec);
 // bool sphere_hit(const t_hittable *self, const t_ray *ray, t_hit *rec, t_vec3 *intersection_point);
 
 // float hit_sphere(const t_vec3 *center, float radius, const t_ray *r);

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   functions.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mrinkine <mrinkine@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/16 09:33:18 by mrinkine          #+#    #+#             */
-/*   Updated: 2024/10/09 19:00:06 by tvalimak         ###   ########.fr       */
+/*   Updated: 2024/10/10 10:53:06 by mrinkine         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -185,35 +185,29 @@ void write_color(t_color col, t_var *var, int x, int y)
 
 void initialize_camera(t_var *var, t_cam *camera, t_map *map)
 {
-    camera->position = point(map->camera->x, map->camera->y, map->camera->z);
-    camera->fov = map->camera->fov;
-    
-    // Calculate aspect ratio
-    camera->aspect_ratio = (float)SCREEN_WIDTH / (float)var->image_height;
+    float aspect_ratio = 16.0f / 9.0f;
+    float theta = map->camera->fov * (PI / 180.0f);
+    float half_height = tan(theta / 2);
+    float half_width = aspect_ratio * half_height;
 
-    camera->viewport_height = 2.0;  // Arbitrary height
-    camera->viewport_width = camera->viewport_height * camera->aspect_ratio;
-    camera->focal_length = 1.0;
+    t_tuple lookfrom = point(map->camera->x, map->camera->y, map->camera->z);
+    t_tuple lookat = point(map->camera->nx, map->camera->ny, map->camera->nz);
+    t_tuple vup = point(0.0f, 1.0f, 0.0f);
 
-    // Create the horizontal and vertical vectors
-    camera->horizontal = vector(camera->viewport_width, 0, 0);
-    camera->vertical = vector(0, camera->viewport_height, 0);
+    printf("FOV: %f degrees, Aspect Ratio: %f\n", map->camera->fov, aspect_ratio);
 
-    // Adjust the lower_left_corner to point towards positive z
+    var->cam.position = point(map->camera->x, map->camera->y, map->camera->z);
+    camera->w = normalize(tuple_subtract(lookfrom, lookat));
+    camera->u = normalize(cross(vup, camera->w));
+    camera->v = cross(camera->w, camera->u);
+
     camera->lower_left_corner = tuple_subtract(
         tuple_subtract(
-            tuple_subtract(camera->position,
-                           tuple_divide(camera->horizontal, 2)),
-            tuple_divide(camera->vertical, 2)),
-        vector(0, 0, -camera->focal_length)); // Negative here to point in positive z direction
-
-    // You might also want to define the camera's orientation if needed.
-    // Uncomment and adjust below if you plan to use forward, right, up vectors
-    /*
-    camera->forward = vector(0, 0, -1);  // Assuming forward points in -Z
-    camera->up = vector(0, 1, 0);         // Assuming Y is up
-    camera->right = vector(1, 0, 0);      // Assuming X is to the right
-    */
+            tuple_subtract(camera->position, tuple_multiply(camera->u, half_width)),
+            tuple_multiply(camera->v, half_height)),
+        camera->w);
+    camera->horizontal = tuple_multiply(camera->u, 2 * half_width);
+    camera->vertical = tuple_multiply(camera->v, 2 * half_height);
 }
 
 /*

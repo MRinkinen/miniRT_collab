@@ -11,7 +11,7 @@ OBJECTS = $(SOURCES:.c=.o)
 
 SRC_DIR	= ./sources
 #SRC_BON_DIR = ./sources_bonus
-USERNAME = tvalimak
+USERNAME = mattirinkinen
 LIBFTNAME = libft.a
 LIBFTDIR = ./libft/
 INCLUDEDIR = ./includes/

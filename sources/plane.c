@@ -5,7 +5,7 @@ t_plane plane_create(t_tuple center, t_color color, t_tuple orientation)
 {
     t_plane plane;
 
-    printf("plane normals: x: %f, y: %f, z: %f, w: %f\n", orientation.x, orientation.y, orientation.z, orientation.w);
+    //printf("plane normals: x: %f, y: %f, z: %f, w: %f\n", orientation.x, orientation.y, orientation.z, orientation.w);
     // Initialize transformation matrices
     plane.translation_matrix = translation(center.x, center.y, center.z);
     plane.rotation_matrix = rotation_from_normal(orientation); // Adjust orientation

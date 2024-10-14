@@ -6,7 +6,7 @@
 /*   By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/19 09:59:52 by tvalimak          #+#    #+#             */
-/*   Updated: 2024/10/09 19:27:40 by tvalimak         ###   ########.fr       */
+/*   Updated: 2024/10/14 16:28:23 by tvalimak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,7 +56,7 @@ int setup_spheres(char **split, t_map *map)
     xyz = ft_split(split[1], ',');
     
     // Inverting the Y-coordinate for left-handed system
-    new_sphere->x = ft_atof(xyz[0]);
+    new_sphere->x = -ft_atof(xyz[0]);
     new_sphere->y = -ft_atof(xyz[1]);
     new_sphere->z = ft_atof(xyz[2]);
     

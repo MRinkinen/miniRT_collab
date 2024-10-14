@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   functions.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mrinkine <mrinkine@student.42.fr>          +#+  +:+       +#+        */
+/*   By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/16 09:33:18 by mrinkine          #+#    #+#             */
-/*   Updated: 2024/10/14 14:36:26 by mrinkine         ###   ########.fr       */
+/*   Updated: 2024/10/14 16:50:45 by tvalimak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,12 +68,11 @@ t_matrix* rotation_around_axis(t_tuple axis, float angle)
     float x = axis.x;
     float y = axis.y;
     float z = axis.z;
-
     float cos_theta = cos(angle);
     float sin_theta = sin(angle);
     float one_minus_cos = 1.0f - cos_theta;
-    // Compute the components of the rotation matrix
-    t_matrix* rotation = create_4x4_matrix(
+    // Prepare the array of values for the matrix
+    float values[16] = {
         cos_theta + x * x * one_minus_cos,
         x * y * one_minus_cos - z * sin_theta,
         x * z * one_minus_cos + y * sin_theta,
@@ -90,7 +89,9 @@ t_matrix* rotation_around_axis(t_tuple axis, float angle)
         0,
 
         0, 0, 0, 1
-    );
+    };
+    // Create the 4x4 matrix using the values array
+    t_matrix* rotation = create_4x4_matrix(values);
     return (rotation);
 }
 
@@ -170,18 +171,22 @@ t_tuple matrix_to_tuple(t_matrix *m)
     return tuple(m->data[0][0], m->data[1][0], m->data[2][0], m->data[3][0]);
 }
 
-// Function to convert a t_tuple to a 4x4 matrix for transformation
 t_matrix *tuple_to_matrix(t_tuple *t)
 {
-    t_matrix *m = create_4x4_matrix(
+    // Prepare the array of values for the matrix
+    float values[16] = {
         t->x, 0, 0, 0,
         t->y, 0, 0, 0,
         t->z, 0, 0, 0,
         t->w, 0, 0, 0
-    );
+    };
+
+    // Create the 4x4 matrix using the values array
+    t_matrix *m = create_4x4_matrix(values);
+
     return m;
 }
-
+/*
 // Function to create a shearing matrix
 t_matrix* shearing(float xy, float xz, float yx, float yz, float zx, float zy)
 {
@@ -196,7 +201,7 @@ t_matrix* shearing(float xy, float xz, float yx, float yz, float zx, float zy)
     shear->data[2][1] = zy;
 
     return shear;
-}
+}*/
 
 // Function to create a rotation matrix around the Z-axis
 t_matrix *rotation_z(float radians)
@@ -594,37 +599,32 @@ t_matrix* t_matrix_multiply(t_matrix *a, t_matrix *b)
     return (result);
 }
 
-t_matrix *create_4x4_matrix(float a, float b, float c, float d,
-                           float e, float f, float g, float h,
-                           float i, float j, float k, float l,
-                           float m, float n, float o, float p)
+t_matrix *create_4x4_matrix(float values[16])
 {
-    t_matrix *matrix = (t_matrix *)malloc(sizeof(t_matrix));
+    int             row;
+    int             col;
+    t_matrix    *matrix;
+
+    matrix = (t_matrix *)malloc(sizeof(t_matrix));
     if (matrix == NULL)
     {
-        // Handle memory allocation failure
         printf("Error: Memory allocation failed.\n");
         return NULL;
     }
     matrix->rows = 4;
     matrix->cols = 4;
-    matrix->data[0][0] = a;
-    matrix->data[0][1] = b;
-    matrix->data[0][2] = c;
-    matrix->data[0][3] = d;
-    matrix->data[1][0] = e;
-    matrix->data[1][1] = f;
-    matrix->data[1][2] = g;
-    matrix->data[1][3] = h;
-    matrix->data[2][0] = i;
-    matrix->data[2][1] = j;
-    matrix->data[2][2] = k;
-    matrix->data[2][3] = l;
-    matrix->data[3][0] = m;
-    matrix->data[3][1] = n;
-    matrix->data[3][2] = o;
-    matrix->data[3][3] = p;
-    return matrix;
+    row = 0;
+    while (row < 4)
+    {
+        col = 0;
+        while (col < 4)
+        {
+            matrix->data[row][col] = values[row * 4 + col];
+            col++;
+        }
+        row++;
+    }
+    return (matrix);
 }
 
 float t_matrix_get(t_matrix *m, int row, int col)
@@ -689,8 +689,6 @@ bool compare_colors(t_color c1, t_color c2)
 {
     return equal(c1.r, c2.r) && equal(c1.g, c2.g) && equal(c1.b, c2.b);
 }
-
-
 
 // Function to print a color (for debugging)
 void print_color(t_color c)
@@ -820,7 +818,6 @@ int matrices_are_equal(t_matrix *m1, t_matrix *m2) {
     }
     return 1;
 }
-
 
 t_tuple ray_at(t_ray ray, float t)
 {

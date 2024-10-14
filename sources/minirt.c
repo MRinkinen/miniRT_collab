@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minirt.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mrinkine <mrinkine@student.42.fr>          +#+  +:+       +#+        */
+/*   By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/15 12:02:26 by mrinkine          #+#    #+#             */
-/*   Updated: 2024/10/14 15:02:42 by mrinkine         ###   ########.fr       */
+/*   Updated: 2024/10/14 16:19:52 by tvalimak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -118,14 +118,13 @@ void printimage(void *param) {
             {
                 t_tuple view_dir = normalize(tuple_subtract(var->cam.position, intersection_point));
                 pixel_color = calculate_phong_lighting(&intersection_point, &normal, &var->test_light[0], &object_color, &view_dir, var->objects, var->num_objects);
-                print_color(pixel_color);
+                //print_color(pixel_color);
             }
             // Write the pixel color to the image
             write_color(pixel_color, var, x, y);
         }
     }
 }
-
 
 void free_scene(t_var *var)
 {

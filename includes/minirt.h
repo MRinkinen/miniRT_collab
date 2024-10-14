@@ -289,11 +289,8 @@ t_matrix    *create_2x2_matrix(float a, float b, float c, float d);
 t_matrix    *create_3x3_matrix(float a, float b, float c,
                            float d, float e, float f,
                            float g, float h, float i);
-t_matrix    *create_4x4_matrix(float a, float b, float c, float d,
-                           float e, float f, float g, float h,
-                           float i, float j, float k, float l,
-                           float m, float n, float o, float p);
-t_matrix* rotation_from_normal(t_tuple normal);
+t_matrix 	*create_4x4_matrix(float values[16]);
+t_matrix* 	rotation_from_normal(t_tuple normal);
 
 /*Tuple*/
 t_tuple       position(t_ray r, double t);

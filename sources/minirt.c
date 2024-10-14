@@ -6,7 +6,7 @@
 /*   By: mrinkine <mrinkine@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/15 12:02:26 by mrinkine          #+#    #+#             */
-/*   Updated: 2024/10/14 11:38:39 by mrinkine         ###   ########.fr       */
+/*   Updated: 2024/10/14 12:36:36 by mrinkine         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -1829,6 +1829,24 @@ bool intersect_object(const t_ray *ray, const t_object *object, float *t)
     }
 }
 
+bool find_closest_intersection(const t_ray *ray, t_object *objects, int num_objects, t_object **closest_object, float *closest_t)
+{
+    *closest_t = FLT_MAX;
+    bool hit = false;
+
+    for (int i = 0; i < num_objects; i++)
+    {
+        float t;
+        if (intersect_object(ray, &objects[i], &t) && t < *closest_t) {
+            *closest_t = t;
+            *closest_object = &objects[i];
+            hit = true;
+        }
+    }
+
+    return hit;
+}
+
 bool is_in_shadow(const t_tuple *point, const t_light *light, const t_object *objects, int num_objects) {
     t_tuple light_dir = normalize(tuple_subtract(light->position, *point));
     t_tuple shadow_origin = tuple_add(*point, tuple_multiply(light_dir, 0.001f)); // Add small bias to avoid self-intersection
@@ -1874,7 +1892,8 @@ t_tuple calculate_normal(const t_object *object, const t_tuple *point)
         return calculate_sphere_normal(&object->data.sphere, point);
     } else if (object->type == CYLINDER) {
         return calculate_cylinder_normal(&object->data.cylinder, point);
-    } else if (object->type == PLANE) {
+    } else if (object->type == PLANE)
+    {
         return object->data.plane.normal;
     } else {
         return (t_tuple){0, 0, 0,0};
@@ -1902,26 +1921,27 @@ void printimage(void *param) {
             t_color pixel_color = var->ambientl;
 
             // Check for intersections with objects
-            float t;
+            //float t;
             t_tuple intersection_point;
             t_tuple normal;
             t_color object_color;
             bool hit = false;
-            // t_object *closest_object = NULL;
-            // float closest_t;
+             // Find the closest intersection
+            t_object *closest_object = NULL;
+            float closest_t;
 
             for (int i = 0; i < var->num_objects; i++)
             {
-                if (intersect_object(&r, &var->objects[i], &t))
+                if (find_closest_intersection(&r, var->objects, var->num_objects, &closest_object, &closest_t))
                 {
-                    intersection_point = tuple_add(r.origin, tuple_multiply(r.direction, t));
+                    intersection_point = tuple_add(r.origin, tuple_multiply(r.direction, closest_t));
                     normal = calculate_normal(&var->objects[i], &intersection_point);
-                    if(var->objects[i].type ==  SPHERE)
-                        object_color = var->objects[i].data.sphere.color; // Adjust based on object type
-                    if(var->objects[i].type ==  CYLINDER)
-                        object_color = var->objects[i].data.cylinder.color;
-                    if(var->objects[i].type ==  PLANE)
-                        object_color = var->objects[i].data.plane.color;
+                    if(closest_object->type ==  SPHERE)
+                        object_color = closest_object->data.sphere.color; // Adjust based on object type
+                    if(closest_object->type ==  CYLINDER)
+                        object_color = closest_object->data.cylinder.color;
+                    if(closest_object->type ==  PLANE)
+                        object_color = closest_object->data.plane.color;
                     hit = true;
                     break;
                 }

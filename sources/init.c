@@ -1,0 +1,96 @@
+#include "../includes/minirt.h"
+#include "../includes/parsing.h"
+
+void initialize_scene(t_var *var, t_map *map)
+{
+    int obj_index = 0;
+
+    var->num_objects = map->element_count->sphere + map->element_count->cylinder + map->element_count->plane;
+    var->objects = malloc(var->num_objects * sizeof(t_object));
+    if (var->objects == NULL) {
+        // Handle memory allocation failure
+        return;
+    }
+
+    // Initialize spheres
+    t_spheres *current_sphere = map->spheres;
+    while (current_sphere != NULL)
+    {
+        t_tuple center = point(current_sphere->x, current_sphere->y, current_sphere->z);
+        float radius = current_sphere->diameter / 2.0f; // Assuming diameter is provided
+        t_color color = t_color_create(current_sphere->r, current_sphere->g, current_sphere->b);
+
+        var->objects[obj_index].type = SPHERE;
+        var->objects[obj_index].data.sphere.center = center;
+        var->objects[obj_index].data.sphere.radius = radius;
+        var->objects[obj_index].data.sphere.color = color;
+
+        current_sphere = current_sphere->next;
+        obj_index++;
+    }
+
+    // Initialize cylinders
+    t_cylinders *current_cylinder = map->cylinders;
+    while (current_cylinder != NULL)
+    {
+        t_tuple center = point(current_cylinder->x, current_cylinder->y, current_cylinder->z);
+        float radius = current_cylinder->diameter / 2.0f; // Assuming diameter is provided
+        float height = current_cylinder->height;
+        t_color color = t_color_create(current_cylinder->r, current_cylinder->g, current_cylinder->b);
+
+        var->objects[obj_index].type = CYLINDER;
+        var->objects[obj_index].data.cylinder.center = center;
+        var->objects[obj_index].data.cylinder.radius = radius;
+        var->objects[obj_index].data.cylinder.height = height;
+        var->objects[obj_index].data.cylinder.color = color;
+
+        current_cylinder = current_cylinder->next;
+        obj_index++;
+    }
+
+    // Initialize planes
+    t_planes *current_plane = map->planes;
+    while (current_plane != NULL)
+    {
+        t_tuple point = tuple(current_plane->x, current_plane->y, current_plane->z, 1.0f);
+        t_tuple normal = vector(current_plane->nx, current_plane->ny, current_plane->nz);
+        t_color color = t_color_create(current_plane->r, current_plane->g, current_plane->b);
+
+        var->objects[obj_index].type = PLANE;
+        var->objects[obj_index].data.plane.point = point;
+        var->objects[obj_index].data.plane.normal = normal;
+        var->objects[obj_index].data.plane.color = color;
+
+        current_plane = current_plane->next;
+        obj_index++;
+    }
+}
+
+void init_light(t_var *var, t_map *map)
+{
+    int i = 0;
+    t_lights *current_light = map->lights;
+    var->num_lights = map->element_count->light;
+    var->test_light = malloc(var->num_lights * sizeof(t_light));
+    if (!var->test_light)
+    {
+        // Handle malloc failure (optional)
+        return;
+    }
+    while (current_light != NULL)
+    {
+        t_tuple position = point(current_light->x, current_light->y, current_light->z);
+        t_color intensity = t_color_create(current_light->r, current_light->b, current_light->g);
+        var->test_light[i] = light_create(position, intensity);
+        //var->test_light[i].direction = normalize((t_tuple){0.0f, -1.0f, 0.0f}); // Example direction pointing downwards
+        //var->test_light[i].cutoff_angle = 30.0f; // Example cutoff angle in degrees
+        i++;
+        current_light = current_light->next;
+    }
+}
+
+void init_ambient_color(t_var *var, t_map *map)
+{
+    t_color ambient = t_color_create(map->ambient->r,map->ambient->b,map->ambient->g);
+    var->ambientl = multiply_color_scalar(ambient,map->ambient->ratio);
+}

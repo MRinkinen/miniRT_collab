@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   structs_n_lists.c                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mrinkine <mrinkine@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/20 11:10:02 by tvalimak          #+#    #+#             */
-/*   Updated: 2024/09/16 15:26:51 by tvalimak         ###   ########.fr       */
+/*   Updated: 2024/10/14 14:43:31 by mrinkine         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -239,35 +239,35 @@ int terminate_data(t_map *map, t_var *var, char *error)
         cylinder = next_cylinder;
     }
     free(map);
-    // Free spheres
-    if (var->test_sphere)
-    {
-        for (int i = 0; i < var->num_spheres; i++)
-        {
-            free_sphere(&(var->test_sphere[i]));
-        }
-        free(var->test_sphere);
-        var->test_sphere = NULL; // Avoid dangling pointer
-    }
-    // Free planes
-    if (var->test_plane)
-    {
-        for (int i = 0; i < var->num_planes; i++)
-        {
-            free_plane(&(var->test_plane[i]));
-        }
-        free(var->test_plane);
-        var->test_plane = NULL;
-    }
-    // Free cylinders
-    if (var->test_cylinder)
-    {
-        for (int i = 0; i < var->num_cylinders; i++)
-        {
-            free_cylinder(&(var->test_cylinder[i]));
-        }
-        free(var->test_cylinder);
-        var->test_cylinder = NULL;
-    }
+    // // Free spheres
+    // if (var->test_sphere)
+    // {
+    //     for (int i = 0; i < var->num_spheres; i++)
+    //     {
+    //         free_sphere(&(var->test_sphere[i]));
+    //     }
+    //     free(var->test_sphere);
+    //     var->test_sphere = NULL; // Avoid dangling pointer
+    // }
+    // // Free planes
+    // if (var->test_plane)
+    // {
+    //     for (int i = 0; i < var->num_planes; i++)
+    //     {
+    //         free_plane(&(var->test_plane[i]));
+    //     }
+    //     free(var->test_plane);
+    //     var->test_plane = NULL;
+    // }
+    // // Free cylinders
+    // if (var->test_cylinder)
+    // {
+    //     for (int i = 0; i < var->num_cylinders; i++)
+    //     {
+    //         free_cylinder(&(var->test_cylinder[i]));
+    //     }
+    //     free(var->test_cylinder);
+    //     var->test_cylinder = NULL;
+    // }
     return (1);
 }

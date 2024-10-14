@@ -6,7 +6,7 @@
 /*   By: mrinkine <mrinkine@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/16 09:30:46 by mrinkine          #+#    #+#             */
-/*   Updated: 2024/09/10 14:05:07 by mrinkine         ###   ########.fr       */
+/*   Updated: 2024/10/14 15:01:31 by mrinkine         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,57 +22,59 @@ t_color color_add(t_color c1, t_color c2)
 	return (result);
 }
 
-// Multiplies each component of a color (vector) by a scalar
-t_color color_multiply_scalar(t_color c, float s)
+// Clamping function
+int clamp(int value, int min, int max)
 {
-	t_color result;
-
-	result.r = c.r * s;
-	result.g = c.g * s;
-	result.b = c.b * s;
-	return (result);
+    if (value < min) return min;
+    if (value > max) return max;
+    return value;
 }
 
+// Function to create a color with clamped values
 t_color t_color_create(float r, float g, float b)
 {
-	t_color result;
+    t_color color;
 
-	// result.r = fmax(0.0, fmin(1.0, r));
-    // result.g = fmax(0.0, fmin(1.0, g));
-    // result.b = fmax(0.0, fmin(1.0, b));
-
-    result.r =  r;
-    result.g =  g;
-    result.b = 	b;
-	return (result);
+    color.r = clamp(r, 0, 255);
+    color.g = clamp(g, 0, 255);
+    color.b = clamp(b, 0, 255);
+    return color;
 }
 
-t_color hadamard_product(t_color c1, t_color c2)
-{
-	t_color result;
+// t_color t_color_create(float r, float g, float b)
+// {
+// 	t_color result;
 
-	result.r = c1.r * c2.r;
-	result.g = c1.g * c2.g;
-	result.b = c1.b * c2.b;
-	return (result);
+// 	// result.r = fmax(0.0, fmin(1.0, r));
+//     // result.g = fmax(0.0, fmin(1.0, g));
+//     // result.b = fmax(0.0, fmin(1.0, b));
+
+//     result.r =  r;
+//     result.g =  g;
+//     result.b = 	b;
+// 	return (result);
+// }
+
+// // Function to add two colors
+// t_color add_colors(t_color c1, t_color c2)
+// {
+//     return (t_color){c1.r + c2.r, c1.g + c2.g, c1.b + c2.b};
+// }
+
+// Function to subtract two colors
+t_color subtract_colors(t_color c1, t_color c2)
+{
+    return (t_color){c1.r - c2.r, c1.g - c2.g, c1.b - c2.b};
 }
 
-t_color clamp_and_normalize_color(t_color color)
+// Function to multiply a color by a scalar
+t_color multiply_color_scalar(t_color c, double scalar)
 {
-	// Clamp the color values to the range [0.0, 1.0]
-	color.r = fmin(fmax(color.r, 0.0f), 1.0f);
-	color.g = fmin(fmax(color.g, 0.0f), 1.0f);
-	color.b = fmin(fmax(color.b, 0.0f), 1.0f);
+    return (t_color){c.r * scalar, c.g * scalar, c.b * scalar};
+}
 
-	// Calculate the magnitude of the color vector
-	float magnitude = sqrt(color.r * color.r + color.g * color.g + color.b * color.b);
-
-	// Normalize the color vector if its magnitude is greater than 1.0
-	if (magnitude > 1.0f)
-	{
-		color.r /= magnitude;
-		color.g /= magnitude;
-		color.b /= magnitude;
-	}
-	return color;
+// Function to multiply two colors (Hadamard product)
+t_color multiply_colors(t_color c1, t_color c2)
+{
+    return (t_color){c1.r * c2.r, c1.g * c2.g, c1.b * c2.b};
 }

@@ -80,29 +80,6 @@ typedef struct s_hit
 	t_color color;
 } t_hit;
 
-// struct hittable;
-// void set_face_normal(t_hit *rec, const t_ray *r, const t_vec3 *outward_normal);
-// typedef bool (*hit_func)(const struct hittable *, const t_ray *, float, float, t_hit *);
-
-// typedef struct hittable
-// {
-// 	hit_func hit;
-// } t_hittable;
-
-// typedef struct
-// {
-// 	t_hittable *objects[MAX_OBJECTS];
-// 	int size;
-// } hittable_list;
-
-// void hittable_list_init(hittable_list *list);
-// void hittable_list_clear(hittable_list *list);
-// void hittable_list_add(hittable_list *list, t_hittable *object);
-// // bool hittable_list_hit(const hittable_list *list, const t_ray *r, float tmin, float tmax, t_hit *rec);
-// bool hittable_list_hit(const hittable_list *list, const t_ray *r, float tmin, float tmax, t_hit *rec);
-
-/*Experimental*/
-
 typedef struct s_light
 {
     t_tuple position;    // Position of the light in the scene
@@ -240,76 +217,58 @@ int mlxinit(t_var *var, t_map *map);
 
 void printimage(void *param);
 
-// bool sphere_hit(const t_hittable *self, const t_ray *r, float tmin, float tmax, t_hit *rec);
-
-//t_sphere sphere_create(t_vec3 center, float radius, t_color col);
-//void hittable_init(t_hittable *h, hit_func func);
-
-// t_sphere sphere_create(t_vec3 center, float radius);
-
 int32_t ft_pixel(int32_t r, int32_t g, int32_t b, int32_t a);
 void write_color(t_color col, t_var *var, int x, int y);
-// void write_color(FILE* out, const t_vec3* pixel_color);
 
-/*Vector 3*/
-// float 	calculate_distance(t_vec3 vec_a, t_vec3 vec_b);
-// t_vec3 	t_vec3_create(float e0, float e1, float e2);
-// t_vec3 	t_vec3_multiply_scalar(const t_vec3 *v, float t);
-// t_vec3 	t_vec3_add_vectors(const t_vec3 *u, const t_vec3 *v);
-// t_vec3 	t_vec3_divide_scalar(const t_vec3 *v, float t);
-// t_vec3 	t_vec3_multiply_vectors(const t_vec3 *u, const t_vec3 *v);
-// t_vec3 	t_vec3_subtract_vectors(const t_vec3 *u, const t_vec3 *v);
-// float 	t_vec3_magnitude_squared(const t_vec3 *v);
-// float 	t_vec3_magnitude(const t_vec3 *v);
+/*Init*/
 
-// t_vec3 	*t_vec3_divide(t_vec3 *v, float t);
-// t_vec3 	*t_vec3_multiply(t_vec3 *v, float t);
-// t_vec3 	*t_vec3_add(t_vec3 *v, const t_vec3 *u);
+void initialize_scene(t_var *var, t_map *map);
+void init_light(t_var *var, t_map *map);
+void init_ambient_color(t_var *var, t_map *map);
 
-// float 	t_vec3_dot(const t_vec3 *u, const t_vec3 *v);
-// t_vec3 	t_vec3_cross(const t_vec3 *u, const t_vec3 *v);
-// t_vec3 	t_vec3_unit_vector(const t_vec3 *v);
 
-// t_vec3 	reflect_vector(t_vec3 v, t_vec3 n);
-// t_vec3 	normalize_vector(t_vec3 v);
 
-// t_vec3 	t_vec3_negate(const t_vec3 *vec);
+/*Color*/
 
-// void	t_vec3_print(const t_vec3 *vec);
+t_color color_add(t_color c1, t_color c2);
+t_color t_color_create(float r, float g, float b);
+t_color subtract_colors(t_color c1, t_color c2);
+t_color multiply_color_scalar(t_color c, double scalar);
+t_color multiply_colors(t_color c1, t_color c2);
 
-/* t_ray */
+bool intersect_object(const t_ray *ray, const t_object *object, float *t);
 
-// t_ray ray_create(const t_vec3 *origin, const t_vec3 *direction);
-// t_vec3 ray_origin(const t_ray *r);
-// t_vec3 ray_direction(const t_ray *r);
-// t_vec3 ray_at(const t_ray *r, float t);
+// bool ray_intersects_sphere(t_ray ray, t_sphere sphere, float *t);
+
+// t_vec3 calculate_intersection_point(t_ray ray, float t);
+
 
 /*Sphere*/
-//bool sphere_hit(const t_hittable *self, const t_ray *r, float tmin, float tmax, t_hit *rec);
-//bool cylinder_hit(const t_hittable *self, const t_ray *r, float tmin, float tmax, t_hit *rec);
-// bool sphere_hit(const t_hittable *self, const t_ray *ray, t_hit *rec, t_vec3 *intersection_point);
+t_sphere sphere_create(t_tuple center, float radius, t_color col);
+t_tuple calculate_sphere_normal(const t_sphere *sphere, const t_tuple *point);
+bool intersect_sphere(const t_ray *ray, const t_sphere *sphere, float *t);
 
-// float hit_sphere(const t_vec3 *center, float radius, const t_ray *r);
 
-// bool hit_sphere2(const t_vec3 center, float radius, const t_ray r);
+/*Cylinder*/
+t_cylinder cylinder_create(t_tuple center, float radius, float height, t_color color, t_tuple orientation);
+t_tuple calculate_cylinder_normal(const t_cylinder *cylinder, const t_tuple *point);
+bool intersect_cylinder(const t_ray *ray, const t_cylinder *cylinder, float *t);
 
-/*t_color*/
 
-t_color t_color_create(float r, float b, float g);
-t_color color_multiply_scalar(t_color c, float s);
-t_color color_add(t_color c1, t_color c2);
-t_color clamp_and_normalize_color(t_color color);
+/*Plane*/
+t_plane plane_create(t_tuple center, t_color color, t_tuple orientation);
+bool intersect_plane(const t_ray *ray, const t_plane *plane, float *t);
 
-bool ray_intersects_sphere(t_ray ray, t_sphere sphere, float *t);
 
-t_vec3 calculate_intersection_point(t_ray ray, float t);
+/*Light*/
+t_light *point_light(t_tuple position, t_color intensity, float brightness);
+t_light light_create(t_tuple position, t_color intensity);
+bool is_in_shadow(const t_tuple *point, const t_light *light, const t_object *objects, int num_objects) ;
+t_color calculate_phong_lighting(const t_tuple *point, const t_tuple *normal, const t_light *light, const t_color *object_color, const t_tuple *view_dir, const t_object *objects, int num_objects);
 
-/*Below is all the test_functions.h definitions*/
 
-t_ray         ray(t_tuple origin, t_tuple direction);
-t_tuple       position(t_ray r, double t);
-t_tuple       apply_transformation(t_matrix *transformation, t_tuple *point);
-t_tuple       matrix_to_tuple(t_matrix *m);
+
+/*Matrix*/
 t_matrix    *tuple_to_matrix(t_tuple *t);
 t_matrix    *shearing(float xy, float xz, float yx, float yz, float zx, float zy);
 t_matrix    *rotation_z(float radians);
@@ -319,10 +278,6 @@ t_matrix    *scaling(float x, float y, float z);
 t_matrix    *inverse_scaling(float x, float y, float z);
 t_matrix    *reflective_scaling(float x, float y, float z);
 t_matrix    *submatrix(const t_matrix *m, int remove_row, int remove_col);
-float       minor(const t_matrix *m, int row, int col);
-float       determinant(const t_matrix *m);
-float       determinant_2x2(const t_matrix *m);
-float       determinant_3x3(const t_matrix *m);
 t_matrix    *inverse(t_matrix *m);
 t_matrix    *inverse_translation(t_matrix *transform);
 t_matrix    *translation(float x, float y, float z);
@@ -338,21 +293,12 @@ t_matrix    *create_4x4_matrix(float a, float b, float c, float d,
                            float e, float f, float g, float h,
                            float i, float j, float k, float l,
                            float m, float n, float o, float p);
-float       t_matrix_get(t_matrix *m, int row, int col);
-bool        equal(double a, double b);
-t_tuple       tuple(double x, double y, double z, double w);
-//t_color       hadamard_product(t_color c1, t_color c2);
-bool        compare_colors(t_color c1, t_color c2);
-t_color       add_colors(t_color c1, t_color c2);
-t_color       subtract_colors(t_color c1, t_color c2);
-t_color       multiply_color_scalar(t_color c, double scalar);
-t_color       multiply_colors(t_color c1, t_color c2);
-void        print_color(t_color c);
-t_tuple       point(double x, double y, double z);
-t_tuple       vector(double x, double y, double z);
-bool        is_point(t_tuple t);
-bool        is_vector(t_tuple t);
-bool        tuple_equal(t_tuple t1, t_tuple t2);
+t_matrix* rotation_from_normal(t_tuple normal);
+
+/*Tuple*/
+t_tuple       position(t_ray r, double t);
+t_tuple       apply_transformation(t_matrix *transformation, t_tuple *point);
+t_tuple       matrix_to_tuple(t_matrix *m);
 t_tuple       tuple_add(t_tuple t1, t_tuple t2);
 t_tuple       tuple_subtract(t_tuple t1, t_tuple t2);
 t_tuple       subtract_vector_from_point(t_tuple point, t_tuple vector);
@@ -360,12 +306,46 @@ t_tuple       negate_vector(t_tuple v);
 t_tuple       negate_tuple(t_tuple t);
 t_tuple       tuple_multiply(t_tuple t, double scalar);
 t_tuple       tuple_divide(t_tuple t, double scalar);
-double      magnitude(t_tuple v);
-bool        magnitude_equal(t_tuple v, double expected_magnitude);
+t_tuple       point(double x, double y, double z);
+t_tuple       vector(double x, double y, double z);
+t_tuple       tuple(double x, double y, double z, double w);
 t_tuple       normalize(t_tuple v);
-double      dot(t_tuple a, t_tuple b);
 t_tuple       cross(t_tuple a, t_tuple b);
+
+
+
+/*Ray*/
+t_ray         ray(t_tuple origin, t_tuple direction);
+
+
+void        print_color(t_color c);
+
+bool        equal(double a, double b);
+bool        compare_colors(t_color c1, t_color c2);
+bool        is_point(t_tuple t);
+bool        is_vector(t_tuple t);
+bool        tuple_equal(t_tuple t1, t_tuple t2);
+
+float       minor(const t_matrix *m, int row, int col);
+float       determinant(const t_matrix *m);
+float       determinant_2x2(const t_matrix *m);
+float       determinant_3x3(const t_matrix *m);
+float       t_matrix_get(t_matrix *m, int row, int col);
+
+
+
+
+
+
+
+float      magnitude(t_tuple v);
+bool        magnitude_equal(t_tuple v, double expected_magnitude);
+
+float      dot(t_tuple a, t_tuple b);
+
 float       cofactor(const t_matrix *m, int row, int col);
 bool        is_invertible(t_matrix *m);
+
+
 
 #endif

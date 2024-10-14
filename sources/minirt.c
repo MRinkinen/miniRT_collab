@@ -6,7 +6,7 @@
 /*   By: mrinkine <mrinkine@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/15 12:02:26 by mrinkine          #+#    #+#             */
-/*   Updated: 2024/10/10 13:52:28 by mrinkine         ###   ########.fr       */
+/*   Updated: 2024/10/14 11:38:39 by mrinkine         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -1798,7 +1798,8 @@ bool intersect_cylinder(const t_ray *ray, const t_cylinder *cylinder, float *t)
     }
 }
 
-bool intersect_plane(const t_ray *ray, const t_plane *plane, float *t) {
+bool intersect_plane(const t_ray *ray, const t_plane *plane, float *t)
+{
     float denom = dot(plane->normal, ray->direction);
     if (fabs(denom) > 1e-6) { // Check if the ray is not parallel to the plane
         t_tuple p0l0 = tuple_subtract(plane->point, ray->origin);
@@ -1822,8 +1823,8 @@ bool intersect_object(const t_ray *ray, const t_object *object, float *t)
     {
         return intersect_plane(ray, &object->data.plane, t);
     }
-     else
-     {
+    else
+    {
         return false;
     }
 }
@@ -1844,9 +1845,9 @@ bool is_in_shadow(const t_tuple *point, const t_light *light, const t_object *ob
 
     return false;
 }
+
 t_color calculate_phong_lighting(const t_tuple *point, const t_tuple *normal, const t_light *light, const t_color *object_color, const t_tuple *view_dir, const t_object *objects, int num_objects)
 {
-
 
     t_color ambient = multiply_color_scalar(light->intensity, 0.1f); // Ambient component
 
@@ -1906,20 +1907,32 @@ void printimage(void *param) {
             t_tuple normal;
             t_color object_color;
             bool hit = false;
+            // t_object *closest_object = NULL;
+            // float closest_t;
 
-            for (int i = 0; i < var->num_objects; i++) {
-                if (intersect_object(&r, &var->objects[i], &t)) {
+            for (int i = 0; i < var->num_objects; i++)
+            {
+                if (intersect_object(&r, &var->objects[i], &t))
+                {
                     intersection_point = tuple_add(r.origin, tuple_multiply(r.direction, t));
                     normal = calculate_normal(&var->objects[i], &intersection_point);
-                    object_color = var->objects[i].data.cylinder.color; // Adjust based on object type
+                    if(var->objects[i].type ==  SPHERE)
+                        object_color = var->objects[i].data.sphere.color; // Adjust based on object type
+                    if(var->objects[i].type ==  CYLINDER)
+                        object_color = var->objects[i].data.cylinder.color;
+                    if(var->objects[i].type ==  PLANE)
+                        object_color = var->objects[i].data.plane.color;
                     hit = true;
                     break;
                 }
             }
 
             // Calculate lighting if an intersection was found
-            if (hit) {
+            if (hit)
+            {
                 t_tuple view_dir = normalize(tuple_subtract(var->cam.position, intersection_point));
+                //print_color_values(object_color);
+
                 pixel_color = calculate_phong_lighting(&intersection_point, &normal, &var->test_light[0], &object_color, &view_dir, var->objects, var->num_objects);
             }
 

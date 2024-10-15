@@ -81,7 +81,8 @@ void init_light(t_var *var, t_map *map)
     {
         t_tuple position = point(current_light->x, current_light->y, current_light->z);
         t_color intensity = t_color_create(current_light->r, current_light->b, current_light->g);
-        var->test_light[i] = light_create(position, intensity);
+        float brightness = current_light->ratio;
+        var->test_light[i] = light_create(position, intensity,brightness);
         //var->test_light[i].direction = normalize((t_tuple){0.0f, -1.0f, 0.0f}); // Example direction pointing downwards
         //var->test_light[i].cutoff_angle = 30.0f; // Example cutoff angle in degrees
         i++;

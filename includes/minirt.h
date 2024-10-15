@@ -231,10 +231,10 @@ void init_ambient_color(t_var *var, t_map *map);
 /*Color*/
 
 t_color color_add(t_color c1, t_color c2);
-t_color t_color_create(float r, float g, float b);
+t_color t_color_create(int r, int g, int b);
 t_color subtract_colors(t_color c1, t_color c2);
-t_color multiply_color_scalar(t_color c, double scalar);
-t_color multiply_colors(t_color c1, t_color c2);
+t_color multiply_color_scalar(t_color color, float scalar);
+t_color multiply_colors(t_color a, t_color b);
 
 bool intersect_object(const t_ray *ray, const t_object *object, float *t);
 
@@ -261,8 +261,8 @@ bool intersect_plane(const t_ray *ray, const t_plane *plane, float *t);
 
 
 /*Light*/
-t_light *point_light(t_tuple position, t_color intensity, float brightness);
-t_light light_create(t_tuple position, t_color intensity);
+//t_light *point_light(t_tuple position, t_color intensity, float brightness);
+t_light light_create(t_tuple position, t_color intensity, float brightness);
 bool is_in_shadow(const t_tuple *point, const t_light *light, const t_object *objects, int num_objects) ;
 t_color calculate_phong_lighting(const t_tuple *point, const t_tuple *normal, const t_light *light, const t_color *object_color, const t_tuple *view_dir, const t_object *objects, int num_objects);
 

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   setup_cylinder.c                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mrinkine <mrinkine@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/19 10:33:48 by tvalimak          #+#    #+#             */
-/*   Updated: 2024/10/09 19:31:31 by tvalimak         ###   ########.fr       */
+/*   Updated: 2024/10/15 14:49:32 by mrinkine         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,7 +54,7 @@ int	setup_cylinder(char **split, t_map *map)
 	if (new_cylinder == NULL)
 		return (0);
     printf("inside setup_cylinder 1\n");
-	new_cylinder->x = ft_atof(xyz[0]);
+	new_cylinder->x = -ft_atof(xyz[0]);
 	new_cylinder->y = -ft_atof(xyz[1]);
 	new_cylinder->z = ft_atof(xyz[2]);
 	new_cylinder->nx = ft_atof(nxyz[0]);

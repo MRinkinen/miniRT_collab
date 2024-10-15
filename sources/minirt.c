@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minirt.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mrinkine <mrinkine@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/15 12:02:26 by mrinkine          #+#    #+#             */
-/*   Updated: 2024/10/14 16:19:52 by tvalimak         ###   ########.fr       */
+/*   Updated: 2024/10/15 13:40:42 by mrinkine         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,58 +68,44 @@ t_tuple calculate_normal(const t_object *object, const t_tuple *point)
 void printimage(void *param) {
     t_var *var = param;
 
-    for (int y = 0; y < (int)var->image_height; y++)
-    {
-        for (int x = 0; x < SCREEN_WIDTH; x++)
-        {
-            float u = (float)x / (float)(SCREEN_WIDTH - 1);
-            float v = (float)y / (float)(var->image_height - 1);
-
-            // Calculate ray direction for each pixel
-            t_tuple ray_direction = normalize(tuple_subtract(
-                tuple_add(var->cam.lower_left_corner,
-                          tuple_add(tuple_multiply(var->cam.horizontal, u),
-                                    tuple_multiply(var->cam.vertical, v))),
-                var->cam.position));
-
-            t_ray r = ray(var->cam.position, ray_direction);
+    for (int y = 0; y < (int)var->image_height; y++) {
+        for (int x = 0; x < SCREEN_WIDTH; x++) {
+            t_ray r = generate_ray_for_pixel(x, y, SCREEN_WIDTH, var->image_height, &var->cam);
 
             // Initialize color to background color
             t_color pixel_color = var->ambientl;
 
             // Check for intersections with objects
-            //float t;
             t_tuple intersection_point;
             t_tuple normal;
             t_color object_color;
             bool hit = false;
-             // Find the closest intersection
+
+            // Find the closest intersection
             t_object *closest_object = NULL;
             float closest_t;
 
-            for (int i = 0; i < var->num_objects; i++)
-            {
-                if (find_closest_intersection(&r, var->objects, var->num_objects, &closest_object, &closest_t))
-                {
-                    intersection_point = tuple_add(r.origin, tuple_multiply(r.direction, closest_t));
-                    normal = calculate_normal(&var->objects[i], &intersection_point);
-                    if(closest_object->type ==  SPHERE)
-                        object_color = closest_object->data.sphere.color; // Adjust based on object type
-                    if(closest_object->type ==  CYLINDER)
-                        object_color = closest_object->data.cylinder.color;
-                    if(closest_object->type ==  PLANE)
-                        object_color = closest_object->data.plane.color;
-                    hit = true;
-                    break;
+            if (find_closest_intersection(&r, var->objects, var->num_objects, &closest_object, &closest_t)) {
+                intersection_point = tuple_add(r.origin, tuple_multiply(r.direction, closest_t));
+                normal = calculate_normal(closest_object, &intersection_point);
+
+                if (closest_object->type == SPHERE) {
+                    object_color = closest_object->data.sphere.color;
+                } else if (closest_object->type == CYLINDER) {
+                    object_color = closest_object->data.cylinder.color;
+                } else if (closest_object->type == PLANE) {
+                    object_color = closest_object->data.plane.color;
                 }
+
+                hit = true;
             }
+
             // Calculate lighting if an intersection was found
-            if (hit)
-            {
+            if (hit) {
                 t_tuple view_dir = normalize(tuple_subtract(var->cam.position, intersection_point));
                 pixel_color = calculate_phong_lighting(&intersection_point, &normal, &var->test_light[0], &object_color, &view_dir, var->objects, var->num_objects);
-                //print_color(pixel_color);
             }
+
             // Write the pixel color to the image
             write_color(pixel_color, var, x, y);
         }

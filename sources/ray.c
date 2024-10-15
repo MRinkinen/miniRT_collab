@@ -6,7 +6,7 @@
 /*   By: mrinkine <mrinkine@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/15 12:02:02 by mrinkine          #+#    #+#             */
-/*   Updated: 2024/10/14 13:30:09 by mrinkine         ###   ########.fr       */
+/*   Updated: 2024/10/15 13:34:06 by mrinkine         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,4 +19,19 @@ t_ray ray(t_tuple origin, t_tuple direction)
     new_ray.origin = origin;
     new_ray.direction = direction;
     return new_ray;
+}
+
+// Function to generate a ray for a given pixel
+t_ray generate_ray_for_pixel(int x, int y, int image_width, int image_height, t_cam *cam)
+{
+    float u = (float)x / (float)(image_width - 1);
+    float v = (float)y / (float)(image_height - 1);
+
+    t_tuple ray_direction = normalize(tuple_subtract(
+        tuple_add(cam->lower_left_corner,
+                  tuple_add(tuple_multiply(cam->horizontal, u),
+                            tuple_multiply(cam->vertical, v))),
+        cam->position));
+
+    return ray(cam->position, ray_direction);
 }

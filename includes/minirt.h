@@ -208,7 +208,6 @@ typedef struct s_var
 	t_object 	*objects;
 } t_var;
 
-void initialize_camera(t_var *var, t_cam *camera, t_map *map);
 
 /*MLX*/
 void ft_hook(void *param);
@@ -226,6 +225,9 @@ void initialize_scene(t_var *var, t_map *map);
 void init_light(t_var *var, t_map *map);
 void init_ambient_color(t_var *var, t_map *map);
 
+/*Camera*/
+
+void initialize_camera(t_var *var, t_cam *camera, t_map *map);
 
 
 /*Color*/
@@ -312,7 +314,8 @@ t_tuple       cross(t_tuple a, t_tuple b);
 
 
 /*Ray*/
-t_ray         ray(t_tuple origin, t_tuple direction);
+//t_ray         ray(t_tuple origin, t_tuple direction);
+t_ray generate_ray_for_pixel(int x, int y, int image_width, int image_height, t_cam *cam);
 
 
 void        print_color(t_color c);

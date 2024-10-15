@@ -6,7 +6,7 @@
 /*   By: mrinkine <mrinkine@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/15 12:02:26 by mrinkine          #+#    #+#             */
-/*   Updated: 2024/10/15 13:40:42 by mrinkine         ###   ########.fr       */
+/*   Updated: 2024/10/15 14:07:08 by mrinkine         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,7 +42,8 @@ bool find_closest_intersection(const t_ray *ray, t_object *objects, int num_obje
     for (int i = 0; i < num_objects; i++)
     {
         float t;
-        if (intersect_object(ray, &objects[i], &t) && t < *closest_t) {
+        if (intersect_object(ray, &objects[i], &t) && t < *closest_t && t > 0.001f)
+        {
             *closest_t = t;
             *closest_object = &objects[i];
             hit = true;

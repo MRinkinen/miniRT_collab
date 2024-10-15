@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   parsing_utils.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mrinkine <mrinkine@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/12 19:18:40 by tvalimak          #+#    #+#             */
-/*   Updated: 2024/10/08 15:55:14 by tvalimak         ###   ########.fr       */
+/*   Updated: 2024/10/15 14:25:47 by mrinkine         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -81,7 +81,7 @@ int	rgb_check(char *rgb, int min, int max)
 	return (1);
 }
 
-int pos_decimal_check(char *str) 
+int pos_decimal_check(char *str)
 {
     double value;
     char *c = str;
@@ -123,9 +123,9 @@ int	check_element_count(t_element_count *element_count, int flag)
 		return (0);
 	if (element_count->camera > 1)
 		return (0);
-	if (element_count->light > 3)
+	if (element_count->light > 1)
 		return (0);
-	if (element_count->sphere > 10)
+	if (element_count->sphere > 20)
 		return (0);
 	if (element_count->plane > 10)
 		return (0);

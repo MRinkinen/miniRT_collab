@@ -6,7 +6,7 @@
 /*   By: mrinkine <mrinkine@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/16 09:33:18 by mrinkine          #+#    #+#             */
-/*   Updated: 2024/10/15 13:41:05 by mrinkine         ###   ########.fr       */
+/*   Updated: 2024/10/15 13:53:28 by mrinkine         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,6 +29,10 @@ void write_color(t_color col, t_var *var, int x, int y)
     mlx_put_pixel(var->testimage, x, y, color);
 }
 
+void print_tuple(const char *label, t_tuple t) {
+    printf("%s: (%f, %f, %f)\n", label, t.x, t.y, t.z);
+}
+
 void initialize_camera(t_var *var, t_cam *camera, t_map *map)
 {
     float aspect_ratio = 16.0f / 9.0f;
@@ -41,19 +45,31 @@ void initialize_camera(t_var *var, t_cam *camera, t_map *map)
     t_tuple vup = point(0.0f, 1.0f, 0.0f);
 
     printf("FOV: %f degrees, Aspect Ratio: %f\n", map->camera->fov, aspect_ratio);
+    print_tuple("Look From", lookfrom);
+    print_tuple("Look At", lookat);
+    print_tuple("VUP", vup);
 
     var->cam.position = point(map->camera->x, map->camera->y, map->camera->z);
     camera->w = normalize(tuple_subtract(lookfrom, lookat));
     camera->u = normalize(cross(vup, camera->w));
     camera->v = cross(camera->w, camera->u);
 
+    print_tuple("Camera Position", var->cam.position);
+    print_tuple("Camera W", camera->w);
+    print_tuple("Camera U", camera->u);
+    print_tuple("Camera V", camera->v);
+
     camera->lower_left_corner = tuple_subtract(
         tuple_subtract(
-            tuple_subtract(camera->position, tuple_multiply(camera->u, half_width)),
+            tuple_subtract(var->cam.position, tuple_multiply(camera->u, half_width)),
             tuple_multiply(camera->v, half_height)),
         camera->w);
     camera->horizontal = tuple_multiply(camera->u, 2 * half_width);
     camera->vertical = tuple_multiply(camera->v, 2 * half_height);
+
+    print_tuple("Lower Left Corner", camera->lower_left_corner);
+    print_tuple("Horizontal", camera->horizontal);
+    print_tuple("Vertical", camera->vertical);
 }
 
 bool check_cap(t_ray ray, float t)

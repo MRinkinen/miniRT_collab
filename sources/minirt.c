@@ -6,7 +6,7 @@
 /*   By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/15 12:02:26 by mrinkine          #+#    #+#             */
-/*   Updated: 2024/10/14 16:19:52 by tvalimak         ###   ########.fr       */
+/*   Updated: 2024/10/15 18:59:18 by tvalimak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -135,6 +135,10 @@ void free_scene(t_var *var)
         var->objects = NULL;
     }
 }
+
+// fix the orientations
+// check that is there fish-eyeing
+// norm-proof stuff
 
 int main(int argc, char **argv)
 {

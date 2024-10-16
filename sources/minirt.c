@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minirt.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mrinkine <mrinkine@student.42.fr>          +#+  +:+       +#+        */
+/*   By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/15 12:02:26 by mrinkine          #+#    #+#             */
-/*   Updated: 2024/10/15 18:59:18 by tvalimak         ###   ########.fr       */
+/*   Updated: 2024/10/16 13:53:56 by tvalimak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -89,7 +89,6 @@ void printimage(void *param) {
             if (find_closest_intersection(&r, var->objects, var->num_objects, &closest_object, &closest_t)) {
                 intersection_point = tuple_add(r.origin, tuple_multiply(r.direction, closest_t));
                 normal = calculate_normal(closest_object, &intersection_point);
-
                 if (closest_object->type == SPHERE) {
                     object_color = closest_object->data.sphere.color;
                 } else if (closest_object->type == CYLINDER) {
@@ -97,16 +96,13 @@ void printimage(void *param) {
                 } else if (closest_object->type == PLANE) {
                     object_color = closest_object->data.plane.color;
                 }
-
                 hit = true;
             }
-
             // Calculate lighting if an intersection was found
             if (hit) {
                 t_tuple view_dir = normalize(tuple_subtract(var->cam.position, intersection_point));
                 pixel_color = calculate_phong_lighting(&intersection_point, &normal, &var->test_light[0], &object_color, &view_dir, var->objects, var->num_objects);
             }
-
             // Write the pixel color to the image
             write_color(pixel_color, var, x, y);
         }

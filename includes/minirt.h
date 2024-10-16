@@ -22,6 +22,7 @@
 #define EPSILON 0.00001
 
 typedef struct s_map	t_map;
+typedef struct s_cylinders t_cylinders;
 
 typedef struct
 {
@@ -252,7 +253,8 @@ bool intersect_sphere(const t_ray *ray, const t_sphere *sphere, float *t);
 
 
 /*Cylinder*/
-t_cylinder cylinder_create(t_tuple center, float radius, float height, t_color color, t_tuple orientation);
+t_cylinder cylinder_create(t_var *var, t_map *map, int obj_index, t_cylinders *current_cylinder);
+//t_cylinder cylinder_create(t_tuple center, float radius, float height, t_color color, t_tuple orientation);
 t_tuple calculate_cylinder_normal(const t_cylinder *cylinder, const t_tuple *point);
 bool intersect_cylinder(const t_ray *ray, const t_cylinder *cylinder, float *t);
 

@@ -6,7 +6,7 @@
 /*   By: mrinkine <mrinkine@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/15 12:02:02 by mrinkine          #+#    #+#             */
-/*   Updated: 2024/10/15 13:34:06 by mrinkine         ###   ########.fr       */
+/*   Updated: 2024/10/16 18:34:09 by mrinkine         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,23 +15,23 @@
 // Function to create a new ray given an origin and a direction
 t_ray ray(t_tuple origin, t_tuple direction)
 {
-    t_ray new_ray;
-    new_ray.origin = origin;
-    new_ray.direction = direction;
-    return new_ray;
+    t_ray ray;
+    ray.origin = origin;
+    ray.direction = direction;
+    return (ray);
 }
 
 // Function to generate a ray for a given pixel
-t_ray generate_ray_for_pixel(int x, int y, int image_width, int image_height, t_cam *cam)
+t_ray generate_ray_for_pixel(t_var *var, int x, int y)
 {
-    float u = (float)x / (float)(image_width - 1);
-    float v = (float)y / (float)(image_height - 1);
+    float u = (float)x / (float)(SCREEN_WIDTH - 1);
+    float v = (float)y / (float)(var->image_height - 1);
 
     t_tuple ray_direction = normalize(tuple_subtract(
-        tuple_add(cam->lower_left_corner,
-                  tuple_add(tuple_multiply(cam->horizontal, u),
-                            tuple_multiply(cam->vertical, v))),
-        cam->position));
+        tuple_add(var->cam.lower_left_corner,
+                  tuple_add(tuple_multiply(var->cam.horizontal, u),
+                            tuple_multiply(var->cam.vertical, v))),
+        var->cam.position));
 
-    return ray(cam->position, ray_direction);
+    return ray(var->cam.position, ray_direction);
 }

@@ -314,8 +314,8 @@ t_tuple       cross(t_tuple a, t_tuple b);
 
 
 /*Ray*/
-//t_ray         ray(t_tuple origin, t_tuple direction);
-t_ray generate_ray_for_pixel(int x, int y, int image_width, int image_height, t_cam *cam);
+t_ray         ray(t_tuple origin, t_tuple direction);
+t_ray generate_ray_for_pixel(t_var *var, int x, int y);
 
 
 void        print_color(t_color c);

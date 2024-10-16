@@ -96,10 +96,10 @@ t_color calculate_phong_lighting(const t_tuple *point, const t_tuple *normal, co
     t_color specular = multiply_color_scalar(light->intensity, spec); // Specular component
 
     t_color final_color = multiply_colors(*object_color, ambient);
-    if (!is_in_shadow(point, light, objects, num_objects)) {
+    if (!is_in_shadow(point, light, objects, num_objects)) 
+    {
         final_color = color_add(final_color, multiply_colors(*object_color, diffuse));
         final_color = color_add(final_color, specular);
     }
-
     return final_color;
 }

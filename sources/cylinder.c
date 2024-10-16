@@ -40,7 +40,7 @@ t_tuple calculate_cylinder_normal(const t_cylinder *cylinder, const t_tuple *poi
 
 bool intersect_cylinder(const t_ray *ray, const t_cylinder *cylinder, float *t)
 {
-    // Cylinder's axis is assumed to be aligned with the y-axis
+    // Cylinder's axis is aligned with the y-axis
     t_tuple oc = tuple_subtract(ray->origin, cylinder->center);
     t_tuple direction = ray->direction;
     t_tuple axis = {0, 1, 0, 1}; // y-axis Kumpi pitaa olla?? 1 vai 0 !!!!!!!!!!!!
@@ -64,11 +64,12 @@ bool intersect_cylinder(const t_ray *ray, const t_cylinder *cylinder, float *t)
         }
 
         // Check if the intersection points are within the height of the cylinder
+        float half_height = cylinder->height / 2.0;
         float y0 = ray->origin.y + t0 * ray->direction.y;
         float y1 = ray->origin.y + t1 * ray->direction.y;
 
-        if (y0 < cylinder->center.y || y0 > cylinder->center.y + cylinder->height) {
-            if (y1 < cylinder->center.y || y1 > cylinder->center.y + cylinder->height) {
+        if (y0 < cylinder->center.y - half_height || y0 > cylinder->center.y + half_height) {
+            if (y1 < cylinder->center.y - half_height || y1 > cylinder->center.y + half_height) {
                 return false;
             } else {
                 *t = t1;

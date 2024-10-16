@@ -6,7 +6,7 @@
 /*   By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/20 11:19:13 by tvalimak          #+#    #+#             */
-/*   Updated: 2024/10/09 14:10:55 by tvalimak         ###   ########.fr       */
+/*   Updated: 2024/10/15 18:34:20 by tvalimak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,6 +75,13 @@ int xyz_check(char *str)
     int     i;
 
     i = 0;
+    while (str[i + 1] != '\0')
+        i++;
+    if (str[i] == ',')
+    {
+        printf("returning 0 from xyz check -1\n");
+        return (0);
+    }
     split = ft_split(str, ',');
     if (!split[0] || !split[1] || !split[2] || split[3])
     {
@@ -82,6 +89,7 @@ int xyz_check(char *str)
         return (free_split(split));
     }
     printf("%s\n%s\n%s\n%s", split[0], split[1], split[2], split[3]);
+    i = 0;
     while (split[i])
     {
         if (decimal_check(split[i], -10000, 10000) == 0)
@@ -116,6 +124,13 @@ int vectors_check(char *str)
     double x, y, z;
 
     i = 0;
+    while (str[i + 1] != '\0')
+        i++;
+    if (str[i] == ',')
+    {
+        printf("returning 0 from xyz check -1\n");
+        return (0);
+    }
     split = ft_split(str, ',');
     if (!split[0] || !split[1] || !split[2] || split[3])
     {
@@ -131,6 +146,7 @@ int vectors_check(char *str)
         printf("returning 0 from vectors check (zero vector)\n");
         return (free_split(split));
     }
+    i = 0;
     while (split[i])
     {
         if (decimal_check(split[i], -1, 1) == 0)
@@ -144,27 +160,3 @@ int vectors_check(char *str)
     printf("returning 1 from vectors check\n");
     return (1);
 }
-
-/*
-The old function
-int vectors_check(char *str)
-{
-    int i;
-    char **split;
-
-    i = 0;
-    split = ft_split(str, ',');
-    printf("%s\n%s\n%s\n", split[0], split[1], split[2]);
-    while (split[i])
-    {
-        if (decimal_check(split[i], -1, 1) == 0)
-        {
-            printf("returning 0 from vectors_check 0\n");
-            return (free_split(split));
-        }
-        i++;
-    }
-    free_split(split);
-    printf("returning 1 from vectors_check\n");
-    return (1);
-}*/

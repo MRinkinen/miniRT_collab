@@ -1,9 +1,9 @@
 NAME = miniRT
 SOURCES = $(addprefix $(SRC_DIR)/, \
-minirt.c vector3.c functions.c ray.c color.c mlxfunctions.c parse.c parsing_utils_2.c parsing_utils.c \
+minirt.c vector3.c functions.c ray.c color.c mlxfunctions.c parsing_utils_2.c parsing_utils.c \
 setup_ambient.c setup_camera.c setup_cylinder.c setup_light.c setup_plane.c setup_sphere.c structs_n_lists.c \
 validate_ambient.c validate_camera.c validate_cylinder.c validate_light.c validate_plane.c validate_sphere.c \
-plane.c cylinder.c sphere.c light.c init.c)
+plane.c cylinder.c sphere.c light.c init.c parse.c)
 #SOURCES_BONUS = $(addprefix $(SRC_BON_DIR)/, \
 #sz_long_bonus.c checkfunctions_bonus.c enemy_bonus.c enemymove_bonus.c vortex_bonus.c input_bonus.c moveplayer_bonus.c world_functions_bonus.c help_functions_bonus.c player_functions_bonus.c wall_functions_bonus.c collectable_functions_bonus.c ground_functions_bonus.c levelend_functions_bonus.c)
 

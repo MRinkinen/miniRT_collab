@@ -37,6 +37,7 @@ void initialize_scene(t_var *var, t_map *map)
         float radius = current_cylinder->diameter / 2.0f; // Assuming diameter is provided
         float height = current_cylinder->height;
         t_color color = t_color_create(current_cylinder->r, current_cylinder->g, current_cylinder->b);
+        t_tuple orientation = normalize(vector(current_cylinder->nx, current_cylinder->ny, current_cylinder->nz));
 
         var->objects[obj_index].type = CYLINDER;
         var->objects[obj_index].data.cylinder.center = center;

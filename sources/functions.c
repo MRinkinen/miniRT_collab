@@ -6,7 +6,7 @@
 /*   By: mrinkine <mrinkine@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/16 09:33:18 by mrinkine          #+#    #+#             */
-/*   Updated: 2024/10/15 13:53:28 by mrinkine         ###   ########.fr       */
+/*   Updated: 2024/10/16 12:45:35 by tvalimak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -800,7 +800,7 @@ t_tuple normalize(t_tuple v)
         // Handling the case where magnitude is zero (though it's not expected for valid vectors)
         return vector(0, 0, 0);
     }
-    return vector(v.x / mag, v.y / mag, v.z / mag);
+    return (vector(v.x / mag, v.y / mag, v.z / mag));
 }
 
 // Function to compute the dot product of two vectors

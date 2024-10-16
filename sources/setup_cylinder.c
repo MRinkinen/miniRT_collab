@@ -3,7 +3,7 @@
 /*                                                        :::      ::::::::   */
 /*   setup_cylinder.c                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mrinkine <mrinkine@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/19 10:33:48 by tvalimak          #+#    #+#             */
 /*   Updated: 2024/10/16 12:12:59 by tvalimak         ###   ########.fr       */

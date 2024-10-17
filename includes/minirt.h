@@ -135,7 +135,7 @@ typedef struct s_cam
 	t_tuple vertical;
 	t_tuple lower_left_corner;
 
-	t_tuple u, v, w;
+	t_tuple u, v, w; // Camera basis vectors
     float lens_radius;
 } t_cam;
 

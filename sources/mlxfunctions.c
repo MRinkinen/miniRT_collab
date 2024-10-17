@@ -6,11 +6,22 @@
 /*   By: mrinkine <mrinkine@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/16 09:33:08 by mrinkine          #+#    #+#             */
-/*   Updated: 2024/10/17 14:17:12 by mrinkine         ###   ########.fr       */
+/*   Updated: 2024/10/17 16:12:58 by mrinkine         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/minirt.h"
+
+int32_t ft_pixel(int32_t r, int32_t g, int32_t b, int32_t a)
+{
+    return (r << 24 | g << 16 | b << 8 | a);
+}
+
+void write_color(t_color col, t_var *var, int x, int y)
+{
+    int color = ft_pixel(col.r, col.b, col.g, 255);
+    mlx_put_pixel(var->screenimage, x, y, color);
+}
 
 void ft_hook(void *param)
 {

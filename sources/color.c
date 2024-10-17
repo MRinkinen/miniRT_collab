@@ -6,7 +6,7 @@
 /*   By: mrinkine <mrinkine@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/16 09:30:46 by mrinkine          #+#    #+#             */
-/*   Updated: 2024/10/16 17:47:54 by mrinkine         ###   ########.fr       */
+/*   Updated: 2024/10/17 17:12:34 by mrinkine         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,7 +40,7 @@ t_color color_add(t_color c1, t_color c2)
     result.r = clamp(c1.r + c2.r, 0, 255);
     result.g = clamp(c1.g + c2.g, 0, 255);
     result.b = clamp(c1.b + c2.b, 0, 255);
-    return (result);
+    return  (result);
 }
 
 // Function to multiply a color by a scalar with clamping
@@ -51,7 +51,7 @@ t_color multiply_color_scalar(t_color color, float scalar)
     result.r = clamp((int)(color.r * scalar), 0, 255);
     result.g = clamp((int)(color.g * scalar), 0, 255);
     result.b = clamp((int)(color.b * scalar), 0, 255);
-    return (result);
+    return  (result);
 }
 
 // Function to multiply two colors with clamping

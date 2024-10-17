@@ -6,54 +6,29 @@
 /*   By: mrinkine <mrinkine@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/16 09:33:18 by mrinkine          #+#    #+#             */
-/*   Updated: 2024/10/17 14:14:41 by mrinkine         ###   ########.fr       */
+/*   Updated: 2024/10/17 16:22:22 by mrinkine         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/minirt.h"
 
-int32_t ft_pixel(int32_t r, int32_t g, int32_t b, int32_t a)
-{
-    return (r << 24 | g << 16 | b << 8 | a);
-}
-
-void write_color(t_color col, t_var *var, int x, int y)
-{
-    int color = ft_pixel(col.r, col.b, col.g, 255);
-    mlx_put_pixel(var->screenimage, x, y, color);
-}
-
-void print_tuple(const char *label, t_tuple t)
-{
-    printf("%s: (%f, %f, %f)\n", label, t.x, t.y, t.z);
-}
-
 void initialize_camera(t_var *var, t_cam *camera, t_map *map)
 {
-    //float aspect_ratio = 16.0f / 9.0f;
-    float theta = map->camera->fov * (PI / 180.0f);
-    float half_height = tan(theta / 2);
-    float half_width = var->cam.aspect_ratio  * half_height;
+    float half_height;
+    float half_width;
+    t_tuple lookfrom;
+    t_tuple lookat;
+    t_tuple vup; // Assume the up vector is always (0, 1, 0)
 
-    t_tuple lookfrom = point(map->camera->x, map->camera->y, map->camera->z);
-    t_tuple lookat = point(map->camera->nx, map->camera->ny, map->camera->nz);
-    t_tuple vup = point(0.0f, 1.0f, 0.0f);
-
-    printf("FOV: %f degrees, Aspect Ratio: %f\n", map->camera->fov, var->cam.aspect_ratio);
-    print_tuple("Look From", lookfrom);
-    print_tuple("Look At", lookat);
-    print_tuple("VUP", vup);
-
+    half_height = tan(map->camera->fov * (PI / 180.0f) / 2);
+    half_width = var->cam.aspect_ratio  * half_height;
+    lookfrom = point(map->camera->x, map->camera->y, map->camera->z);
+    lookat = point(map->camera->nx, map->camera->ny, map->camera->nz);
+    vup = vector(0.0f, 1.0f, 0.0f);
     var->cam.position = point(map->camera->x, map->camera->y, map->camera->z);
     camera->w = normalize(tuple_subtract(lookfrom, lookat));
     camera->u = normalize(cross(vup, camera->w));
     camera->v = cross(camera->w, camera->u);
-
-    print_tuple("Camera Position", var->cam.position);
-    print_tuple("Camera W", camera->w);
-    print_tuple("Camera U", camera->u);
-    print_tuple("Camera V", camera->v);
-
     camera->lower_left_corner = tuple_subtract(
         tuple_subtract(
             tuple_subtract(var->cam.position, tuple_multiply(camera->u, half_width)),
@@ -61,18 +36,14 @@ void initialize_camera(t_var *var, t_cam *camera, t_map *map)
         camera->w);
     camera->horizontal = tuple_multiply(camera->u, 2 * half_width);
     camera->vertical = tuple_multiply(camera->v, 2 * half_height);
-
-    print_tuple("Lower Left Corner", camera->lower_left_corner);
-    print_tuple("Horizontal", camera->horizontal);
-    print_tuple("Vertical", camera->vertical);
 }
 
-bool check_cap(t_ray ray, float t)
-{
-    float x = ray.origin.x + t * ray.direction.x;
-    float z = ray.origin.z + t * ray.direction.z;
-    return (x * x + z * z) <= 1.0f; // Assuming radius is 1 in local space
-}
+// bool check_cap(t_ray ray, float t)
+// {
+//     float x = ray.origin.x + t * ray.direction.x;
+//     float z = ray.origin.z + t * ray.direction.z;
+//     return (x * x + z * z) <= 1.0f; // Assuming radius is 1 in local space
+// }
 
 t_matrix* rotation_around_axis(t_tuple axis, float angle)
 {
@@ -197,22 +168,6 @@ t_matrix *tuple_to_matrix(t_tuple *t)
 
     return m;
 }
-/*
-// Function to create a shearing matrix
-t_matrix* shearing(float xy, float xz, float yx, float yz, float zx, float zy)
-{
-    t_matrix* shear = identity_matrix(); // Initialize as identity matrix
-
-    // Set the shearing components
-    shear->data[0][1] = xy;
-    shear->data[0][2] = xz;
-    shear->data[1][0] = yx;
-    shear->data[1][2] = yz;
-    shear->data[2][0] = zx;
-    shear->data[2][1] = zy;
-
-    return shear;
-}*/
 
 // Function to create a rotation matrix around the Z-axis
 t_matrix *rotation_z(float radians)

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   functions.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mrinkine <mrinkine@student.42.fr>          +#+  +:+       +#+        */
+/*   By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/16 09:33:18 by mrinkine          #+#    #+#             */
-/*   Updated: 2024/10/16 12:45:35 by tvalimak         ###   ########.fr       */
+/*   Updated: 2024/10/17 17:20:19 by tvalimak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -171,7 +171,7 @@ t_tuple position(t_ray r, double t)
 }
 
 // Multiplies a transformation matrix by a tuple and returns the transformed tuple
-t_tuple apply_transformation(t_matrix *transformation, t_tuple *point)
+t_tuple apply_transformation(t_matrix *transformation, const t_tuple *point)
 {
     t_matrix *point_matrix = tuple_to_matrix(point);
     t_matrix *transformed_matrix = t_matrix_multiply(transformation, point_matrix);
@@ -180,6 +180,17 @@ t_tuple apply_transformation(t_matrix *transformation, t_tuple *point)
     free(transformed_matrix);
     return transformed_point;
 }
+/*
+// Multiplies a transformation matrix by a tuple and returns the transformed tuple
+t_tuple apply_transformation(t_matrix *transformation, t_tuple *point)
+{
+    t_matrix *point_matrix = tuple_to_matrix(point);
+    t_matrix *transformed_matrix = t_matrix_multiply(transformation, point_matrix);
+    t_tuple transformed_point = matrix_to_tuple(transformed_matrix);
+    free(point_matrix);
+    free(transformed_matrix);
+    return transformed_point;
+}*/
 
 // Function to convert the first column of a 4x4 matrix back to a t_tuple
 t_tuple matrix_to_tuple(t_matrix *m)
@@ -226,8 +237,8 @@ t_matrix *rotation_z(float radians)
 
     // Set the rotation components
     rotation->data[0][0] = cos(radians);
-    rotation->data[0][1] = -sin(radians);
-    rotation->data[1][0] = sin(radians);
+    rotation->data[0][1] = sin(radians);
+    rotation->data[1][0] = -sin(radians);
     rotation->data[1][1] = cos(radians);
 
     return rotation;
@@ -240,8 +251,8 @@ t_matrix* rotation_y(float radians)
 
     // Set the rotation components
     transform->data[0][0] = cos(radians);
-    transform->data[0][2] = sin(radians);
-    transform->data[2][0] = -sin(radians);
+    transform->data[0][2] = -sin(radians);
+    transform->data[2][0] = sin(radians);
     transform->data[2][2] = cos(radians);
 
     return transform;
@@ -254,8 +265,8 @@ t_matrix *rotation_x(float radians)
 
     // Set the rotation components for the X axis
     transform->data[1][1] = cos(radians);
-    transform->data[1][2] = -sin(radians);
-    transform->data[2][1] = sin(radians);
+    transform->data[1][2] = sin(radians);
+    transform->data[2][1] = -sin(radians);
     transform->data[2][2] = cos(radians);
 
     return transform;

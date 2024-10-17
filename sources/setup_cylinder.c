@@ -6,7 +6,7 @@
 /*   By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/19 10:33:48 by tvalimak          #+#    #+#             */
-/*   Updated: 2024/10/16 18:35:23 by tvalimak         ###   ########.fr       */
+/*   Updated: 2024/10/17 18:28:03 by tvalimak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,7 +58,7 @@ int	setup_cylinder(char **split, t_map *map)
 	new_cylinder->y = -ft_atof(xyz[1]);
 	new_cylinder->z = ft_atof(xyz[2]);
 	new_cylinder->nx = ft_atof(nxyz[0]);
-	new_cylinder->ny = -ft_atof(nxyz[1]);
+	new_cylinder->ny = ft_atof(nxyz[1]);
 	new_cylinder->nz = ft_atof(nxyz[2]);
 	new_cylinder->r = ft_atoi(rgb[0]);
     new_cylinder->g = ft_atoi(rgb[1]);

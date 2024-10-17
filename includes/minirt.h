@@ -24,6 +24,13 @@
 typedef struct s_map	t_map;
 typedef struct s_cylinders t_cylinders;
 
+typedef struct s_quad_coeffs
+{
+    float a;
+    float b;
+    float c;
+} t_quad_coeffs;
+
 typedef struct
 {
     int rows;
@@ -209,6 +216,8 @@ typedef struct s_var
 	t_object 	*objects;
 } t_var;
 
+void print_matrix(t_matrix *matrix);
+
 
 /*MLX*/
 void ft_hook(void *param);
@@ -298,7 +307,8 @@ t_matrix* 	rotation_from_normal(t_tuple normal);
 
 /*Tuple*/
 t_tuple       position(t_ray r, double t);
-t_tuple       apply_transformation(t_matrix *transformation, t_tuple *point);
+//t_tuple       apply_transformation(t_matrix *transformation, t_tuple *point);
+t_tuple 	  apply_transformation(t_matrix *transformation, const t_tuple *point);
 t_tuple       matrix_to_tuple(t_matrix *m);
 t_tuple       tuple_add(t_tuple t1, t_tuple t2);
 t_tuple       tuple_subtract(t_tuple t1, t_tuple t2);

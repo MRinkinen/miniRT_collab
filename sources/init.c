@@ -39,6 +39,11 @@ void initialize_scene(t_var *var, t_map *map)
         float radius = current_cylinder->diameter / 2.0f; // Assuming diameter is provided
         float height = current_cylinder->height;
         t_color color = t_color_create(current_cylinder->r, current_cylinder->g, current_cylinder->b);
+        printf("radius %f \n", radius);
+        printf("height %f \n", height);
+
+        //print_matrix(var->objects[obj_index].data.cylinder.transform);
+        //print_matrix(var->objects[obj_index].data.cylinder.inverse_transform);
 
         printf("Inside cylinder loop 2 \n");
         // Initialize transformation matrices
@@ -48,7 +53,8 @@ void initialize_scene(t_var *var, t_map *map)
 
         printf("Inside cylinder loop 3 \n");
         // Combine transformations into one matrix
-        var->objects[obj_index].data.cylinder.transform = t_matrix_multiply(t_matrix_multiply(var->objects[obj_index].data.cylinder.translation_matrix, var->objects[obj_index].data.cylinder.rotation_matrix), var->objects[obj_index].data.cylinder.scaling_matrix);
+        var->objects[obj_index].data.cylinder.transform = t_matrix_multiply(t_matrix_multiply(var->objects[obj_index].data.cylinder.scaling_matrix, var->objects[obj_index].data.cylinder.rotation_matrix), var->objects[obj_index].data.cylinder.translation_matrix);
+        //var->objects[obj_index].data.cylinder.transform = t_matrix_multiply(t_matrix_multiply(var->objects[obj_index].data.cylinder.translation_matrix, var->objects[obj_index].data.cylinder.rotation_matrix), var->objects[obj_index].data.cylinder.scaling_matrix);
 
         printf("Inside cylinder loop 5 \n");
         // Calculate the inverse transform for ray-cylinder intersection calculations
@@ -60,7 +66,7 @@ void initialize_scene(t_var *var, t_map *map)
         var->objects[obj_index].data.cylinder.radius = radius;
         var->objects[obj_index].data.cylinder.height = height;
         var->objects[obj_index].data.cylinder.color = color;
-        var->objects[obj_index].data.cylinder.normal = orientation;
+        var->objects[obj_index].data.cylinder.orientation = orientation;
 
         current_cylinder = current_cylinder->next;
         obj_index++;

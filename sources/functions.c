@@ -6,13 +6,12 @@
 /*   By: mrinkine <mrinkine@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/16 09:33:18 by mrinkine          #+#    #+#             */
-/*   Updated: 2024/10/16 12:45:35 by tvalimak         ###   ########.fr       */
+/*   Updated: 2024/10/17 14:14:41 by mrinkine         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/minirt.h"
 
-// using color = t_vec3;
 int32_t ft_pixel(int32_t r, int32_t g, int32_t b, int32_t a)
 {
     return (r << 24 | g << 16 | b << 8 | a);
@@ -20,31 +19,27 @@ int32_t ft_pixel(int32_t r, int32_t g, int32_t b, int32_t a)
 
 void write_color(t_color col, t_var *var, int x, int y)
 {
-    // Translate the [0,1] component values to the byte range [0,255].
-    // int ir = (int)(255.999 * col.r);
-    // int ig = (int)(255.999 * col.b);
-    // int ib = (int)(255.999 * col.g);
-    //printf("R %f G %f B %f \n", col.r, col.b, col.g);
     int color = ft_pixel(col.r, col.b, col.g, 255);
-    mlx_put_pixel(var->testimage, x, y, color);
+    mlx_put_pixel(var->screenimage, x, y, color);
 }
 
-void print_tuple(const char *label, t_tuple t) {
+void print_tuple(const char *label, t_tuple t)
+{
     printf("%s: (%f, %f, %f)\n", label, t.x, t.y, t.z);
 }
 
 void initialize_camera(t_var *var, t_cam *camera, t_map *map)
 {
-    float aspect_ratio = 16.0f / 9.0f;
+    //float aspect_ratio = 16.0f / 9.0f;
     float theta = map->camera->fov * (PI / 180.0f);
     float half_height = tan(theta / 2);
-    float half_width = aspect_ratio * half_height;
+    float half_width = var->cam.aspect_ratio  * half_height;
 
     t_tuple lookfrom = point(map->camera->x, map->camera->y, map->camera->z);
     t_tuple lookat = point(map->camera->nx, map->camera->ny, map->camera->nz);
     t_tuple vup = point(0.0f, 1.0f, 0.0f);
 
-    printf("FOV: %f degrees, Aspect Ratio: %f\n", map->camera->fov, aspect_ratio);
+    printf("FOV: %f degrees, Aspect Ratio: %f\n", map->camera->fov, var->cam.aspect_ratio);
     print_tuple("Look From", lookfrom);
     print_tuple("Look At", lookat);
     print_tuple("VUP", vup);
@@ -841,7 +836,8 @@ t_tuple ray_at(t_ray ray, float t)
 }
 
 // Function to convert degrees to radians
-float degrees_to_radians(float degrees) {
+float degrees_to_radians(float degrees)
+{
     return degrees * (PI / 180.0f);
 }
 

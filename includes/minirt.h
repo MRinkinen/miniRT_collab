@@ -64,29 +64,11 @@ typedef struct s_color
 	float b;
 } t_color;
 
-typedef struct s_vec
-{
-	float x;
-	float y;
-	float z;
-} t_vec3;
-
-typedef struct s_hit
-{
-	t_vec3 p;
-	t_vec3 normal;
-	float t;
-	bool front_face;
-	t_color color;
-} t_hit;
-
 typedef struct s_light
 {
     t_tuple position;    // Position of the light in the scene
-    t_color intensity;   // Intensity (color) of the light
+    t_color color;   // Intensity (color) of the light
     float brightness;    // Brightness ratio in the range [0.0, 1.0]
-	float cutoff_angle; // in degrees
-	t_tuple direction;
 } t_light;
 
 typedef struct s_plane
@@ -101,7 +83,6 @@ typedef struct s_plane
 	t_tuple	  center;
 	t_tuple   orientation;
 	t_tuple   point;
-    //t_tuple (*local_normal_at)(const struct s_plane *plane, t_tuple point);
 } t_plane;
 
 typedef struct s_cylinder
@@ -112,7 +93,6 @@ typedef struct s_cylinder
 	t_matrix 	*translation_matrix;
 	t_matrix 	*rotation_matrix;
 	t_matrix 	*scaling_matrix;
-	//t_hittable 	base;	// Inherit hittable structure
 	t_tuple 	center;		// Center of the base of the cylinder
 	t_tuple 	orientation; // Orientation of the cylinder (usually represented by a vector)
 	float 		radius;		// Radius of the cylinder
@@ -174,48 +154,26 @@ typedef struct s_object
 
 typedef struct s_var
 {
-	mlx_t *mlx;
-	t_vec3 *vector;
-
-	float image_width;
-	float image_height;
-
-	int screen_width;
-	t_vec3 camera_center;
-	float fov;			   // FOV in degrees
-	float theta;		   // Convert FOV to radians
-	 // Height of the viewport at a focal length of 1 unit
-
-	t_vec3 pixel_delta_u;
-	t_vec3 pixel_delta_v;
-	t_vec3 pixel00_loc;
-
-	t_vec3 light_position; // Test light
-	mlx_image_t *testimage;
-	//hittable_list hittables;
-	t_color ambientl;
-	t_cam cam;
-
-	t_sphere 	*test_sphere;
-	t_plane	 	*test_plane;
-	t_cylinder 	*test_cylinder;
-	t_light 	*test_light;
-	int 		num_spheres;
-	int			num_planes;
-	int 		num_cylinders;
+	mlx_t		*mlx;
+	mlx_image_t *screenimage;
+	float		image_width;
+	float		image_height;
+	int			screen_width;
+	t_color		ambientl;
+	t_cam 		cam;
+	t_light 	*pointlights;
 	int			num_lights;
 	int 		num_objects;
 	t_object 	*objects;
+	t_color 	temp_color;
 } t_var;
 
 
 /*MLX*/
 void ft_hook(void *param);
 void hooks(t_var *var);
-int mlxinit(t_var *var, t_map *map);
-
+int mlxinit(t_var *var);
 void printimage(void *param);
-
 int32_t ft_pixel(int32_t r, int32_t g, int32_t b, int32_t a);
 void write_color(t_color col, t_var *var, int x, int y);
 
@@ -225,10 +183,12 @@ void initialize_scene(t_var *var, t_map *map);
 void init_light(t_var *var, t_map *map);
 void init_ambient_color(t_var *var, t_map *map);
 
+/*Free*/
+int free_scene(t_var *var);
+
 /*Camera*/
 
 void initialize_camera(t_var *var, t_cam *camera, t_map *map);
-
 
 /*Color*/
 
@@ -237,13 +197,7 @@ t_color t_color_create(int r, int g, int b);
 t_color subtract_colors(t_color c1, t_color c2);
 t_color multiply_color_scalar(t_color color, float scalar);
 t_color multiply_colors(t_color a, t_color b);
-
 bool intersect_object(const t_ray *ray, const t_object *object, float *t);
-
-// bool ray_intersects_sphere(t_ray ray, t_sphere sphere, float *t);
-
-// t_vec3 calculate_intersection_point(t_ray ray, float t);
-
 
 /*Sphere*/
 t_sphere sphere_create(t_tuple center, float radius, t_color col);
@@ -256,19 +210,15 @@ t_cylinder cylinder_create(t_tuple center, float radius, float height, t_color c
 t_tuple calculate_cylinder_normal(const t_cylinder *cylinder, const t_tuple *point);
 bool intersect_cylinder(const t_ray *ray, const t_cylinder *cylinder, float *t);
 
-
 /*Plane*/
 t_plane plane_create(t_tuple center, t_color color, t_tuple orientation);
 bool intersect_plane(const t_ray *ray, const t_plane *plane, float *t);
 
 
 /*Light*/
-//t_light *point_light(t_tuple position, t_color intensity, float brightness);
 t_light light_create(t_tuple position, t_color intensity, float brightness);
 bool is_in_shadow(const t_tuple *point, const t_light *light, const t_object *objects, int num_objects) ;
-t_color calculate_phong_lighting(const t_tuple *point, const t_tuple *normal, const t_light *light, const t_color *object_color, const t_tuple *view_dir, const t_object *objects, int num_objects);
-
-
+t_color calculate_phong_lighting(t_var *var, const t_tuple *point, const t_tuple *normal, const t_tuple *view_dir);
 
 /*Matrix*/
 t_matrix    *tuple_to_matrix(t_tuple *t);
@@ -311,41 +261,25 @@ t_tuple       tuple(double x, double y, double z, double w);
 t_tuple       normalize(t_tuple v);
 t_tuple       cross(t_tuple a, t_tuple b);
 
-
-
 /*Ray*/
 t_ray         ray(t_tuple origin, t_tuple direction);
 t_ray generate_ray_for_pixel(t_var *var, int x, int y);
 
-
 void        print_color(t_color c);
-
 bool        equal(double a, double b);
 bool        compare_colors(t_color c1, t_color c2);
 bool        is_point(t_tuple t);
 bool        is_vector(t_tuple t);
 bool        tuple_equal(t_tuple t1, t_tuple t2);
-
 float       minor(const t_matrix *m, int row, int col);
 float       determinant(const t_matrix *m);
 float       determinant_2x2(const t_matrix *m);
 float       determinant_3x3(const t_matrix *m);
 float       t_matrix_get(t_matrix *m, int row, int col);
-
-
-
-
-
-
-
 float      magnitude(t_tuple v);
 bool        magnitude_equal(t_tuple v, double expected_magnitude);
-
 float      dot(t_tuple a, t_tuple b);
-
 float       cofactor(const t_matrix *m, int row, int col);
 bool        is_invertible(t_matrix *m);
-
-
 
 #endif

@@ -72,8 +72,8 @@ void init_light(t_var *var, t_map *map)
     int i = 0;
     t_lights *current_light = map->lights;
     var->num_lights = map->element_count->light;
-    var->test_light = malloc(var->num_lights * sizeof(t_light));
-    if (!var->test_light)
+    var->pointlights = malloc(var->num_lights * sizeof(t_light));
+    if (!var->pointlights)
     {
         // Handle malloc failure (optional)
         return;
@@ -83,9 +83,9 @@ void init_light(t_var *var, t_map *map)
         t_tuple position = point(current_light->x, current_light->y, current_light->z);
         t_color intensity = t_color_create(current_light->r, current_light->b, current_light->g);
         float brightness = current_light->ratio;
-        var->test_light[i] = light_create(position, intensity,brightness);
-        //var->test_light[i].direction = normalize((t_tuple){0.0f, -1.0f, 0.0f}); // Example direction pointing downwards
-        //var->test_light[i].cutoff_angle = 30.0f; // Example cutoff angle in degrees
+        var->pointlights[i] = light_create(position, intensity,brightness);
+        //var->pointlights[i].direction = normalize((t_tuple){0.0f, -1.0f, 0.0f}); // Example direction pointing downwards
+        //var->pointlights[i].cutoff_angle = 30.0f; // Example cutoff angle in degrees
         i++;
         current_light = current_light->next;
     }

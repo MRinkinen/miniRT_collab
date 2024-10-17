@@ -6,7 +6,7 @@
 /*   By: mrinkine <mrinkine@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/15 12:02:26 by mrinkine          #+#    #+#             */
-/*   Updated: 2024/10/16 18:30:22 by mrinkine         ###   ########.fr       */
+/*   Updated: 2024/10/17 14:54:28 by mrinkine         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -120,7 +120,8 @@ void printimage(void *param)
                     object_color = closest_object->data.plane.color;
                 }
                 view_dir = normalize(tuple_subtract(var->cam.position, intersection_point));
-                pixel_color = calculate_phong_lighting(&intersection_point, &normal, &var->test_light[0], &object_color, &view_dir, var->objects, var->num_objects);
+                var->temp_color = object_color;
+                pixel_color = calculate_phong_lighting(var, &intersection_point, &normal, &view_dir);
             }
             write_color(pixel_color, var, x, y);
             x++;
@@ -128,17 +129,6 @@ void printimage(void *param)
         y++;
     }
 }
-
-void free_scene(t_var *var)
-{
-    printf("Freeing scene...\n");
-    if (var->objects != NULL)
-    {
-        free(var->objects);
-        var->objects = NULL;
-    }
-}
-
 // fix the orientations
 // check that is there fish-eyeing
 // norm-proof stuff
@@ -164,7 +154,7 @@ int main(int argc, char **argv)
 	print_data(map);
 	printf("image width: %f\n", var.image_width);
 	printf("image height: %f\n", var.image_height);
-	if (mlxinit(&var, map) == EXIT_FAILURE)
+	if (mlxinit(&var) == EXIT_FAILURE)
 		return (EXIT_FAILURE);
     init_ambient_color(&var, map);
     initialize_camera(&var, &var.cam, map);

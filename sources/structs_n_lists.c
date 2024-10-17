@@ -6,7 +6,7 @@
 /*   By: mrinkine <mrinkine@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/20 11:10:02 by tvalimak          #+#    #+#             */
-/*   Updated: 2024/10/14 14:43:31 by mrinkine         ###   ########.fr       */
+/*   Updated: 2024/10/17 14:01:44 by mrinkine         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -186,6 +186,17 @@ int	print_data(t_map *map)
 	return 0;
 }
 
+int free_scene(t_var *var)
+{
+    printf("Freeing scene...\n");
+    if (var->objects != NULL)
+    {
+        free(var->objects);
+        var->objects = NULL;
+    }
+    return (1);
+}
+
 int terminate_data(t_map *map, t_var *var, char *error)
 {
 	t_camera *camera;
@@ -239,35 +250,7 @@ int terminate_data(t_map *map, t_var *var, char *error)
         cylinder = next_cylinder;
     }
     free(map);
-    // // Free spheres
-    // if (var->test_sphere)
-    // {
-    //     for (int i = 0; i < var->num_spheres; i++)
-    //     {
-    //         free_sphere(&(var->test_sphere[i]));
-    //     }
-    //     free(var->test_sphere);
-    //     var->test_sphere = NULL; // Avoid dangling pointer
-    // }
-    // // Free planes
-    // if (var->test_plane)
-    // {
-    //     for (int i = 0; i < var->num_planes; i++)
-    //     {
-    //         free_plane(&(var->test_plane[i]));
-    //     }
-    //     free(var->test_plane);
-    //     var->test_plane = NULL;
-    // }
-    // // Free cylinders
-    // if (var->test_cylinder)
-    // {
-    //     for (int i = 0; i < var->num_cylinders; i++)
-    //     {
-    //         free_cylinder(&(var->test_cylinder[i]));
-    //     }
-    //     free(var->test_cylinder);
-    //     var->test_cylinder = NULL;
-    // }
+    // Free the scene
+    free_scene(var);
     return (1);
 }

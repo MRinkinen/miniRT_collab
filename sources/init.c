@@ -33,6 +33,50 @@ void initialize_scene(t_var *var, t_map *map)
     t_cylinders *current_cylinder = map->cylinders;
     while (current_cylinder != NULL)
     {
+        printf("Inside cylinder loop 1 \n");
+        t_tuple orientation = normalize(vector(current_cylinder->nx, current_cylinder->ny, current_cylinder->nz));
+        t_tuple center = point(current_cylinder->x, current_cylinder->y, current_cylinder->z);
+        float radius = current_cylinder->diameter / 2.0f; // Assuming diameter is provided
+        float height = current_cylinder->height;
+        t_color color = t_color_create(current_cylinder->r, current_cylinder->g, current_cylinder->b);
+        printf("radius %f \n", radius);
+        printf("height %f \n", height);
+
+        //print_matrix(var->objects[obj_index].data.cylinder.transform);
+        //print_matrix(var->objects[obj_index].data.cylinder.inverse_transform);
+
+        printf("Inside cylinder loop 2 \n");
+        // Initialize transformation matrices
+        var->objects[obj_index].data.cylinder.translation_matrix = translation(center.x, center.y, center.z);
+        var->objects[obj_index].data.cylinder.rotation_matrix = rotation_from_normal(orientation);
+        var->objects[obj_index].data.cylinder.scaling_matrix = scaling(radius, 1.0f, radius); // Scale by radius in xz and height in y
+
+        printf("Inside cylinder loop 3 \n");
+        // Combine transformations into one matrix
+        var->objects[obj_index].data.cylinder.transform = t_matrix_multiply(t_matrix_multiply(var->objects[obj_index].data.cylinder.scaling_matrix, var->objects[obj_index].data.cylinder.rotation_matrix), var->objects[obj_index].data.cylinder.translation_matrix);
+        //var->objects[obj_index].data.cylinder.transform = t_matrix_multiply(t_matrix_multiply(var->objects[obj_index].data.cylinder.translation_matrix, var->objects[obj_index].data.cylinder.rotation_matrix), var->objects[obj_index].data.cylinder.scaling_matrix);
+
+        printf("Inside cylinder loop 5 \n");
+        // Calculate the inverse transform for ray-cylinder intersection calculations
+        var->objects[obj_index].data.cylinder.inverse_transform = inverse(var->objects[obj_index].data.cylinder.transform);
+
+        printf("Inside cylinder loop 6 \n");
+        var->objects[obj_index].type = CYLINDER;
+        var->objects[obj_index].data.cylinder.center = center;
+        var->objects[obj_index].data.cylinder.radius = radius;
+        var->objects[obj_index].data.cylinder.height = height;
+        var->objects[obj_index].data.cylinder.color = color;
+        var->objects[obj_index].data.cylinder.orientation = orientation;
+
+        current_cylinder = current_cylinder->next;
+        obj_index++;
+    }
+
+   /*
+    // Initialize cylinders
+    t_cylinders *current_cylinder = map->cylinders;
+    while (current_cylinder != NULL)
+    {
         t_tuple center = point(current_cylinder->x, current_cylinder->y, current_cylinder->z);
         float radius = current_cylinder->diameter / 2.0f; // Assuming diameter is provided
         float height = current_cylinder->height;
@@ -45,9 +89,15 @@ void initialize_scene(t_var *var, t_map *map)
         var->objects[obj_index].data.cylinder.height = height;
         var->objects[obj_index].data.cylinder.color = color;
 
+        var->objects[obj_index].data.cylinder.translation_matrix = translation(center.x, center.y, center.z);
+        var->objects[obj_index].data.cylinder.rotation_matrix = rotation_from_normal(orientation);
+        var->objects[obj_index].data.cylinder.scaling_matrix = scaling(radius, 1.0f, radius);
+
+        var->objects[obj_index].data.cylinder.transform = t_matrix_multiply(t_matrix_multiply(var->objects[obj_index].data.cylinder.translation_matrix, var->objects[obj_index].data.cylinder.rotation_matrix), var->objects[obj_index].data.cylinder.scaling_matrix);
+
         current_cylinder = current_cylinder->next;
         obj_index++;
-    }
+    }*/
 
     // Initialize planes
     t_planes *current_plane = map->planes;

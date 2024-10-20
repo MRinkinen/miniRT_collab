@@ -22,6 +22,14 @@
 #define EPSILON 0.00001
 
 typedef struct s_map	t_map;
+typedef struct s_cylinders t_cylinders;
+
+typedef struct s_quad_coeffs
+{
+    float a;
+    float b;
+    float c;
+} t_quad_coeffs;
 
 typedef struct
 {
@@ -168,6 +176,8 @@ typedef struct s_var
 	t_color 	temp_color;
 } t_var;
 
+void print_matrix(t_matrix *matrix);
+
 
 /*MLX*/
 void ft_hook(void *param);
@@ -206,7 +216,8 @@ bool intersect_sphere(const t_ray *ray, const t_sphere *sphere, float *t);
 
 
 /*Cylinder*/
-t_cylinder cylinder_create(t_tuple center, float radius, float height, t_color color, t_tuple orientation);
+t_cylinder cylinder_create(t_var *var, t_map *map, int obj_index, t_cylinders *current_cylinder);
+//t_cylinder cylinder_create(t_tuple center, float radius, float height, t_color color, t_tuple orientation);
 t_tuple calculate_cylinder_normal(const t_cylinder *cylinder, const t_tuple *point);
 bool intersect_cylinder(const t_ray *ray, const t_cylinder *cylinder, float *t);
 
@@ -246,7 +257,8 @@ t_matrix* 	rotation_from_normal(t_tuple normal);
 
 /*Tuple*/
 t_tuple       position(t_ray r, double t);
-t_tuple       apply_transformation(t_matrix *transformation, t_tuple *point);
+//t_tuple       apply_transformation(t_matrix *transformation, t_tuple *point);
+t_tuple 	  apply_transformation(t_matrix *transformation, const t_tuple *point);
 t_tuple       matrix_to_tuple(t_matrix *m);
 t_tuple       tuple_add(t_tuple t1, t_tuple t2);
 t_tuple       tuple_subtract(t_tuple t1, t_tuple t2);

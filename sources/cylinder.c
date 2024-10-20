@@ -16,36 +16,6 @@ void print_matrix(t_matrix *matrix)
     }
 }
 
-/*
-t_cylinder cylinder_create(t_tuple center, float radius, float height, t_color color, t_tuple orientation)
-{
-    t_cylinder cylinder;
-
-    // Initialize transformation matrices
-    cylinder.translation_matrix = translation(center.x, center.y, center.z);
-    cylinder.rotation_matrix = rotation_from_normal(orientation); // Adjust orientation based on the given vector
-    cylinder.scaling_matrix = scaling(radius, 1.0f, radius); // Scale by radius in xz and height in y
-
-    // Combine transformations into one matrix
-    cylinder.transform = t_matrix_multiply(t_matrix_multiply(cylinder.translation_matrix, cylinder.rotation_matrix), cylinder.scaling_matrix);
-
-    // Calculate the inverse transform for ray-cylinder intersection calculations
-    cylinder.inverse_transform = inverse(cylinder.transform);
-
-    // Set other cylinder properties
-    cylinder.color = color;
-    cylinder.radius = radius;
-    cylinder.height = height;
-    cylinder.normal = orientation;
-
-    //cylinder.minimum = -INFINITY;
-    //cylinder.maximum = INFINITY;
-    cylinder.minimum = -height / 2;
-    cylinder.maximum = height / 2;
-
-    return (cylinder);
-}*/
-
 // Function to calculate the normal vector at a point on the cylinder's surface
 t_tuple calculate_cylinder_normal(const t_cylinder *cylinder, const t_tuple *point)
 {
@@ -67,45 +37,69 @@ bool intersect_cylinder(const t_ray *ray, const t_cylinder *cylinder, float *t)
 
     t_tuple oc = tuple_subtract(cylinder->center, ray->origin);
     t_tuple direction = ray->direction;
-    t_tuple axis = cylinder->orientation; // Use the cylinder's actual orientation vector
+    t_tuple axis = cylinder->orientation;
 
     float a = dot(direction, direction) - pow(dot(direction, axis), 2);
     float b = (dot(direction, oc) - dot(direction, axis) * dot(oc, axis));
     float c = dot(oc, oc) - pow(dot(oc, axis), 2) - cylinder->radius * cylinder->radius;
     float discriminant = (b * b) - (a * c);
 
-    if (discriminant < 0) {
-        return false;
-    } else {
-        float t0 = (b - sqrt(discriminant)) / a;
-        float t1 = (b + sqrt(discriminant)) / a;
+    float t0, t1;
+    bool hit = false;
 
-        // Ensure t0 is the smaller value
+    if (discriminant >= 0) {
+        t0 = (b - sqrt(discriminant)) / a;
+        t1 = (b + sqrt(discriminant)) / a;
+
         if (t0 > t1) {
             float temp = t0;
             t0 = t1;
             t1 = temp;
         }
-        // Check if the intersection points are within the height of the cylinder
-        float half_height = cylinder->height / 2.0;
 
-        // Project the points onto the cylinder's axis
+        float half_height = cylinder->height / 2.0;
         t_tuple point0 = tuple_add(ray->origin, tuple_multiply(ray->direction, t0));
         t_tuple point1 = tuple_add(ray->origin, tuple_multiply(ray->direction, t1));
 
         float dist0 = dot(point0, axis) - dot(cylinder->center, axis);
         float dist1 = dot(point1, axis) - dot(cylinder->center, axis);
 
-        if (dist0 < -half_height || dist0 > half_height) {
-            if (dist1 < -half_height || dist1 > half_height) {
-                return false; // Both intersections are outside the capped height
-            } else {
-                *t = t1; // t1 is within the height
-                return (*t >= 0);
-            }
-        } else {
-            *t = t0; // t0 is within the height
-            return (*t >= 0);
+        if (dist0 >= -half_height && dist0 <= half_height) {
+            *t = t0;
+            hit = true;
+        } else if (dist1 >= -half_height && dist1 <= half_height) {
+            *t = t1;
+            hit = true;
         }
     }
+
+    // Check for intersection with the caps
+    float t_cap;
+    t_tuple cap_center;
+    t_tuple cap_point;
+    float cap_dist;
+
+    // Top cap
+    cap_center = tuple_add(cylinder->center, tuple_multiply(axis, cylinder->height / 2.0));
+    t_cap = (dot(cap_center, axis) - dot(ray->origin, axis)) / dot(ray->direction, axis);
+    cap_point = tuple_add(ray->origin, tuple_multiply(ray->direction, t_cap));
+    cap_dist = sqrt(dot(tuple_subtract(cap_point, cap_center), tuple_subtract(cap_point, cap_center)));
+
+    if (cap_dist <= cylinder->radius && t_cap >= 0 && (!hit || t_cap < *t)) {
+        *t = t_cap;
+        hit = true;
+    }
+
+    // Bottom cap
+    cap_center = tuple_subtract(cylinder->center, tuple_multiply(axis, cylinder->height / 2.0));
+    t_cap = (dot(cap_center, axis) - dot(ray->origin, axis)) / dot(ray->direction, axis);
+    cap_point = tuple_add(ray->origin, tuple_multiply(ray->direction, t_cap));
+    cap_dist = sqrt(dot(tuple_subtract(cap_point, cap_center), tuple_subtract(cap_point, cap_center)));
+
+    if (cap_dist <= cylinder->radius && t_cap >= 0 && (!hit || t_cap < *t)) {
+        *t = t_cap;
+        hit = true;
+    }
+
+    return hit;
 }

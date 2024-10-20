@@ -6,7 +6,7 @@
 /*   By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/19 10:24:59 by tvalimak          #+#    #+#             */
-/*   Updated: 2024/09/08 14:22:03 by tvalimak         ###   ########.fr       */
+/*   Updated: 2024/10/21 00:57:50 by tvalimak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,7 +59,7 @@ int	setup_plane(char **split, t_map *map)
 	if (map->planes == NULL)
 		return (0);
 	new_plane->x = ft_atof(xyz[0]);
-	new_plane->y = ft_atof(xyz[1]);
+	new_plane->y = -ft_atof(xyz[1]);
 	new_plane->z = ft_atof(xyz[2]);
 	new_plane->nx = ft_atof(nxyz[0]);
 	new_plane->ny = ft_atof(nxyz[1]);

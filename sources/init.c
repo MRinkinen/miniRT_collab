@@ -71,44 +71,18 @@ void initialize_scene(t_var *var, t_map *map)
         current_cylinder = current_cylinder->next;
         obj_index++;
     }
-
-   /*
-    // Initialize cylinders
-    t_cylinders *current_cylinder = map->cylinders;
-    while (current_cylinder != NULL)
-    {
-        t_tuple center = point(current_cylinder->x, current_cylinder->y, current_cylinder->z);
-        float radius = current_cylinder->diameter / 2.0f; // Assuming diameter is provided
-        float height = current_cylinder->height;
-        t_color color = t_color_create(current_cylinder->r, current_cylinder->g, current_cylinder->b);
-        t_tuple orientation = normalize(vector(current_cylinder->nx, current_cylinder->ny, current_cylinder->nz));
-
-        var->objects[obj_index].type = CYLINDER;
-        var->objects[obj_index].data.cylinder.center = center;
-        var->objects[obj_index].data.cylinder.radius = radius;
-        var->objects[obj_index].data.cylinder.height = height;
-        var->objects[obj_index].data.cylinder.color = color;
-
-        var->objects[obj_index].data.cylinder.translation_matrix = translation(center.x, center.y, center.z);
-        var->objects[obj_index].data.cylinder.rotation_matrix = rotation_from_normal(orientation);
-        var->objects[obj_index].data.cylinder.scaling_matrix = scaling(radius, 1.0f, radius);
-
-        var->objects[obj_index].data.cylinder.transform = t_matrix_multiply(t_matrix_multiply(var->objects[obj_index].data.cylinder.translation_matrix, var->objects[obj_index].data.cylinder.rotation_matrix), var->objects[obj_index].data.cylinder.scaling_matrix);
-
-        current_cylinder = current_cylinder->next;
-        obj_index++;
-    }*/
-
     // Initialize planes
     t_planes *current_plane = map->planes;
     while (current_plane != NULL)
     {
-        t_tuple point = tuple(current_plane->x, current_plane->y, current_plane->z, 1.0f);
+        t_tuple orientation = normalize(vector(current_plane->nx, current_plane->ny, current_plane->nz));
+        t_tuple center = point(current_plane->x, current_plane->y, current_plane->z);
         t_tuple normal = vector(current_plane->nx, current_plane->ny, current_plane->nz);
         t_color color = t_color_create(current_plane->r, current_plane->g, current_plane->b);
 
         var->objects[obj_index].type = PLANE;
-        var->objects[obj_index].data.plane.point = point;
+        var->objects[obj_index].data.plane.center;
+        var->objects[obj_index].data.plane.point = center;
         var->objects[obj_index].data.plane.normal = normal;
         var->objects[obj_index].data.plane.color = color;
 

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   setup_plane.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mrinkine <mrinkine@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/19 10:24:59 by tvalimak          #+#    #+#             */
-/*   Updated: 2024/10/21 00:57:50 by tvalimak         ###   ########.fr       */
+/*   Updated: 2024/10/21 14:07:35 by mrinkine         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,8 +42,8 @@ static t_planes	*setup_plane_helper(t_map *map)
 /* identifier: pl
 ∗ x,y,z coordinates of a point in the plane: 0.0,0.0,-10.0
 ∗ 3d normalized normal vector. In range [-1,1] for each x,y,z axis: 0.0,1.0,0.0
-∗ R,G,B colors in range [0-255]: 0,0,225*/
-
+∗ R,G,B colors in range [0-255]: 0,0,225
+*/
 int	setup_plane(char **split, t_map *map)
 {
 	char	**xyz;
@@ -62,7 +62,7 @@ int	setup_plane(char **split, t_map *map)
 	new_plane->y = -ft_atof(xyz[1]);
 	new_plane->z = ft_atof(xyz[2]);
 	new_plane->nx = ft_atof(nxyz[0]);
-	new_plane->ny = ft_atof(nxyz[1]);
+	new_plane->ny = -ft_atof(nxyz[1]);
 	new_plane->nz = ft_atof(nxyz[2]);
 	new_plane->r = ft_atoi(rgb[0]);
     new_plane->g = ft_atoi(rgb[1]);

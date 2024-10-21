@@ -6,7 +6,7 @@
 /*   By: mrinkine <mrinkine@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/16 09:33:08 by mrinkine          #+#    #+#             */
-/*   Updated: 2024/10/17 16:12:58 by mrinkine         ###   ########.fr       */
+/*   Updated: 2024/10/21 14:43:45 by mrinkine         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,7 @@ int32_t ft_pixel(int32_t r, int32_t g, int32_t b, int32_t a)
 
 void write_color(t_color col, t_var *var, int x, int y)
 {
-    int color = ft_pixel(col.r, col.b, col.g, 255);
+    int color = ft_pixel(col.r, col.g, col.b, 255);
     mlx_put_pixel(var->screenimage, x, y, color);
 }
 

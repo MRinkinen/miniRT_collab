@@ -3,14 +3,14 @@
 /*                                                        :::      ::::::::   */
 /*   test_functions.h                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mrinkine <mrinkine@student.42.fr>          +#+  +:+       +#+        */
+/*   By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/01 13:56:05 by tvalimak          #+#    #+#             */
-/*   Updated: 2024/09/05 19:11:11 by mrinkine         ###   ########.fr       */
+/*   Updated: 2024/10/21 16:17:50 by tvalimak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-
+/*
 #ifndef TEST_FUNCTIONS_H
 # define TEST_FUNCTIONS_H
 
@@ -114,3 +114,4 @@ float       cofactor(const t_matrix *m, int row, int col);
 bool        is_invertible(t_matrix *m);
 
 #endif
+*/

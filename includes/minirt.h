@@ -255,6 +255,12 @@ t_matrix    *create_3x3_matrix(float a, float b, float c,
 t_matrix 	*create_4x4_matrix(float values[16]);
 t_matrix* 	rotation_from_normal(t_tuple normal);
 
+t_tuple 	get_arbitrary_axis(t_tuple v1);
+t_matrix*	handle_axis_length_case(t_tuple v1, t_tuple v2);
+t_matrix* 	handle_special_case(t_tuple v2);
+bool 		check_special_case(t_tuple v2);
+t_tuple 	get_default_normal();
+
 /*Tuple*/
 t_tuple       position(t_ray r, double t);
 //t_tuple       apply_transformation(t_matrix *transformation, t_tuple *point);

@@ -6,7 +6,7 @@
 /*   By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/16 09:33:18 by mrinkine          #+#    #+#             */
-/*   Updated: 2024/10/21 00:20:53 by tvalimak         ###   ########.fr       */
+/*   Updated: 2024/10/21 18:22:25 by tvalimak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -79,47 +79,77 @@ t_matrix* rotation_around_axis(t_tuple axis, float angle)
 
 t_matrix* rotation_from_normal(t_tuple normal)
 {
-    t_tuple default_normal = vector(0, 1, 0);  // Default normal for the cylinder's y-axis
-    t_tuple v1 = normalize(default_normal);
-    t_tuple v2 = normalize(normal);
-
-    // Check for axis-aligned cases directly
-    if (fabs(v2.x - 1.0) < EPSILON && fabs(v2.y) < EPSILON && fabs(v2.z) < EPSILON)
+    t_tuple v1;
+    t_tuple v2;
+    t_tuple axis;
+    float axis_length;
+    float angle;
+    v1 = get_default_normal();
+    v2 = normalize(normal);
+    if (check_special_case(v2))
     {
-        // Align with the x-axis
-        return rotation_around_axis(vector(0, 0, 1), -PI / 2);  // Rotate -90 degrees around the z-axis
+        return handle_special_case(v2);
     }
-    else if (fabs(v2.z - 1.0) < EPSILON && fabs(v2.x) < EPSILON && fabs(v2.y) < EPSILON)
-    {
-        // Align with the z-axis (this seems to already be working correctly)
-        return identity_matrix();  // No rotation needed, it's already aligned
-    }
-
-    // Compute the rotation axis using the cross product
-    t_tuple axis = cross(v1, v2);
-    float axis_length = magnitude(axis);
-
-    // Handle the parallel/antiparallel case
+    axis = cross(v1, v2);
+    axis_length = magnitude(axis);
     if (axis_length < EPSILON)
     {
-        if (dot(v1, v2) > 0)
-        {
-            return identity_matrix();  // No rotation needed
-        }
-        else
-        {
-            // Rotate 180 degrees around any perpendicular axis
-            t_tuple arbitrary_axis = vector(1, 0, 0);
-            if (fabs(v1.x) > fabs(v1.y))
-                arbitrary_axis = vector(0, 1, 0);
-            axis = normalize(cross(v1, arbitrary_axis));
-            return rotation_around_axis(axis, PI);  // Rotate 180 degrees
-        }
+        return handle_axis_length_case(v1, v2);
     }
-
     axis = normalize(axis);
-    float angle = acos(dot(v1, v2));
-    return (rotation_around_axis(axis, angle));
+    angle = acos(dot(v1, v2));
+    return rotation_around_axis(axis, angle);
+}
+
+t_tuple get_default_normal()
+{
+    t_tuple default_normal;
+    default_normal = vector(0, 1, 0);  // Default normal for the cylinder's y-axis
+    return normalize(default_normal);
+}
+
+bool check_special_case(t_tuple v2)
+{
+    if (fabs(v2.x - 1.0) < EPSILON && fabs(v2.y) < EPSILON && fabs(v2.z) < EPSILON)
+    {
+        return true;
+    }
+    if (fabs(v2.z - 1.0) < EPSILON && fabs(v2.x) < EPSILON && fabs(v2.y) < EPSILON)
+    {
+        return true;
+    }
+    return false;
+}
+
+t_matrix* handle_special_case(t_tuple v2)
+{
+    if (fabs(v2.x - 1.0) < EPSILON)
+    {
+        return (rotation_around_axis(vector(0, 0, 1), -PI / 2));
+    }
+    return (identity_matrix());
+}
+
+t_matrix* handle_axis_length_case(t_tuple v1, t_tuple v2)
+{
+    t_tuple axis;
+    t_tuple arbitrary_axis;
+
+    if (dot(v1, v2) > 0)
+        return (identity_matrix());
+    arbitrary_axis = get_arbitrary_axis(v1);
+    axis = normalize(cross(v1, arbitrary_axis));
+    return (rotation_around_axis(axis, PI));
+}
+
+t_tuple get_arbitrary_axis(t_tuple v1)
+{
+    t_tuple arbitrary_axis;
+
+    arbitrary_axis = vector(1, 0, 0);
+    if (fabs(v1.x) > fabs(v1.y))
+        arbitrary_axis = vector(0, 1, 0);
+    return (arbitrary_axis);
 }
 
 // Function to multiply a tuple by a scalar

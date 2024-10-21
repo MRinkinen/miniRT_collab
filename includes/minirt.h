@@ -24,6 +24,13 @@
 typedef struct s_map	t_map;
 typedef struct s_cylinders t_cylinders;
 
+typedef struct s_rotation_params
+{
+	float	cos_theta;
+	float	sin_theta;
+	float	one_minus_cos;
+}	t_rotation_params;
+
 typedef struct s_quad_coeffs
 {
     float a;
@@ -255,16 +262,16 @@ t_matrix    *create_3x3_matrix(float a, float b, float c,
 t_matrix 	*create_4x4_matrix(float values[16]);
 t_matrix* 	rotation_from_normal(t_tuple normal);
 
-t_tuple 	get_arbitrary_axis(t_tuple v1);
-t_matrix*	handle_axis_length_case(t_tuple v1, t_tuple v2);
-t_matrix* 	handle_special_case(t_tuple v2);
-bool 		check_special_case(t_tuple v2);
-t_tuple 	get_default_normal();
+t_tuple		get_arbitrary_axis(t_tuple v1);
+t_matrix	*handle_axis_length_case(t_tuple v1, t_tuple v2);
+t_matrix	*handle_special_case(t_tuple v2);
+bool		check_special_case(t_tuple v2);
+t_tuple		get_default_normal(void);
 
 /*Tuple*/
 t_tuple       position(t_ray r, double t);
 //t_tuple       apply_transformation(t_matrix *transformation, t_tuple *point);
-t_tuple 	  apply_transformation(t_matrix *transformation, const t_tuple *point);
+t_tuple 	  apply_transformation(t_matrix *transformation, t_tuple *point);
 t_tuple       matrix_to_tuple(t_matrix *m);
 t_tuple       tuple_add(t_tuple t1, t_tuple t2);
 t_tuple       tuple_subtract(t_tuple t1, t_tuple t2);

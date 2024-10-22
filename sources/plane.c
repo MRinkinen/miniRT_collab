@@ -54,7 +54,7 @@ int	intersect_plane(t_ray *ray, t_plane *plane, float *t)
 }
 
 
-// original plane intersect solution below, had some problems in lightning
+// original plane intersect solution below
 /*
 bool intersect_plane(const t_ray *ray, const t_plane *plane, float *t)
 {

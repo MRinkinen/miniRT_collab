@@ -230,7 +230,8 @@ bool intersect_cylinder(const t_ray *ray, const t_cylinder *cylinder, float *t);
 
 /*Plane*/
 void create_planes(t_var *var, t_map *map, int *obj_index);
-bool intersect_plane(const t_ray *ray, const t_plane *plane, float *t);
+int	intersect_plane(t_ray *ray, t_plane *plane, float *t);
+//bool intersect_plane(const t_ray *ray, const t_plane *plane, float *t);
 
 
 /*Light*/
@@ -285,6 +286,9 @@ t_tuple       vector(double x, double y, double z);
 t_tuple       tuple(double x, double y, double z, double w);
 t_tuple       normalize(t_tuple v);
 t_tuple       cross(t_tuple a, t_tuple b);
+
+// experimental:
+t_tuple	vector_subtract(t_tuple a, t_tuple b);
 
 /*Ray*/
 t_ray         ray(t_tuple origin, t_tuple direction);

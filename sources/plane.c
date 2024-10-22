@@ -22,12 +22,40 @@ void create_planes(t_var *var, t_map *map, int *obj_index)
         var->objects[*obj_index].data.plane.point = center;
         var->objects[*obj_index].data.plane.normal = normal;
         var->objects[*obj_index].data.plane.color = color;
+		var->objects[*obj_index].data.plane.orientation = orientation;
         current_plane = current_plane->next;
         (*obj_index)++;
     }
 }
 
+t_tuple	vector_subtract(t_tuple a, t_tuple b)
+{
+	// Subtract x, y, z components, and handle w based on the types of a and b
+	return ((t_tuple){
+		a.x - b.x,
+		a.y - b.y,
+		a.z - b.z
+	});
+}
 
+int	intersect_plane(t_ray *ray, t_plane *plane, float *t)
+{
+	float		denominator;
+	float		numerator;
+	t_tuple		oc;
+
+	denominator = dot(ray->direction, plane->normal);
+	if (fabs(denominator) < EPSILON)
+		return (0);
+	oc = vector_subtract(plane->point, ray->origin);
+	numerator = dot(oc, plane->orientation);
+	*t = numerator / denominator;
+	return (*t > 0.0);
+}
+
+
+// original plane intersect solution below, had some problems in lightning
+/*
 bool intersect_plane(const t_ray *ray, const t_plane *plane, float *t)
 {
     float denom = dot(plane->normal, ray->direction);
@@ -35,7 +63,8 @@ bool intersect_plane(const t_ray *ray, const t_plane *plane, float *t)
     {
         t_tuple p0l0 = tuple_subtract(plane->point, ray->origin);
         *t = dot(p0l0, plane->normal) / denom;
-        return (*t >= 0);
+        return (*t > 0.0);
+        //return (*t >= 0);
     }
     return false;
-}
+}*/

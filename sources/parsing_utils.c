@@ -6,7 +6,7 @@
 /*   By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/12 19:18:40 by tvalimak          #+#    #+#             */
-/*   Updated: 2024/10/22 12:21:35 by tvalimak         ###   ########.fr       */
+/*   Updated: 2024/10/22 17:30:09 by tvalimak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -90,6 +90,14 @@ int pos_decimal_check(char *str)
 
 int	check_element_count(t_element_count *element_count, int flag)
 {
+    if (!element_count)
+    {
+        printf("element_count is NULL\n");
+        return (0);
+    }
+    printf("ambient: %d, camera: %d, light: %d, sphere: %d, plane: %d, cylinder: %d\n",
+           element_count->ambient, element_count->camera, element_count->light,
+           element_count->sphere, element_count->plane, element_count->cylinder);
 	if (element_count->ambient > 1)
 		return (0);
 	if (element_count->camera > 1)
@@ -104,6 +112,35 @@ int	check_element_count(t_element_count *element_count, int flag)
 		return (0);
 	if (flag == 1)
 	{
+		printf("inside element_count with flag 1\n");
+		if (element_count->ambient == 0 || element_count->camera == 0 \
+		|| element_count->light == 0)
+			return (0);
+		if (element_count->sphere == 0 && element_count->plane == 0 && \
+		element_count->cylinder == 0)
+			return (0);
+	}
+	return (1);
+}
+
+/*
+int	check_element_count(t_element_count *element_count, int flag)
+{
+	if (element_count->ambient > 1)
+		return (0);
+	if (element_count->camera > 1)
+		return (0);
+	if (element_count->light > 1)
+		return (0);
+	if (element_count->sphere > 20)
+		return (0);
+	if (element_count->plane > 10)
+		return (0);
+	if (element_count->cylinder > 10)
+		return (0);
+	if (flag == 1)
+	{
+		printf("inside element_count with flag 1\n");
 		if (element_count->ambient == 0 || element_count->camera == 0)
 			return (0);
 		if (element_count->light == 0 || element_count->sphere == 0)
@@ -112,10 +149,11 @@ int	check_element_count(t_element_count *element_count, int flag)
 			return (0);
 	}
 	return (1);
-}
+}*/
 
 int	validate_lines(char *line, t_element_count *element_count, t_map *map)
 {
+	printf("inside validate_lines\n");
 	if (check_element_count(element_count, 0) == 0)
 		return (0);
 	else if (ft_strncmp(line, "\n", 1) == 0)
@@ -134,7 +172,4 @@ int	validate_lines(char *line, t_element_count *element_count, t_map *map)
 		return (validate_cylinder(line, element_count, map));
 	else
 		return (0);
-	if (check_element_count(element_count, 1) == 0)
-		return (0);
-	return (1);
 }

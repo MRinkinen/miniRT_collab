@@ -6,7 +6,7 @@
 /*   By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/16 18:26:47 by tvalimak          #+#    #+#             */
-/*   Updated: 2024/10/22 13:00:53 by tvalimak         ###   ########.fr       */
+/*   Updated: 2024/10/22 17:31:09 by tvalimak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,6 +33,21 @@ int	check_filename(char *file)
 	return (fd);
 }
 
+// make a function to check all the elements after lines have been validated
+int	final_element_check(t_element_count *element_count)
+{
+	if (check_element_count(element_count, 1) == 0)
+	{
+		printf("Invalid file\n");
+		return (0);
+	}
+	else
+	{
+		printf("File was valid\n");
+		return (1);
+	}
+}
+
 int	read_to_parse(t_element_count *element_count, t_map *map, char **file)
 {
 	int		fd;
@@ -56,7 +71,8 @@ int	read_to_parse(t_element_count *element_count, t_map *map, char **file)
 		line = get_next_line(fd);
 	}
 	free(line);
-	printf("File was valid\n");
 	close(fd);
+	if (final_element_check(element_count) == 0)
+		return (0);
 	return (1);
 }

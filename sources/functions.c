@@ -3,16 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   functions.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mrinkine <mrinkine@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/16 09:33:18 by mrinkine          #+#    #+#             */
-/*   Updated: 2024/10/21 00:20:53 by tvalimak         ###   ########.fr       */
+/*   Updated: 2024/10/22 12:36:37 by mrinkine         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/minirt.h"
 
-void initialize_camera(t_var *var, t_cam *camera, t_map *map)
+int initialize_camera(t_var *var, t_cam *camera, t_map *map)
 {
     float half_height;
     float half_width;
@@ -36,6 +36,7 @@ void initialize_camera(t_var *var, t_cam *camera, t_map *map)
         camera->w);
     camera->horizontal = tuple_multiply(camera->u, 2 * half_width);
     camera->vertical = tuple_multiply(camera->v, 2 * half_height);
+    return (EXIT_SUCCESS);
 }
 
 // bool check_cap(t_ray ray, float t)

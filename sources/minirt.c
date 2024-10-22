@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minirt.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mrinkine <mrinkine@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/15 12:02:26 by mrinkine          #+#    #+#             */
-/*   Updated: 2024/10/21 16:55:08 by tvalimak         ###   ########.fr       */
+/*   Updated: 2024/10/22 12:46:18 by mrinkine         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -129,9 +129,23 @@ void printimage(void *param)
         y++;
     }
 }
-// fix the orientations
-// check that is there fish-eyeing
-// norm-proof stuff
+
+int init_scene(t_var *var, t_map *map)
+{
+    if (mlxinit(var) == EXIT_FAILURE)
+		return (EXIT_FAILURE);
+    if (init_ambient_color(var, map) == EXIT_FAILURE)
+        return (EXIT_FAILURE);
+    if (initialize_camera(var, &var->cam, map) == EXIT_FAILURE)
+        return (EXIT_FAILURE);
+    if (init_objects(var, map) == EXIT_FAILURE)
+        return (EXIT_FAILURE);
+    if (init_light(var, map) == EXIT_FAILURE)
+        return (EXIT_FAILURE);
+    if (var->objects == NULL == EXIT_FAILURE)
+        return (EXIT_FAILURE);
+    return (EXIT_SUCCESS);
+}
 
 int main(int argc, char **argv)
 {
@@ -146,20 +160,16 @@ int main(int argc, char **argv)
 	}
 	ft_memset(&element_count, 0, sizeof(t_element_count));
 	map = malloc(sizeof(t_map));
-	setup_data(&element_count, map);
 	if (!map)
-		return (0);
-	if (read_to_parse(&element_count, map, argv) == 0)
-		return (0);
-	print_data(map);
-	printf("image width: %f\n", var.image_width);
-	printf("image height: %f\n", var.image_height);
-	if (mlxinit(&var) == EXIT_FAILURE)
 		return (EXIT_FAILURE);
-    init_ambient_color(&var, map);
-    initialize_camera(&var, &var.cam, map);
-    initialize_scene(&var, map);
-    init_light(&var, map); // TESTI LIGHT!!!!
+	setup_data(&element_count, map);
+	if (read_to_parse(&element_count, map, argv) == 0)
+		return (EXIT_FAILURE);
+	if(init_scene(&var, map) == EXIT_FAILURE)
+    {
+        terminate_data(map, &var, "program ended not successfully\n");
+        return (EXIT_FAILURE);
+    }
 	printimage(&var);
 	hooks(&var);
 	mlx_loop(var.mlx);

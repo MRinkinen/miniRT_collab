@@ -6,13 +6,13 @@
 /*   By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/16 09:33:18 by mrinkine          #+#    #+#             */
-/*   Updated: 2024/10/21 20:19:30 by tvalimak         ###   ########.fr       */
+/*   Updated: 2024/10/22 14:48:48 by tvalimak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/minirt.h"
 
-void	initialize_camera(t_var *var, t_cam *camera, t_map *map)
+int initialize_camera(t_var *var, t_cam *camera, t_map *map)
 {
 	float	half_height;
 	float	half_width;
@@ -37,6 +37,23 @@ void	initialize_camera(t_var *var, t_cam *camera, t_map *map)
 			camera->w);
 	camera->horizontal = tuple_multiply(camera->u, 2 * half_width);
 	camera->vertical = tuple_multiply(camera->v, 2 * half_height);
+    half_height = tan(map->camera->fov * (PI / 180.0f) / 2);
+    half_width = var->cam.aspect_ratio  * half_height;
+    lookfrom = point(map->camera->x, map->camera->y, map->camera->z);
+    lookat = point(map->camera->nx, map->camera->ny, map->camera->nz);
+    vup = vector(0.0f, 1.0f, 0.0f);
+    var->cam.position = point(map->camera->x, map->camera->y, map->camera->z);
+    camera->w = normalize(tuple_subtract(lookfrom, lookat));
+    camera->u = normalize(cross(vup, camera->w));
+    camera->v = cross(camera->w, camera->u);
+    camera->lower_left_corner = tuple_subtract(
+        tuple_subtract(
+            tuple_subtract(var->cam.position, tuple_multiply(camera->u, half_width)),
+            tuple_multiply(camera->v, half_height)),
+        camera->w);
+    camera->horizontal = tuple_multiply(camera->u, 2 * half_width);
+    camera->vertical = tuple_multiply(camera->v, 2 * half_height);
+    return (EXIT_SUCCESS);
 }
 
 void	fill_rotation_values(float *values, t_tuple axis, \

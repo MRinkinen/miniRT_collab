@@ -6,7 +6,7 @@
 /*   By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/16 18:26:47 by tvalimak          #+#    #+#             */
-/*   Updated: 2024/08/21 18:47:15 by tvalimak         ###   ########.fr       */
+/*   Updated: 2024/10/22 13:00:53 by tvalimak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@ int	check_filename(char *file)
 {
 	char	*temp;
 	char	*path;
-	int 	fd;
+	int		fd;
 
 	temp = ft_strjoin("./maps/", file);
 	path = ft_strjoin(temp, ".rt");
@@ -33,10 +33,10 @@ int	check_filename(char *file)
 	return (fd);
 }
 
-int read_to_parse(t_element_count *element_count, t_map *map, char **file)
+int	read_to_parse(t_element_count *element_count, t_map *map, char **file)
 {
-	int fd;
-	char *line;
+	int		fd;
+	char	*line;
 
 	fd = check_filename(file[1]);
 	if (fd == -1)

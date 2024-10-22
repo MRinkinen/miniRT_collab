@@ -6,7 +6,7 @@
 /*   By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/20 11:19:13 by tvalimak          #+#    #+#             */
-/*   Updated: 2024/10/15 18:34:20 by tvalimak         ###   ########.fr       */
+/*   Updated: 2024/10/22 12:17:42 by tvalimak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,128 +35,103 @@ double	ft_atof(const char *str)
 		return (res + -res2);
 }
 
-int decimal_check(char *str, int min, int max)
+int	decimal_check(char *str, int min, int max)
 {
-    double  value;
-    char    *c;
+	double	value;
+	char	*c;
 
-    c = str;
-    while (*c)
-    {
-        if (!ft_isdigit(*c) && *c != '.' && *c != '-')
-        {
-            printf("returning 0 from decimal check 0\n");
-            return 0;
-        }
-        c++;
-    }
-    value = ft_atof(str);
-    if (*c == '-')
-        c++;
-    while (ft_isdigit(*c))
-        c++;
-    if (*c == '.')
-        c++;
-    while (ft_isdigit(*c))
-        c++;
-    if (*c != '\0' || value < min || value > max) 
-    {
-        printf("returning 0 from decimal check 1\n");
-        return 0;
-    }
-    printf("returned 1 from decimal check\n");
-    return 1;
+	c = str;
+	while (*c)
+	{
+		if (!ft_isdigit(*c) && *c != '.' && *c != '-')
+			return (0);
+		c++;
+	}
+	value = ft_atof(str);
+	if (*c == '-')
+		c++;
+	while (ft_isdigit(*c))
+		c++;
+	if (*c == '.')
+		c++;
+	while (ft_isdigit(*c))
+		c++;
+	if (*c != '\0' || value < min || value > max)
+		return (0);
+	return (1);
 }
 
-// range for coordinates x,y,z are -10000 to 10000
-int xyz_check(char *str)
+int	xyz_check(char *str)
 {
-    char    **split;
-    int     i;
+	char	**split;
+	int		i;
 
-    i = 0;
-    while (str[i + 1] != '\0')
-        i++;
-    if (str[i] == ',')
-    {
-        printf("returning 0 from xyz check -1\n");
-        return (0);
-    }
-    split = ft_split(str, ',');
-    if (!split[0] || !split[1] || !split[2] || split[3])
-    {
-        printf("returning 0 from xyz check 0\n");
-        return (free_split(split));
-    }
-    printf("%s\n%s\n%s\n%s", split[0], split[1], split[2], split[3]);
-    i = 0;
-    while (split[i])
-    {
-        if (decimal_check(split[i], -10000, 10000) == 0)
-        {
-            printf("returning 0 from xyz check 1\n");
-            return (free_split(split));
-        }
-        i++;
-    }
-    free_split(split);
-    printf("returning 1 from xyz check\n");
-    return (1);
+	i = 0;
+	while (str[i + 1] != '\0')
+		i++;
+	if (str[i] == ',')
+		return (0);
+	split = ft_split(str, ',');
+	if (!split[0] || !split[1] || !split[2] || split[3])
+		return (free_split(split));
+	i = 0;
+	while (split[i])
+	{
+		if (decimal_check(split[i], -10000, 10000) == 0)
+			return (free_split(split));
+		i++;
+	}
+	free_split(split);
+	return (1);
 }
 
-int degree_check(char *str, int min, int max)
+int	degree_check(char *str, int min, int max)
 {
-    if (ft_atoi(str) < min || ft_atoi(str) > max)
-    {
-        printf("returning 0 from degree_check 0\n");
-        return (0);
-    }
-    printf("returning 1 from degree check\n");
-    return (1);
+	if (ft_atoi(str) < min || ft_atoi(str) > max)
+		return (0);
+	return (1);
 }
-// 3d normalized orientation vector. In range [-1,1] for each x,y,z axis:
-// 0.0,0.0,1.0
 
-int vectors_check(char *str)
+int	validate_vector_values(char **split)
 {
-    int i;
-    char **split;
-    double x, y, z;
+	double	x;
+	double	y;
+	double	z;
+	int		i;
 
-    i = 0;
-    while (str[i + 1] != '\0')
-        i++;
-    if (str[i] == ',')
-    {
-        printf("returning 0 from xyz check -1\n");
-        return (0);
-    }
-    split = ft_split(str, ',');
-    if (!split[0] || !split[1] || !split[2] || split[3])
-    {
-        printf("returning 0 from vectors check 0\n");
-        return (free_split(split));
-    }
-    x = ft_atof(split[0]);
-    y = ft_atof(split[1]);
-    z = ft_atof(split[2]);
-    // Check if all vector coordinates are zero
-    if (x == 0.0 && y == 0.0 && z == 0.0)
-    {
-        printf("returning 0 from vectors check (zero vector)\n");
-        return (free_split(split));
-    }
-    i = 0;
-    while (split[i])
-    {
-        if (decimal_check(split[i], -1, 1) == 0)
-        {
-            printf("returning 0 from vectors check 1\n");
-            return (free_split(split));
-        }
-        i++;
-    }
-    free_split(split);
-    printf("returning 1 from vectors check\n");
-    return (1);
+	x = ft_atof(split[0]);
+	y = ft_atof(split[1]);
+	z = ft_atof(split[2]);
+
+	if (x == 0.0 && y == 0.0 && z == 0.0)
+		return (free_split(split));
+
+	i = 0;
+	while (split[i])
+	{
+		if (decimal_check(split[i], -1, 1) == 0)
+			return (free_split(split));
+		i++;
+	}
+	return (1);
+}
+
+int	vectors_check(char *str)
+{
+	int		len;
+	char	**split;
+
+	len = ft_strlen(str);
+	if (str[len - 1] == ',')
+		return (0);
+
+	split = ft_split(str, ',');
+	if (!split[0] || !split[1] || !split[2] || split[3])
+		return (free_split(split));
+
+	if (!validate_vector_values(split))
+		return (0);
+
+	free_split(split);
+	return (1);
 }

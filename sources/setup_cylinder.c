@@ -6,7 +6,7 @@
 /*   By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/19 10:33:48 by tvalimak          #+#    #+#             */
-/*   Updated: 2024/10/21 16:36:18 by tvalimak         ###   ########.fr       */
+/*   Updated: 2024/10/22 12:29:38 by tvalimak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,6 @@ static t_cylinders	*setup_cylinder_helper(t_map *map)
 
 	if (!map->cylinders)
 	{
-		printf("inside setup_cylinder_helper 1\n");
 		map->cylinders = malloc(sizeof(t_cylinders));
 		if (!map->cylinders)
 			return (NULL);
@@ -26,7 +25,6 @@ static t_cylinders	*setup_cylinder_helper(t_map *map)
 	}
 	else
 	{
-		printf("inside setup_cylinder_helper 2\n");
 		temp = map->cylinders;
 		while (temp->next)
 			temp = temp->next;
@@ -39,36 +37,44 @@ static t_cylinders	*setup_cylinder_helper(t_map *map)
 	return (map->cylinders);
 }
 
+void	assign_cylinder_rgb(t_cylinders *cylinder, char **rgb)
+{
+	cylinder->r = ft_atoi(rgb[0]);
+	cylinder->g = ft_atoi(rgb[1]);
+	cylinder->b = ft_atoi(rgb[2]);
+}
+
+void	assign_cylinder_coordinates(t_cylinders *cylinder, \
+char **xyz, char **nxyz)
+{
+	cylinder->x = -ft_atof(xyz[0]);
+	cylinder->y = -ft_atof(xyz[1]);
+	cylinder->z = ft_atof(xyz[2]);
+	cylinder->nx = ft_atof(nxyz[0]);
+	cylinder->ny = ft_atof(nxyz[1]);
+	cylinder->nz = ft_atof(nxyz[2]);
+}
+
 int	setup_cylinder(char **split, t_map *map)
 {
-	char	    	**xyz;
-	char	    	**nxyz;
-    char        	**rgb;
-    t_cylinders  	*new_cylinder;
+	t_cylinders	*new_cylinder;
+	char		**xyz;
+	char		**nxyz;
+	char		**rgb;
 
-    printf("inside setup_cylinder\n");
 	xyz = ft_split(split[1], ',');
 	nxyz = ft_split(split[2], ',');
-    rgb = ft_split(split[5], ',');
+	rgb = ft_split(split[5], ',');
 	new_cylinder = setup_cylinder_helper(map);
 	if (new_cylinder == NULL)
 		return (0);
-    printf("inside setup_cylinder 1\n");
-	new_cylinder->x = -ft_atof(xyz[0]);
-	new_cylinder->y = -ft_atof(xyz[1]);
-	new_cylinder->z = ft_atof(xyz[2]);
-	new_cylinder->nx = ft_atof(nxyz[0]);
-	new_cylinder->ny = ft_atof(nxyz[1]);
-	new_cylinder->nz = ft_atof(nxyz[2]);
-	new_cylinder->r = ft_atoi(rgb[0]);
-    new_cylinder->g = ft_atoi(rgb[1]);
-    new_cylinder->b = ft_atoi(rgb[2]);
-    new_cylinder->diameter = ft_atof(split[3]);
-    new_cylinder->height = ft_atof(split[4]);
+	assign_cylinder_coordinates(new_cylinder, xyz, nxyz);
+	assign_cylinder_rgb(new_cylinder, rgb);
+	new_cylinder->diameter = ft_atof(split[3]);
+	new_cylinder->height = ft_atof(split[4]);
 	new_cylinder->next = NULL;
 	free_split(xyz);
 	free_split(nxyz);
-    free_split(rgb);
-    printf("end of setup_cylinder\n");
+	free_split(rgb);
 	return (1);
 }

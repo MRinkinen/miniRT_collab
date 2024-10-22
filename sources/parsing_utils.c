@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   parsing_utils.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mrinkine <mrinkine@student.42.fr>          +#+  +:+       +#+        */
+/*   By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/12 19:18:40 by tvalimak          #+#    #+#             */
-/*   Updated: 2024/10/15 14:25:47 by mrinkine         ###   ########.fr       */
+/*   Updated: 2024/10/22 12:21:35 by tvalimak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,27 +20,19 @@ int is_rgb_number(char **split)
 
 	i = 0;
 	j = 0;
-	printf("%s\n%s\n%s", split[0] , split[1], split[2]);
 	while (i < 3)
 	{
-		printf("inside is rgb number while loop\n");
 		while (split[i][j] != '\0')
 		{
 			if (split[i][j] == '\n')
 				break ;
-			printf("inside is rgb number while loop 2\n");
-			printf("split[i][j] = %c\n", split[i][j]);
 			if (!ft_isdigit(split[i][j]))
-			{
-				printf("returning 0 from is rgb number\n");
 				return (0);
-			}
 			j++;
 		}
 		j = 0;
 		i++;
 	}
-	printf("returned 1 from is rgb number\n");
 	return (1);
 }
 
@@ -57,64 +49,43 @@ int	rgb_check(char *rgb, int min, int max)
 		return (free_split(split));
 	if (split[3] != NULL)
 		return (free_split(split));
-	printf("inside rgb check 0\n");
 	if (is_rgb_number(split) == 0)
 		return (free_split(split));
-	printf("inside rgb check 1\n");
 	if (ft_atoi(split[0]) < min || ft_atoi(split[0]) > max)
-	{
-		printf("returning 0 from rgb check 0\n");
 		return (free_split(split));
-	}
 	if (ft_atoi(split[1]) < min || ft_atoi(split[1]) > max)
-	{
-		printf("returning 0 from rgb check 1\n");
 		return (free_split(split));
-	}
 	if (ft_atoi(split[2]) < min || ft_atoi(split[2]) > max)
-	{
-		printf("returning 0 from rgb check 2\n");
 		return (free_split(split));
-	}
 	free_split(split);
-	printf("returned 1 from rgb check\n");
 	return (1);
 }
 
 int pos_decimal_check(char *str)
 {
-    double value;
-    char *c = str;
+	double	value;
+	char	*c;
 
-    while (*c)
+	c = str;
+	while (*c)
 	{
-        if (!ft_isdigit(*c) && *c != '.')
-		{
-            printf("returning 0 from pos decimal check 0\n");
-            return 0;
-        }
-        c++;
-    }
-    value = ft_atof(str);
-    c = str;
-    if (*c == '-' || *c == '+')
-	{
-		printf("returning 0 from pos decimal check 1\n");
+		if (!ft_isdigit(*c) && *c != '.')
+			return (0);
+		c++;
+	}
+	value = ft_atof(str);
+	c = str;
+	if (*c == '-' || *c == '+')
 		return (0);
-    }
-    while (ft_isdigit(*c))
-        c++;
-    if (*c == '.')
-        c++;
-    while (ft_isdigit(*c))
-        c++;
-    if (*c != '\0' || value < 0.0 || value > 1.0)
-	{
-        printf("returning 0 from pos decimal check 2\n");
-        return 0;
-    }
-    printf("returned 1 from pos decimal check\n");
-    return 1;
+	while (ft_isdigit(*c))
+		c++;
+	if (*c == '.')
+		c++;
+	while (ft_isdigit(*c))
+		c++;
+	if (*c != '\0' || value < 0.0 || value > 1.0)
+		return (0);
+	return (1);
 }
 
 int	check_element_count(t_element_count *element_count, int flag)
@@ -140,7 +111,6 @@ int	check_element_count(t_element_count *element_count, int flag)
 		if (element_count->plane == 0 || element_count->cylinder == 0)
 			return (0);
 	}
-	printf("returned 1 from check element count\n");
 	return (1);
 }
 

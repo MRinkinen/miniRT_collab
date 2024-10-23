@@ -6,7 +6,7 @@
 /*   By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/15 12:02:26 by mrinkine          #+#    #+#             */
-/*   Updated: 2024/10/21 00:28:21 by tvalimak         ###   ########.fr       */
+/*   Updated: 2024/10/24 01:00:17 by tvalimak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -91,6 +91,73 @@ void printimage(void *param)
     int y;
     int x;
 
+    var = param;
+    
+    // Change these to choose a specific pixel to debug (e.g., center of the image)
+    int debug_x = SCREEN_WIDTH / 2;
+    int debug_y = var->image_height / 2;
+
+    y = 0;
+    while (y < (int)var->image_height)
+    {
+        x = 0;
+        while (x < SCREEN_WIDTH)
+        {
+            r = generate_ray_for_pixel(var, x, y);
+
+            // Only print ray information for the chosen debug pixel
+            if (x == debug_x && y == debug_y) {
+                printf("Ray for pixel (%d, %d):\n", x, y);
+                printf("  Origin: (%f, %f, %f)\n", r.origin.x, r.origin.y, r.origin.z);
+                printf("  Direction: (%f, %f, %f)\n", r.direction.x, r.direction.y, r.direction.z);
+            }
+
+            pixel_color = var->ambientl;
+            hit = false;
+            closest_object = NULL;
+            if (find_closest_intersection(var, &r, &closest_object, &closest_t))
+            {
+                intersection_point = tuple_add(r.origin, tuple_multiply(r.direction, closest_t));
+                normal = calculate_normal(closest_object, &intersection_point);
+                if (closest_object->type == SPHERE)
+                {
+                    object_color = closest_object->data.sphere.color;
+                }
+                else if (closest_object->type == CYLINDER)
+                {
+                    object_color = closest_object->data.cylinder.color;
+                }
+                else if (closest_object->type == PLANE)
+                {
+                    object_color = closest_object->data.plane.color;
+                }
+                // Calculate view direction
+                view_dir = normalize(tuple_subtract(var->cam.position, intersection_point));
+                var->temp_color = object_color;
+                pixel_color = calculate_phong_lighting(var, &intersection_point, &normal, &view_dir);
+            }
+            write_color(pixel_color, var, x, y);
+            x++;
+        }
+        y++;
+    }
+}
+/*
+void printimage(void *param)
+{
+    t_var *var;
+    t_ray r;
+    t_color pixel_color;
+    t_tuple intersection_point;
+    t_tuple normal;
+    t_tuple view_dir;
+    t_color object_color;
+    t_object *closest_object;
+    bool hit;
+    float closest_t;
+    int y;
+    int x;
+
     y = 0;
     x = 0;
     var = param;
@@ -128,7 +195,7 @@ void printimage(void *param)
         }
         y++;
     }
-}
+}*/
 // fix the orientations
 // check that is there fish-eyeing
 // norm-proof stuff

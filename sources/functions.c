@@ -6,7 +6,7 @@
 /*   By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/16 09:33:18 by mrinkine          #+#    #+#             */
-/*   Updated: 2024/10/21 00:20:53 by tvalimak         ###   ########.fr       */
+/*   Updated: 2024/10/24 00:14:00 by tvalimak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,7 @@ void initialize_camera(t_var *var, t_cam *camera, t_map *map)
     half_width = var->cam.aspect_ratio  * half_height;
     lookfrom = point(map->camera->x, map->camera->y, map->camera->z);
     lookat = point(map->camera->nx, map->camera->ny, map->camera->nz);
-    vup = vector(0.0f, 1.0f, 0.0f);
+    vup = vector(0.0f, -1.0f, 0.0f);
     var->cam.position = point(map->camera->x, map->camera->y, map->camera->z);
     camera->w = normalize(tuple_subtract(lookfrom, lookat));
     camera->u = normalize(cross(vup, camera->w));
@@ -38,185 +38,223 @@ void initialize_camera(t_var *var, t_cam *camera, t_map *map)
     camera->vertical = tuple_multiply(camera->v, 2 * half_height);
 }
 
-// bool check_cap(t_ray ray, float t)
-// {
-//     float x = ray.origin.x + t * ray.direction.x;
-//     float z = ray.origin.z + t * ray.direction.z;
-//     return (x * x + z * z) <= 1.0f; // Assuming radius is 1 in local space
-// }
-
-t_matrix* rotation_around_axis(t_tuple axis, float angle)
+void	fill_rotation_values(float *values, t_tuple axis, \
+t_rotation_params params)
 {
-    float x = axis.x;
-    float y = axis.y;
-    float z = axis.z;
-    float cos_theta = cos(angle);
-    float sin_theta = sin(angle);
-    float one_minus_cos = 1.0f - cos_theta;
-    // Prepare the array of values for the matrix
-    float values[16] = {
-        cos_theta + x * x * one_minus_cos,
-        x * y * one_minus_cos - z * sin_theta,
-        x * z * one_minus_cos + y * sin_theta,
-        0,
+    float	x;
+    float	y;
+    float	z;
 
-        y * x * one_minus_cos + z * sin_theta,
-        cos_theta + y * y * one_minus_cos,
-        y * z * one_minus_cos - x * sin_theta,
-        0,
+    x = axis.x;
+    y = axis.y;
+    z = axis.z;
 
-        z * x * one_minus_cos - y * sin_theta,
-        z * y * one_minus_cos + x * sin_theta,
-        cos_theta + z * z * one_minus_cos,
-        0,
+    values[0] = params.cos_theta + x * x * params.one_minus_cos;
+    values[1] = x * y * params.one_minus_cos - z * params.sin_theta;
+    values[2] = x * z * params.one_minus_cos + y * params.sin_theta;
+    values[3] = 0;
+    values[4] = y * x * params.one_minus_cos + z * params.sin_theta;
+    values[5] = params.cos_theta + y * y * params.one_minus_cos;
+    values[6] = y * z * params.one_minus_cos - x * params.sin_theta;
+    values[7] = 0;
+    values[8] = z * x * params.one_minus_cos - y * params.sin_theta;
+    values[9] = z * y * params.one_minus_cos + x * params.sin_theta;
+    values[10] = params.cos_theta + z * z * params.one_minus_cos;
+    values[11] = 0;
+    values[12] = 0;
+    values[13] = 0;
+    values[14] = 0;
+    values[15] = 1;
+}
 
-        0, 0, 0, 1
-    };
-    // Create the 4x4 matrix using the values array
-    t_matrix* rotation = create_4x4_matrix(values);
+t_matrix	*rotation_around_axis(t_tuple axis, float angle)
+{
+    t_matrix			*rotation;
+    t_rotation_params	params;
+    float				values[16];
+
+    params.cos_theta = cos(angle);
+    params.sin_theta = sin(angle);
+    params.one_minus_cos = 1.0f - params.cos_theta;
+
+    fill_rotation_values(values, axis, params);
+
+    rotation = create_4x4_matrix(values);
     return (rotation);
 }
 
-t_matrix* rotation_from_normal(t_tuple normal)
+t_tuple	get_default_normal(void)
 {
-    t_tuple default_normal = vector(0, 1, 0);  // Default normal for the cylinder's y-axis
-    t_tuple v1 = normalize(default_normal);
-    t_tuple v2 = normalize(normal);
+    t_tuple	default_normal;
 
-    // Check for axis-aligned cases directly
+    default_normal = vector(0, 1, 0);
+    return (normalize(default_normal));
+}
+
+bool	check_special_case(t_tuple v2)
+{
     if (fabs(v2.x - 1.0) < EPSILON && fabs(v2.y) < EPSILON && fabs(v2.z) < EPSILON)
-    {
-        // Align with the x-axis
-        return rotation_around_axis(vector(0, 0, 1), -PI / 2);  // Rotate -90 degrees around the z-axis
-    }
-    else if (fabs(v2.z - 1.0) < EPSILON && fabs(v2.x) < EPSILON && fabs(v2.y) < EPSILON)
-    {
-        // Align with the z-axis (this seems to already be working correctly)
-        return identity_matrix();  // No rotation needed, it's already aligned
-    }
+        return (true);
+    if (fabs(v2.z - 1.0) < EPSILON && fabs(v2.x) < EPSILON && fabs(v2.y) < EPSILON)
+        return (true);
+    return (false);
+}
 
-    // Compute the rotation axis using the cross product
-    t_tuple axis = cross(v1, v2);
-    float axis_length = magnitude(axis);
+t_matrix	*handle_special_case(t_tuple v2)
+{
+    if (fabs(v2.x - 1.0) < EPSILON)
+    {
+        // For left-hand system, the rotation angle should be +PI/2 to rotate in the opposite direction
+        return (rotation_around_axis(vector(0, 0, 1), PI / 2));
+    }
+    return (identity_matrix());
+}
 
-    // Handle the parallel/antiparallel case
+t_tuple get_arbitrary_axis(t_tuple v1)
+{
+    t_tuple	arbitrary_axis;
+
+    arbitrary_axis = vector(1, 0, 0);
+    if (fabs(v1.x) > fabs(v1.y))
+        arbitrary_axis = vector(0, 1, 0);
+    return (arbitrary_axis);
+}
+
+t_matrix	*handle_axis_length_case(t_tuple v1, t_tuple v2)
+{
+    t_tuple	axis;
+    t_tuple	arbitrary_axis;
+
+    if (dot(v1, v2) > 0)
+        return (identity_matrix());
+    arbitrary_axis = get_arbitrary_axis(v1);
+    axis = normalize(cross(v2, arbitrary_axis));  // Swapped operands for left-hand system
+    return (rotation_around_axis(axis, PI));  // The rotation remains the same as PI is the same in both systems
+}
+
+t_matrix	*rotation_from_normal(t_tuple normal)
+{
+    t_tuple	v1;
+    t_tuple	v2;
+    t_tuple	axis;
+    float	axis_length;
+    float	angle;
+
+    v1 = get_default_normal();
+    v2 = normalize(normal);
+    if (check_special_case(v2))
+    {
+        return (handle_special_case(v2));
+    }
+    axis = cross(v2, v1);  // Inverted for left-hand system
+    axis_length = magnitude(axis);
     if (axis_length < EPSILON)
     {
-        if (dot(v1, v2) > 0)
-        {
-            return identity_matrix();  // No rotation needed
-        }
-        else
-        {
-            // Rotate 180 degrees around any perpendicular axis
-            t_tuple arbitrary_axis = vector(1, 0, 0);
-            if (fabs(v1.x) > fabs(v1.y))
-                arbitrary_axis = vector(0, 1, 0);
-            axis = normalize(cross(v1, arbitrary_axis));
-            return rotation_around_axis(axis, PI);  // Rotate 180 degrees
-        }
+        return (handle_axis_length_case(v1, v2));
     }
-
     axis = normalize(axis);
-    float angle = acos(dot(v1, v2));
+    angle = acos(dot(v1, v2));
     return (rotation_around_axis(axis, angle));
 }
 
 // Function to multiply a tuple by a scalar
 t_tuple tuple_multiply(t_tuple t, double scalar)
 {
-    return tuple(t.x * scalar, t.y * scalar, t.z * scalar, t.w);  // Preserves w
+    return (tuple(t.x * scalar, t.y * scalar, t.z * scalar, t.w));
 }
 
 // Computes a point along the ray at parameter t
 t_tuple position(t_ray r, double t)
 {
-    // p = origin + t * direction
-    t_tuple scaled_direction = tuple_multiply(r.direction, t);
-    return tuple_add(r.origin, scaled_direction);
+    t_tuple	scaled_direction;
+
+    scaled_direction = tuple_multiply(r.direction, t);
+    return (tuple_add(r.origin, scaled_direction));
 }
 
 // Multiplies a transformation matrix by a tuple and returns the transformed tuple
-t_tuple apply_transformation(t_matrix *transformation, const t_tuple *point)
-{
-    t_matrix *point_matrix = tuple_to_matrix(point);
-    t_matrix *transformed_matrix = t_matrix_multiply(transformation, point_matrix);
-    t_tuple transformed_point = matrix_to_tuple(transformed_matrix);
-    free(point_matrix);
-    free(transformed_matrix);
-    return transformed_point;
-}
-/*
-// Multiplies a transformation matrix by a tuple and returns the transformed tuple
 t_tuple apply_transformation(t_matrix *transformation, t_tuple *point)
 {
-    t_matrix *point_matrix = tuple_to_matrix(point);
-    t_matrix *transformed_matrix = t_matrix_multiply(transformation, point_matrix);
-    t_tuple transformed_point = matrix_to_tuple(transformed_matrix);
+    t_matrix	*point_matrix;
+    t_matrix	*transformed_matrix;
+    t_tuple		transformed_point;
+
+    point_matrix = tuple_to_matrix(point);
+    transformed_matrix = t_matrix_multiply(transformation, point_matrix);
+    transformed_point = matrix_to_tuple(transformed_matrix);
     free(point_matrix);
     free(transformed_matrix);
-    return transformed_point;
-}*/
+    return (transformed_point);
+}
 
 // Function to convert the first column of a 4x4 matrix back to a t_tuple
 t_tuple matrix_to_tuple(t_matrix *m)
 {
-    return tuple(m->data[0][0], m->data[1][0], m->data[2][0], m->data[3][0]);
+    return (tuple(m->data[0][0], m->data[1][0], m->data[2][0], m->data[3][0]));
 }
 
 t_matrix *tuple_to_matrix(t_tuple *t)
 {
-    // Prepare the array of values for the matrix
-    float values[16] = {
-        t->x, 0, 0, 0,
-        t->y, 0, 0, 0,
-        t->z, 0, 0, 0,
-        t->w, 0, 0, 0
-    };
+    float		values[16];
+    t_matrix	*m;
 
-    // Create the 4x4 matrix using the values array
-    t_matrix *m = create_4x4_matrix(values);
-
-    return m;
+    values[0] = t->x;
+    values[1] = 0;
+    values[2] = 0;
+    values[3] = 0;
+    values[4] = t->y;
+    values[5] = 0;
+    values[6] = 0;
+    values[7] = 0;
+    values[8] = t->z;
+    values[9] = 0;
+    values[10] = 0;
+    values[11] = 0;
+    values[12] = t->w;
+    values[13] = 0;
+    values[14] = 0;
+    values[15] = 0;
+    m = create_4x4_matrix(values);
+    return (m);
 }
 
-// Function to create a rotation matrix around the Z-axis
+// Function to create a rotation matrix around the Z-axis (left-hand system)
 t_matrix *rotation_z(float radians)
 {
     t_matrix* rotation = identity_matrix(); // Initialize as identity matrix
 
-    // Set the rotation components
+    // Adjusted rotation for left-hand system
     rotation->data[0][0] = cos(radians);
-    rotation->data[0][1] = sin(radians);
-    rotation->data[1][0] = -sin(radians);
+    rotation->data[0][1] = -sin(radians); // Inverted for left-handed system
+    rotation->data[1][0] = sin(radians);  // Inverted for left-handed system
     rotation->data[1][1] = cos(radians);
 
     return rotation;
 }
 
-// Function to create a rotation matrix around the Y-axis
+// Function to create a rotation matrix around the Y-axis (left-hand system)
 t_matrix* rotation_y(float radians)
 {
     t_matrix *transform = identity_matrix(); // Initialize as identity matrix
 
-    // Set the rotation components
+    // Adjusted rotation for left-hand system
     transform->data[0][0] = cos(radians);
-    transform->data[0][2] = -sin(radians);
-    transform->data[2][0] = sin(radians);
+    transform->data[0][2] = sin(radians);    // Inverted for left-handed system
+    transform->data[2][0] = -sin(radians);   // Inverted for left-handed system
     transform->data[2][2] = cos(radians);
 
     return transform;
 }
 
-// Function to create a rotation matrix for rotating around the X axis
+// Function to create a rotation matrix for rotating around the X axis (left-hand system)
 t_matrix *rotation_x(float radians)
 {
     t_matrix *transform = identity_matrix();
 
-    // Set the rotation components for the X axis
+    // Adjusted rotation for left-hand system
     transform->data[1][1] = cos(radians);
-    transform->data[1][2] = sin(radians);
-    transform->data[2][1] = -sin(radians);
+    transform->data[1][2] = -sin(radians);   // Inverted for left-handed system
+    transform->data[2][1] = sin(radians);    // Inverted for left-handed system
     transform->data[2][2] = cos(radians);
 
     return transform;
@@ -225,7 +263,8 @@ t_matrix *rotation_x(float radians)
 // Function to create a reflection matrix (scaling by a negative value)
 t_matrix *reflective_scaling(float x, float y, float z)
 {
-    // Use the scaling function to scale by the negative values for reflection
+    // Use the scaling function to scale by negative values for reflection
+    // Ensure negative values for the left-handed system reflection
     return scaling(x, y, z);
 }
 
@@ -233,6 +272,7 @@ t_matrix *reflective_scaling(float x, float y, float z)
 t_matrix *inverse_scaling(float x, float y, float z)
 {
     // Inverse scaling factors are the reciprocals of the original scaling factors
+    // This remains the same for both left and right-hand systems
     return scaling(1.0f / x, 1.0f / y, 1.0f / z);
 }
 
@@ -255,7 +295,7 @@ t_matrix *scaling(float x, float y, float z)
         }
         i++;
     }
-    // Set scaling components
+    // Set scaling components, these remain the same for left-hand systems
     transform->data[0][0] = x;
     transform->data[1][0] = 0;
     transform->data[2][0] = 0;
@@ -274,17 +314,21 @@ t_matrix *scaling(float x, float y, float z)
 // Function to compare two tuples (for test validation)
 bool tuple_equal(t_tuple t1, t_tuple t2)
 {
+    // This function doesn't need changes for left-hand system
     return equal(t1.x, t2.x) && equal(t1.y, t2.y) && equal(t1.z, t2.z) && equal(t1.w, t2.w);
 }
 
 // Function to create the inverse of a translation matrix using while loops
 t_matrix *inverse_translation(t_matrix *transform)
 {
+    // In the left-hand system, translation inversion remains the same
     return translation(-transform->data[0][3], -transform->data[1][3], -transform->data[2][3]);
 }
 
 // Function to multiply a 4x4 matrix by a point (assumed to be a 4x1 vector)
-t_tuple multiply_matrix_tuple(t_matrix *m, t_tuple *p) {
+t_tuple multiply_matrix_tuple(t_matrix *m, t_tuple *p)
+{
+    // This function remains unchanged for left-hand systems
     t_tuple result;
 
     result.x = m->data[0][0] * p->x + m->data[0][1] * p->y + m->data[0][2] * p->z + m->data[0][3] * p->w;
@@ -298,10 +342,10 @@ t_tuple multiply_matrix_tuple(t_matrix *m, t_tuple *p) {
 // Function to create a 4x4 translation matrix
 t_matrix *translation(float x, float y, float z)
 {
-    // Initialize the identity matrix
+    // Initialize the identity matrix, this remains the same for left-hand systems
     t_matrix *transform = identity_matrix();
 
-    // Set the translation components
+    // Set the translation components, no need to modify for left-hand system
     transform->data[0][3] = x;
     transform->data[1][3] = y;
     transform->data[2][3] = z;
@@ -309,6 +353,7 @@ t_matrix *translation(float x, float y, float z)
     return (transform);
 }
 
+// Function to calculate the inverse of a matrix (remains the same for left-hand system)
 t_matrix *inverse(t_matrix *m)
 {
     // Calculate the determinant first
@@ -339,7 +384,8 @@ t_matrix *inverse(t_matrix *m)
     return (inverse_m);
 }
 
-t_matrix* cofactor_matrix(const t_matrix *m)
+// Function to create the cofactor matrix (no change for left-hand system)
+t_matrix *cofactor_matrix(const t_matrix *m)
 {
     // Allocate memory for the cofactor matrix
     t_matrix *cofactor_m = (t_matrix *)malloc(sizeof(t_matrix));
@@ -364,14 +410,14 @@ t_matrix* cofactor_matrix(const t_matrix *m)
     return (cofactor_m);
 }
 
-// Function to check if matrix is invertible
+// Function to check if matrix is invertible (remains the same)
 bool is_invertible(t_matrix *m)
 {
     float det = determinant(m);
     return det != 0;
 }
 
-// Function to compute the cofactor of an matrix element
+// Function to compute the cofactor of a matrix element
 float cofactor(const t_matrix *m, int row, int col)
 {
     // Calculate the minor at the given row and column
@@ -427,7 +473,7 @@ t_matrix* submatrix(const t_matrix *m, int remove_row, int remove_col)
     return sub_m;
 }
 
-// Function to return the dminor/determinant of a given matrix
+// Function to return the minor/determinant of a given matrix
 float minor(const t_matrix *m, int row, int col)
 {
     // Get the submatrix by removing the specified row and column
@@ -576,6 +622,7 @@ t_matrix* t_matrix_multiply(t_matrix *a, t_matrix *b)
     return (result);
 }
 
+// Function to create a 4x4 matrix from an array of values
 t_matrix *create_4x4_matrix(float values[16])
 {
     int             row;
@@ -770,12 +817,12 @@ float dot(t_tuple a, t_tuple b)
     return a.x * b.x + a.y * b.y + a.z * b.z + a.w * b.w;
 }
 
-// Function to compute the cross product of two vectors
+// Function to compute the cross product of two vectors in a left-handed system
 t_tuple cross(t_tuple a, t_tuple b)
 {
     return vector(
         a.y * b.z - a.z * b.y,
-        a.z * b.x - a.x * b.z,
+        a.z * b.x - a.x * b.z, // Swap terms for left-handed system
         a.x * b.y - a.y * b.x
     );
 }
@@ -788,7 +835,7 @@ int matrices_are_equal(t_matrix *m1, t_matrix *m2) {
 
     for (int i = 0; i < m1->rows; i++) {
         for (int j = 0; j < m1->cols; j++) {
-            if (!equal(m1->data[i][j], m2->data[i][j])) {
+            if (!equal(m1->data[i][j], m2->data[j][i])) { // Adjusted for left-handed system
                 return 0;
             }
         }

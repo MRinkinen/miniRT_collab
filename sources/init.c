@@ -26,6 +26,7 @@ void initialize_scene(t_var *var, t_map *map)
         var->objects[obj_index].data.sphere.color = color;
 
         current_sphere = current_sphere->next;
+        printf("Sphere center: %f %f %f\n", center.x, center.y, center.z);
         obj_index++;
     }
 

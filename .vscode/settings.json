@@ -4,5 +4,6 @@
 		"mlx42.h": "c",
 		"parsing.h": "c",
 		"libft.h": "c"
-	}
+	},
+	"makefile.configureOnOpen": false
 }

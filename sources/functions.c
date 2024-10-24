@@ -6,7 +6,7 @@
 /*   By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/16 09:33:18 by mrinkine          #+#    #+#             */
-/*   Updated: 2024/10/24 00:42:01 by tvalimak         ###   ########.fr       */
+/*   Updated: 2024/10/24 12:03:53 by tvalimak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,78 +14,40 @@
 
 void initialize_camera(t_var *var, t_cam *camera, t_map *map)
 {
-    float half_height;
-    float half_width;
-    t_tuple lookfrom;
-    t_tuple lookat;
-    t_tuple vup;
-
-    // Calculate half the height and width of the image plane based on the field of view
-    half_height = tan(map->camera->fov * (PI / 180.0f) / 2);
-    half_width = var->cam.aspect_ratio * half_height;
-    // Camera position and target (lookfrom and lookat)
-    lookfrom = point(map->camera->x, map->camera->y, map->camera->z);
-    lookat = point(map->camera->nx, map->camera->ny, map->camera->nz);
-    // Define the up vector (flipped for left-handed system)
-    vup = vector(0.0f, -1.0f, 0.0f); // Adjust if needed for handedness
-    // Camera basis vectors: w (forward), u (right), v (up)
-    camera->w = normalize(tuple_subtract(lookfrom, lookat)); // Forward direction (-w)
-    camera->u = normalize(cross(vup, camera->w));            // Right direction (u)
-    camera->v = cross(camera->w, camera->u);                 // Up direction (v)
-    // Set the camera position
-    var->cam.position = lookfrom;
-    // Compute the image plane’s lower-left corner, horizontal, and vertical vectors
-    camera->lower_left_corner = tuple_subtract(
-        tuple_subtract(
-            tuple_subtract(var->cam.position, tuple_multiply(camera->u, half_width)),
-            tuple_multiply(camera->v, half_height)),
-        camera->w); // Adjusted to subtract w for correct perspective
-
-    camera->horizontal = tuple_multiply(camera->u, 2 * half_width);
-    camera->vertical = tuple_multiply(camera->v, 2 * half_height);
-    // Debugging output to verify the camera setup
-    printf("Camera Setup:\n");
-    printf("Position: (%f, %f, %f)\n", lookfrom.x, lookfrom.y, lookfrom.z);
-    printf("Lookat: (%f, %f, %f)\n", lookat.x, lookat.y, lookat.z);
-    printf("Lower Left Corner: (%f, %f, %f)\n", camera->lower_left_corner.x, camera->lower_left_corner.y, camera->lower_left_corner.z);
-    printf("Horizontal: (%f, %f, %f)\n", camera->horizontal.x, camera->horizontal.y, camera->horizontal.z);
-    printf("Vertical: (%f, %f, %f)\n", camera->vertical.x, camera->vertical.y, camera->vertical.z);
+	var->cam.position = point(map->camera->x, map->camera->y, map->camera->z);
+	var->aspect_ratio = (float) WIDTH / HEIGHT;
+	var->cam.focal_length = (WIDTH / 2) / (tanf((map->camera->fov * (PI / 180)) / 2));
+	var->cam.view_w = WIDTH * 2;
+	var->cam.viewp_h = var->cam.view_w / var->aspect_ratio;
+	var->cam.forward = normalize(vector(map->camera->nx, map->camera->ny, map->camera->nz));
+	if (magnitude(cross(vector(0, 1, 0), var->cam.forward)) != 0)
+		var->cam.right = cross(vector(0, 1, 0), var->cam.forward);
+	else
+		var->cam.right = cross(vector(0, 1, -0.00001), var->cam.forward);
+	var->cam.up = cross(var->cam.forward, var->cam.right);
+	var->cam.view_u = tuple_multiply(var->cam.right, var->cam.view_w);
+	var->cam.view_v = tuple_multiply(var->cam.up, var->cam.viewp_h);
+	var->cam.delta_u = tuple_divide(var->cam.view_u, WIDTH);
+	var->cam.delta_v = tuple_divide(var->cam.view_v, HEIGHT);
+	var->cam.focal = tuple_multiply(var->cam.forward, var->cam.focal_length);
+	var->cam.v_up_left_c = tuple_subtract(point(map->camera->x, map->camera->y, map->camera->z), var->cam.focal);
+	var->cam.v_up_left_c = tuple_subtract(var->cam.v_up_left_c, tuple_divide(var->cam.view_u, 2));
+	var->cam.v_up_left_c = tuple_subtract(var->cam.v_up_left_c, tuple_divide(var->cam.view_v, 2));
+	var->cam.loc_00 = tuple_multiply(tuple_add(var->cam.delta_u, var->cam.delta_v), 0.5);
+	var->cam.loc_00 = tuple_add(var->cam.loc_00, var->cam.v_up_left_c);
+	// add printf's to all values with te w component
+	printf("camera position: %f %f %f %f\n", var->cam.position.x, var->cam.position.y, var->cam.position.z, var->cam.position.w);
+	printf("camera forward: %f %f %f %f\n", var->cam.forward.x, var->cam.forward.y, var->cam.forward.z, var->cam.forward.w);
+	printf("camera right: %f %f %f %f\n", var->cam.right.x, var->cam.right.y, var->cam.right.z, var->cam.right.w);
+	printf("camera up: %f %f %f %f\n", var->cam.up.x, var->cam.up.y, var->cam.up.z, var->cam.up.w);
+	printf("camera view_u: %f %f %f %f\n", var->cam.view_u.x, var->cam.view_u.y, var->cam.view_u.z, var->cam.view_u.w);
+	printf("camera view_v: %f %f %f %f\n", var->cam.view_v.x, var->cam.view_v.y, var->cam.view_v.z, var->cam.view_v.w);
+	printf("camera delta_u: %f %f %f %f\n", var->cam.delta_u.x, var->cam.delta_u.y, var->cam.delta_u.z, var->cam.delta_u.w);
+	printf("camera delta_v: %f %f %f %f\n", var->cam.delta_v.x, var->cam.delta_v.y, var->cam.delta_v.z, var->cam.delta_v.w);
+	printf("camera focal: %f %f %f %f\n", var->cam.focal.x, var->cam.focal.y, var->cam.focal.z, var->cam.focal.w);
+	printf("camera v_up_left_c: %f %f %f %f\n", var->cam.v_up_left_c.x, var->cam.v_up_left_c.y, var->cam.v_up_left_c.z, var->cam.v_up_left_c.w);
+	printf("camera loc_00: %f %f %f %f\n", var->cam.loc_00.x, var->cam.loc_00.y, var->cam.loc_00.z, var->cam.loc_00.w);
 }
-
-/*
-// Function to initialize the camera, setting up the camera basis vectors and image plane
-void initialize_camera(t_var *var, t_cam *camera, t_map *map)
-{
-    float half_height;
-    float half_width;
-    t_tuple lookfrom;
-    t_tuple lookat;
-    t_tuple vup; // Assume the up vector is always (0, 1, 0)
-    // Calculate half the height and width of the image plane based on the field of view
-    half_height = tan(map->camera->fov * (PI / 180.0f) / 2);
-    half_width = var->cam.aspect_ratio * half_height;
-    // Define camera position and direction (lookfrom and lookat)
-    lookfrom = point(map->camera->x, map->camera->y, map->camera->z);
-    lookat = point(map->camera->nx, map->camera->ny, map->camera->nz);
-    printf("lookat: %f %f %f\n", lookat.x, lookat.y, lookat.z);
-    // Define the camera's up vector (flipped for left-handed system)
-    vup = vector(0.0f, -1.0f, 0.0f);
-    // Calculate camera basis vectors: w (forward), u (right), v (up)
-    camera->w = normalize(tuple_subtract(lookfrom, lookat)); // Forward vector (camera looks in the -w direction)
-    camera->u = normalize(cross(vup, camera->w));            // Right vector
-    camera->v = cross(camera->w, camera->u);                 // Up vector
-    // Camera position
-    var->cam.position = point(map->camera->x, map->camera->y, map->camera->z);
-    // Compute the image plane's lower-left corner
-    camera->lower_left_corner = tuple_subtract(
-        tuple_subtract(
-            tuple_subtract(var->cam.position, tuple_multiply(camera->u, half_width)),
-            tuple_multiply(camera->v, half_height)),
-        camera->w);
-    // Horizontal and vertical vectors of the image plane
-    camera->horizontal = tuple_multiply(camera->u, 2 * half_width);
-    camera->vertical = tuple_multiply(camera->v, 2 * half_height);
-}*/
 
 /*
 void initialize_camera(t_var *var, t_cam *camera, t_map *map)

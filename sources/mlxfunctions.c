@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   mlxfunctions.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mrinkine <mrinkine@student.42.fr>          +#+  +:+       +#+        */
+/*   By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/16 09:33:08 by mrinkine          #+#    #+#             */
-/*   Updated: 2024/10/17 16:12:58 by mrinkine         ###   ########.fr       */
+/*   Updated: 2024/10/24 12:21:13 by tvalimak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,7 @@ int32_t ft_pixel(int32_t r, int32_t g, int32_t b, int32_t a)
 
 void write_color(t_color col, t_var *var, int x, int y)
 {
-    int color = ft_pixel(col.r, col.b, col.g, 255);
+    int color = ft_pixel(col.r, col.g, col.b, 255);
     mlx_put_pixel(var->screenimage, x, y, color);
 }
 
@@ -38,12 +38,48 @@ void hooks(t_var *var)
 	mlx_loop_hook(var->mlx, ft_hook, var);
 }
 
+static void	close_hook(void *param)
+{
+	mlx_t	*mlx;
+
+	mlx = param;
+	if (mlx_is_key_down(mlx, MLX_KEY_ESCAPE))
+		mlx_close_window(mlx);
+}
+
+int	mlxinit(t_var *var)
+{
+	var->mlx = mlx_init(WIDTH, HEIGHT, "miniRT", true);
+	if (!var->mlx)
+	{
+		printf("mlx_init failed\n");
+		return (EXIT_FAILURE);
+	}
+	var->screenimage = mlx_new_image(var->mlx, WIDTH, HEIGHT);
+	if (!var->screenimage)
+	{
+		printf("mlx_new_image failed\n");
+		return (EXIT_FAILURE);
+	}
+	mlx_set_setting(MLX_STRETCH_IMAGE, true);
+	if (mlx_image_to_window(var->mlx, var->screenimage, 0, 0) == -1)
+	{
+		printf("mlx_image_to_window failed\n");
+		return (EXIT_FAILURE);
+	}
+	mlx_loop_hook(var->mlx, &close_hook, var->mlx);
+	printf("mlxinit success\n");
+	return (EXIT_SUCCESS);
+}
+
+/*
 int mlxinit(t_var *var)
 {
-	var->cam.aspect_ratio = 16.0 / 9.0;
-	var->image_height = SCREEN_WIDTH / var->cam.aspect_ratio;
-	var->image_width = SCREEN_WIDTH;
-	if (!(var->mlx = mlx_init(SCREEN_WIDTH, var->image_height, "MiniRT", true)))
+	var->aspect_ratio = 16.0 / 9.0;
+	//var->image_height = WIDTH / var->aspect_ratio;
+	var->image_height = HEIGHT;
+	var->image_width = WIDTH;
+	if (!(var->mlx = mlx_init(WIDTH, var->image_height, "MiniRT", true)))
 	{
 		ft_printf("%s", mlx_strerror(mlx_errno));
 		return (EXIT_FAILURE);
@@ -62,3 +98,30 @@ int mlxinit(t_var *var)
 	}
 	return (EXIT_SUCCESS);
 }
+
+int mlxinit(t_var *var)
+{
+	//var->cam.aspect_ratio = 16.0 / 9.0;
+	int image_width;
+	//var->image_height = WIDTH / var->aspect_ratio;
+	//var->image_width = WIDTH;
+	image_width = WIDTH / var->aspect_ratio;
+	if (!(var->mlx = mlx_init(WIDTH, HEIGHT, "MiniRT", true)))
+	{
+		ft_printf("%s", mlx_strerror(mlx_errno));
+		return (EXIT_FAILURE);
+	}
+	if (!(var->screenimage = mlx_new_image(var->mlx, WIDTH, HEIGHT)))
+	{
+		mlx_close_window(var->mlx);
+		ft_printf("%s", mlx_strerror(mlx_errno));
+		return (EXIT_FAILURE);
+	}
+	if (mlx_image_to_window(var->mlx, var->screenimage, 0, 0) == -1)
+	{
+		mlx_close_window(var->mlx);
+		ft_printf("%s", mlx_strerror(mlx_errno));
+		return (EXIT_FAILURE);
+	}
+	return (EXIT_SUCCESS);
+}*/

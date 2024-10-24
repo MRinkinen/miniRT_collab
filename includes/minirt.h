@@ -1,25 +1,26 @@
 #ifndef MINIRT_H
-#define MINIRT_H
+# define MINIRT_H
 
-#include <stdbool.h>
-#include <stdio.h> // DELETE BEFORE RETURN!!
-#include <stdlib.h>
-#include <fcntl.h>
-#include <math.h>
-#include <limits.h>
-#include <float.h>
-#include <assert.h> // Only for testing purposes, remove from final version
-#include "../libft/libft.h"
-#include "../MLX42/include/MLX42/MLX42.h"
-#include "./parsing.h"
+# include <stdbool.h>
+# include <stdio.h> // DELETE BEFORE RETURN!!
+# include <stdlib.h>
+# include <fcntl.h>
+# include <math.h>
+# include <limits.h>
+# include <float.h>
+# include <assert.h> // Only for testing purposes, remove from final version
+# include "../libft/libft.h"
+# include "../MLX42/include/MLX42/MLX42.h"
+# include "./parsing.h"
 //#include "./test_functions.h"
 
-#define SCREEN_HEIGHT 600 // Not in use
-#define SCREEN_WIDTH 1500
-#define MAX_OBJECTS 100
-#define PI 3.141592653589793
+# define WIDTH 1500
+# define HEIGHT 600
+# define MAX_OBJECTS 100
+# define PI 3.1415927f
+//# define PI 3.141592653589793
 //#define EPSILON 0.9
-#define EPSILON 0.00001
+# define EPSILON 0.00001
 
 typedef struct s_map	t_map;
 typedef struct s_cylinders t_cylinders;
@@ -136,22 +137,20 @@ typedef struct s_sphere
 
 typedef struct s_cam
 {
-	t_tuple position;
-	t_tuple forward;
-	t_tuple right;
-	t_tuple up;
-	float fov; // Field of view in degrees
-	float aspect_ratio;
-	float viewport_height;
-	float viewport_width;
-	float focal_length;
-
-	t_tuple horizontal;
-	t_tuple vertical;
-	t_tuple lower_left_corner;
-
-	t_tuple u, v, w; // Camera basis vectors
-    float lens_radius;
+	t_tuple position;           // Camera position
+	float focal_length;         // Focal length based on fov
+	t_tuple focal;			  	// Focal point
+	t_tuple view_u; 			// Camera basis vector (right)
+	t_tuple view_v; 			// Camera basis vector (up)
+	t_tuple v_up_left_c;		// Upper-left corner of the viewport (viewport_up_l)
+	double view_w;       		// Width of the viewport
+	double viewp_h;      		// Height of the viewport
+	t_tuple forward;            // Forward direction (camera_f)
+	t_tuple right;              // Right direction (camera_r)
+	t_tuple up;                 // Up direction (camera_up)
+	t_tuple delta_u;            // Delta u
+	t_tuple delta_v;            // Delta v
+	t_tuple loc_00;        		// Location of the 00 pixel
 } t_cam;
 
 typedef union u_objectdata
@@ -169,6 +168,9 @@ typedef struct s_object
 
 typedef struct s_var
 {
+	int			width;
+	int			height;
+	float		aspect_ratio;
 	mlx_t		*mlx;
 	mlx_image_t *screenimage;
 	float		image_width;
@@ -181,6 +183,7 @@ typedef struct s_var
 	int 		num_objects;
 	t_object 	*objects;
 	t_color 	temp_color;
+	t_tuple 	pixel_center;		// Center of the pixel
 } t_var;
 
 void print_matrix(t_matrix *matrix);

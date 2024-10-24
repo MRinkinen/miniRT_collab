@@ -6,7 +6,7 @@
 /*   By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/15 12:02:26 by mrinkine          #+#    #+#             */
-/*   Updated: 2024/10/24 01:00:17 by tvalimak         ###   ########.fr       */
+/*   Updated: 2024/10/24 12:25:26 by tvalimak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -91,27 +91,23 @@ void printimage(void *param)
     int y;
     int x;
 
-    var = param;
-    
-    // Change these to choose a specific pixel to debug (e.g., center of the image)
-    int debug_x = SCREEN_WIDTH / 2;
-    int debug_y = var->image_height / 2;
-
     y = 0;
-    while (y < (int)var->image_height)
+    x = 0;
+    var = param;
+    while (y < HEIGHT)
     {
         x = 0;
-        while (x < SCREEN_WIDTH)
+        while (x < WIDTH)
         {
-            r = generate_ray_for_pixel(var, x, y);
-
-            // Only print ray information for the chosen debug pixel
-            if (x == debug_x && y == debug_y) {
-                printf("Ray for pixel (%d, %d):\n", x, y);
-                printf("  Origin: (%f, %f, %f)\n", r.origin.x, r.origin.y, r.origin.z);
-                printf("  Direction: (%f, %f, %f)\n", r.direction.x, r.direction.y, r.direction.z);
-            }
-
+            var->pixel_center = tuple_add(var->cam.loc_00, tuple_multiply(var->cam.delta_u, x));
+            var->pixel_center = tuple_add(var->pixel_center, tuple_multiply(var->cam.delta_v, y));
+            r.direction = normalize(tuple_subtract(var->pixel_center, var->cam.position));
+            //printf("camera direction: %f %f %f\n", var->cam.forward.x, var->cam.forward.y, var->cam.forward.z);
+            //printf("ray direction: %f %f %f\n", r.direction.x, r.direction.y, r.direction.z);
+           if (dot(r.direction, var->cam.forward) < 0)
+                r.direction = tuple_multiply(r.direction, -1.0);
+            //r = generate_ray_for_pixel(var, x, y);
+            r = ray(var->pixel_center, r.direction);
             pixel_color = var->ambientl;
             hit = false;
             closest_object = NULL;
@@ -131,7 +127,6 @@ void printimage(void *param)
                 {
                     object_color = closest_object->data.plane.color;
                 }
-                // Calculate view direction
                 view_dir = normalize(tuple_subtract(var->cam.position, intersection_point));
                 var->temp_color = object_color;
                 pixel_color = calculate_phong_lighting(var, &intersection_point, &normal, &view_dir);
@@ -142,6 +137,7 @@ void printimage(void *param)
         y++;
     }
 }
+
 /*
 void printimage(void *param)
 {
@@ -161,10 +157,10 @@ void printimage(void *param)
     y = 0;
     x = 0;
     var = param;
-    while (y < (int)var->image_height)
+    while (y < HEIGHT)
     {
         x = 0;
-        while (x < SCREEN_WIDTH)
+        while (x < WIDTH)
         {
             r = generate_ray_for_pixel(var, x, y);
             pixel_color = var->ambientl;
@@ -196,6 +192,7 @@ void printimage(void *param)
         y++;
     }
 }*/
+
 // fix the orientations
 // check that is there fish-eyeing
 // norm-proof stuff
@@ -219,8 +216,8 @@ int main(int argc, char **argv)
 	if (read_to_parse(&element_count, map, argv) == 0)
 		return (0);
 	print_data(map);
-	printf("image width: %f\n", var.image_width);
-	printf("image height: %f\n", var.image_height);
+	printf("image width: %d\n", WIDTH);
+	printf("image height: %d\n", HEIGHT);
 	if (mlxinit(&var) == EXIT_FAILURE)
 		return (EXIT_FAILURE);
     init_ambient_color(&var, map);

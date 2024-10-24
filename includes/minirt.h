@@ -71,6 +71,7 @@ typedef struct s_ray
 {
     t_tuple origin;
     t_tuple direction;
+	t_tuple px_center;
 } t_ray;
 
 typedef struct s_color

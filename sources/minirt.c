@@ -6,7 +6,7 @@
 /*   By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/15 12:02:26 by mrinkine          #+#    #+#             */
-/*   Updated: 2024/10/24 12:25:26 by tvalimak         ###   ########.fr       */
+/*   Updated: 2024/10/24 12:48:40 by tvalimak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -99,15 +99,18 @@ void printimage(void *param)
         x = 0;
         while (x < WIDTH)
         {
-            var->pixel_center = tuple_add(var->cam.loc_00, tuple_multiply(var->cam.delta_u, x));
-            var->pixel_center = tuple_add(var->pixel_center, tuple_multiply(var->cam.delta_v, y));
-            r.direction = normalize(tuple_subtract(var->pixel_center, var->cam.position));
+            //var->pixel_center = tuple_add(var->cam.loc_00, tuple_multiply(var->cam.delta_u, x));
+            //var->pixel_center = tuple_add(var->pixel_center, tuple_multiply(var->cam.delta_v, y));
+            r.px_center = tuple_add(var->cam.loc_00, tuple_multiply(var->cam.delta_u, x));
+            r.px_center = tuple_add(r.px_center, tuple_multiply(var->cam.delta_v, y));
+            r.direction = normalize(tuple_subtract(r.px_center, var->cam.position));
             //printf("camera direction: %f %f %f\n", var->cam.forward.x, var->cam.forward.y, var->cam.forward.z);
             //printf("ray direction: %f %f %f\n", r.direction.x, r.direction.y, r.direction.z);
            if (dot(r.direction, var->cam.forward) < 0)
                 r.direction = tuple_multiply(r.direction, -1.0);
             //r = generate_ray_for_pixel(var, x, y);
             r = ray(var->pixel_center, r.direction);
+            //printf("ray direction: %f %f %f\n", r.direction.x, r.direction.y, r.direction.z);
             pixel_color = var->ambientl;
             hit = false;
             closest_object = NULL;

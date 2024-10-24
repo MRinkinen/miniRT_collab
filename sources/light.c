@@ -18,6 +18,122 @@ bool is_in_shadow(const t_tuple *point, const t_light *light, const t_object *ob
     t_tuple shadow_origin; // Add small bias to avoid self-intersection
     t_ray shadow_ray;
     float threshold;
+    float light_distance;
+    int i;
+
+    i = 0;
+    light_dir = normalize(tuple_subtract(light->position, *point));
+    shadow_origin = tuple_add(*point, tuple_multiply(light_dir, 0.01f)); // Adjust bias as needed
+    shadow_ray = ray(shadow_origin, light_dir);
+
+    light_distance = magnitude(tuple_subtract(light->position, shadow_origin));  // Distance from point to light source
+
+    while (i < num_objects)
+    {
+        if (intersect_object(&shadow_ray, &objects[i], &threshold) && threshold > 0.001f && threshold < light_distance)
+        {
+            return (true);
+        }
+        i++;
+    }
+    return (false);
+}
+
+/*
+static int sphere_shadow(const t_ray *shadow_ray, const t_object *objects, int num_objects)
+{
+    int i;
+    float threshold;
+
+    i = 0;
+    while (i < num_objects)
+    {
+        if (objects[i].type == SPHERE && intersect_sphere(shadow_ray, &objects[i], &threshold) > 0.0f && threshold > 0.001f)
+        {
+            return (1);  // In shadow
+        }
+        i++;
+    }
+    return (0);  // No shadow from spheres
+}
+
+static int cylinder_shadow(const t_ray *shadow_ray, const t_object *objects, int num_objects)
+{
+    int i;
+    float threshold;
+
+    i = 0;
+    while (i < num_objects)
+    {
+        if (objects[i].type == CYLINDER && intersect_cylinder(shadow_ray, &objects[i], &threshold) > 0.0f && threshold > 0.001f)
+        {
+            return (1);  // In shadow
+        }
+        i++;
+    }
+    return (0);  // No shadow from cylinders
+}
+
+static int plane_shadow(const t_ray *shadow_ray, const t_object *objects, int num_objects)
+{
+    int i;
+    float threshold;
+
+    i = 0;
+    while (i < num_objects)
+    {
+        if (objects[i].type == PLANE && intersect_plane(shadow_ray, &objects[i], &threshold) > 0.0f && threshold > 0.001f)
+        {
+            return (1);  // In shadow
+        }
+        i++;
+    }
+    return (0);  // No shadow from planes
+}
+
+bool is_in_shadow(const t_tuple *point, const t_light *light, const t_object *objects, int num_objects)
+{
+    t_tuple light_dir;
+    t_tuple shadow_origin;
+    t_ray shadow_ray;
+    int in_shadow;
+
+    // Initialize the light direction and shadow ray origin with bias
+    light_dir = normalize(tuple_subtract(light->position, *point));
+    shadow_origin = tuple_add(*point, tuple_multiply(light_dir, 0.001f));
+    //light_dir = normalize(tuple_subtract(*point, light->position));
+    //shadow_origin = tuple_add(*point, tuple_multiply(light_dir, 0.001f));
+    shadow_origin.x = point->x;
+    shadow_origin.y = point->y;
+    shadow_origin.z = point->z;
+    shadow_origin.w = point->w;
+    shadow_ray = ray(shadow_origin, light_dir);
+    in_shadow = 0;
+
+    // Check for shadow from spheres
+    if (sphere_shadow(&shadow_ray, objects, num_objects))
+        return true;
+
+    // Check for shadow from cylinders
+    if (cylinder_shadow(&shadow_ray, objects, num_objects))
+        return true;
+
+    // Check for shadow from planes
+    if (plane_shadow(&shadow_ray, objects, num_objects))
+        return true;
+
+    // Return false if no shadows found
+    return false;
+}
+*/
+
+/*
+bool is_in_shadow(const t_tuple *point, const t_light *light, const t_object *objects, int num_objects)
+{
+    t_tuple light_dir;
+    t_tuple shadow_origin; // Add small bias to avoid self-intersection
+    t_ray shadow_ray;
+    float threshold;
     int i;
 
     i = 0;
@@ -33,7 +149,7 @@ bool is_in_shadow(const t_tuple *point, const t_light *light, const t_object *ob
         i++;
     }
     return (false);
-}
+}*/
 
 // // Function to calculate Phong lighting
 // t_color calculate_phong_lighting(t_var *var, const t_tuple *point, const t_tuple *normal, const t_tuple *view_dir)

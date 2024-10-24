@@ -26,5 +26,4 @@ scene, as seen from a specific angle and position,
 defined by simple geometric objects, and each with
 its own lighting system.
 
-eval9.rt kameran katsoessa alas kuva flippaa
-complex.rt +x orientoituneen sylinterin specular pitkin helvettiä
+Kameran FOVi onko ok?

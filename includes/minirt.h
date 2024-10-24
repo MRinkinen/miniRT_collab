@@ -229,11 +229,13 @@ bool intersect_sphere(const t_ray *ray, const t_sphere *sphere, float *t);
 /*Cylinder*/
 t_cylinder cylinder_create(t_var *var, t_map *map, int obj_index, t_cylinders *current_cylinder);
 //t_cylinder cylinder_create(t_tuple center, float radius, float height, t_color color, t_tuple orientation);
-t_tuple calculate_cylinder_normal(const t_cylinder *cylinder, const t_tuple *point);
+//t_tuple calculate_cylinder_normal(const t_cylinder *cylinder, const t_tuple *point);
+t_tuple calculate_cylinder_normal(t_cylinder *cylinder, t_tuple *point);
 bool intersect_cylinder(const t_ray *ray, const t_cylinder *cylinder, float *t);
 
 /*Plane*/
 t_plane plane_create(t_tuple center, t_color color, t_tuple orientation);
+//double intersect_plane(const t_ray *ray, const t_plane *plane, float *t);
 bool intersect_plane(const t_ray *ray, const t_plane *plane, float *t);
 
 

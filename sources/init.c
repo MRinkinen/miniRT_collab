@@ -68,7 +68,7 @@ void initialize_scene(t_var *var, t_map *map)
         var->objects[obj_index].data.cylinder.height = height;
         var->objects[obj_index].data.cylinder.color = color;
         var->objects[obj_index].data.cylinder.orientation = orientation;
-
+        var->objects[obj_index].data.cylinder.radius_squared = radius * radius;
         current_cylinder = current_cylinder->next;
         obj_index++;
     }

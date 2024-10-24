@@ -113,10 +113,13 @@ typedef struct s_cylinder
 	t_tuple 	center;		// Center of the base of the cylinder
 	t_tuple 	orientation; // Orientation of the cylinder (usually represented by a vector)
 	float 		radius;		// Radius of the cylinder
+	float       radius_squared;
 	float 		height;		// Height of the cylinder
 	t_color 	color;		// t_color of the cylinder
 	float 		minimum;
 	float 		maximum;
+	t_tuple 	top_cap_center;
+	t_tuple 	bottom_cap_center;
 } t_cylinder;
 
 typedef struct s_sphere
@@ -154,6 +157,14 @@ typedef struct s_cam
 	t_tuple loc_00;        		// Location of the 00 pixel
 } t_cam;
 
+typedef struct s_hit
+{
+	t_tuple	normal;
+	t_tuple	point;
+	float	t;
+	t_color	color;
+}	t_hit;
+
 typedef union u_objectdata
 {
     t_sphere sphere;
@@ -166,6 +177,16 @@ typedef struct s_object
     t_objecttype type;
     u_objectdata data;
 } t_object;
+
+typedef struct s_quadratic
+{
+	float	a;
+	float	b;
+	float	c;
+	float	delta;
+	float	t1;
+	float	t2;
+}	t_quadratic;
 
 typedef struct s_var
 {
@@ -218,29 +239,29 @@ t_color t_color_create(int r, int g, int b);
 t_color subtract_colors(t_color c1, t_color c2);
 t_color multiply_color_scalar(t_color color, float scalar);
 t_color multiply_colors(t_color a, t_color b);
-bool intersect_object(const t_ray *ray, const t_object *object, float *t);
+bool intersect_object(const t_ray *ray, const t_object *object, t_hit *hit);
 
 /*Sphere*/
 t_sphere sphere_create(t_tuple center, float radius, t_color col);
 t_tuple calculate_sphere_normal(const t_sphere *sphere, const t_tuple *point);
-bool intersect_sphere(const t_ray *ray, const t_sphere *sphere, float *t);
+bool intersect_sphere(const t_ray *ray, const t_sphere *sphere, t_hit *hit);
 
 
 /*Cylinder*/
 t_cylinder cylinder_create(t_var *var, t_map *map, int obj_index, t_cylinders *current_cylinder);
 //t_cylinder cylinder_create(t_tuple center, float radius, float height, t_color color, t_tuple orientation);
 t_tuple calculate_cylinder_normal(const t_cylinder *cylinder, const t_tuple *point);
-bool intersect_cylinder(const t_ray *ray, const t_cylinder *cylinder, float *t);
+bool intersect_cylinder(t_ray *r, t_cylinder *cy, t_hit *hit);
 
 /*Plane*/
 t_plane plane_create(t_tuple center, t_color color, t_tuple orientation);
-bool intersect_plane(const t_ray *ray, const t_plane *plane, float *t);
+bool intersect_plane(const t_ray *ray, const t_plane *plane, t_hit *hit);
 
 
 /*Light*/
 t_light light_create(t_tuple position, t_color intensity, float brightness);
-bool is_in_shadow(const t_tuple *point, const t_light *light, const t_object *objects, int num_objects) ;
-t_color calculate_phong_lighting(t_var *var, const t_tuple *point, const t_tuple *normal, const t_tuple *view_dir);
+bool is_in_shadow(t_hit *hit, const t_light *light, const t_object *objects, int num_objects) ;
+t_color calculate_phong_lighting(t_var *var, t_hit *hit, const t_tuple *view_dir);
 
 /*Matrix*/
 t_matrix    *tuple_to_matrix(t_tuple *t);
@@ -283,6 +304,8 @@ t_tuple       vector(double x, double y, double z);
 t_tuple       tuple(double x, double y, double z, double w);
 t_tuple       normalize(t_tuple v);
 t_tuple       cross(t_tuple a, t_tuple b);
+t_tuple 		tuple_scale(t_tuple t, double scalar);
+t_tuple			tuple_negate(t_tuple t);
 
 /*Ray*/
 t_ray         ray(t_tuple origin, t_tuple direction);
@@ -304,5 +327,6 @@ bool        magnitude_equal(t_tuple v, double expected_magnitude);
 float      dot(t_tuple a, t_tuple b);
 float       cofactor(const t_matrix *m, int row, int col);
 bool        is_invertible(t_matrix *m);
+float	distance(t_tuple a, t_tuple b);
 
 #endif

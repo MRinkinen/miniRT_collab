@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   functions.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mrinkine <mrinkine@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/16 09:33:18 by mrinkine          #+#    #+#             */
-/*   Updated: 2024/10/24 13:22:03 by tvalimak         ###   ########.fr       */
+/*   Updated: 2024/10/24 15:59:29 by mrinkine         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -114,6 +114,21 @@ void initialize_camera(t_var *var, t_cam *camera, t_map *map)
     camera->horizontal = tuple_multiply(camera->u, 2 * half_width);
     camera->vertical = tuple_multiply(camera->v, 2 * half_height);
 }*/
+
+float	distance(t_tuple a, t_tuple b)
+{
+	float	x;
+	float	y;
+	float	z;
+
+	x = a.x - b.x;
+	y = a.y - b.y;
+	z = a.z - b.z;
+	x = pow(x, 2);
+	y = pow(y, 2);
+	z = pow(z, 2);
+	return (sqrt(x + y + z));
+}
 
 void	fill_rotation_values(float *values, t_tuple axis, \
 t_rotation_params params)

@@ -32,18 +32,45 @@ t_tuple calculate_sphere_normal(const t_sphere *sphere, const t_tuple *point)
     return normalize(tuple_subtract(*point, sphere->center));
 }
 
-bool intersect_sphere(const t_ray *ray, const t_sphere *sphere, float *t)
+bool intersect_sphere(const t_ray *ray, const t_sphere *sphere, t_hit *hit)
 {
     t_tuple oc = tuple_subtract(ray->origin, sphere->center);
     float a = dot(ray->direction, ray->direction);
     float b = 2.0f * dot(oc, ray->direction);
     float c = dot(oc, oc) - sphere->radius * sphere->radius;
     float discriminant = b * b - 4 * a * c;
-    if (discriminant < 0) {
+
+    if (discriminant < 0)
+    {
         return false;
-    } else {
-        *t = (-b - sqrt(discriminant)) / (2.0f * a);
+    }
+    else
+    {
+        float sqrt_discriminant = sqrt(discriminant);
+        float t1 = (-b - sqrt_discriminant) / (2.0f * a);
+        float t2 = (-b + sqrt_discriminant) / (2.0f * a);
+
+        // Choose the closest positive intersection
+        if (t1 > 0 && t2 > 0)
+        {
+            hit->t = fmin(t1, t2);
+        }
+        else if (t1 > 0)
+        {
+            hit->t = t1;
+        }
+        else if (t2 > 0)
+        {
+            hit->t = t2;
+        }
+        else
+        {
+            return false;
+        }
+
         return true;
     }
 }
+
+
 

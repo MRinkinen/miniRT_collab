@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minirt.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mrinkine <mrinkine@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/15 12:02:26 by mrinkine          #+#    #+#             */
-/*   Updated: 2024/10/24 12:48:40 by tvalimak         ###   ########.fr       */
+/*   Updated: 2024/10/24 15:35:28 by mrinkine         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,19 +14,19 @@
 #include "../includes/parsing.h"
 
 
-bool intersect_object(const t_ray *ray, const t_object *object, float *t)
+bool intersect_object(const t_ray *ray, const t_object *object, t_hit *hit)
 {
     if (object->type == SPHERE)
     {
-        return (intersect_sphere(ray, &object->data.sphere, t));
+        return (intersect_sphere(ray, &object->data.sphere, hit));
     }
     else if (object->type == CYLINDER)
     {
-        return (intersect_cylinder(ray, &object->data.cylinder, t));
+        return (intersect_cylinder(ray, &object->data.cylinder, hit));
     }
     else if (object->type == PLANE)
     {
-        return (intersect_plane(ray, &object->data.plane, t));
+        return (intersect_plane(ray, &object->data.plane, hit));
     }
     else
     {
@@ -34,26 +34,25 @@ bool intersect_object(const t_ray *ray, const t_object *object, float *t)
     }
 }
 
-bool find_closest_intersection(t_var *var, const t_ray *ray, t_object **closest_object, float *closest_t)
+bool find_closest_intersection(t_var *var, const t_ray *ray, t_object **closest_object, t_hit *hit)
 {
-    bool hit;
+    bool hit_object;
     float t;
     int i;
 
     i = 0;
-    hit = false;
-    *closest_t = FLT_MAX;
+    hit_object = false;
+    hit->t = FLT_MAX;
     while (i < var->num_objects)
     {
-        if (intersect_object(ray, &var->objects[i], &t) && t < *closest_t && t > 0.001f)
+        if (intersect_object(ray, &var->objects[i], hit) && hit->t < FLT_MAX && hit->t > 0.001f)
         {
-            *closest_t = t;
             *closest_object = &var->objects[i];
-            hit = true;
+            hit_object = true;
         }
         i++;
     }
-    return (hit);
+    return (hit_object);
 }
 
 t_tuple calculate_normal(const t_object *object, const t_tuple *point)
@@ -81,59 +80,60 @@ void printimage(void *param)
     t_var *var;
     t_ray r;
     t_color pixel_color;
-    t_tuple intersection_point;
-    t_tuple normal;
     t_tuple view_dir;
-    t_color object_color;
     t_object *closest_object;
-    bool hit;
-    float closest_t;
+    t_hit hit;
     int y;
     int x;
 
-    y = 0;
-    x = 0;
     var = param;
+    y = 0;
     while (y < HEIGHT)
     {
         x = 0;
         while (x < WIDTH)
         {
-            //var->pixel_center = tuple_add(var->cam.loc_00, tuple_multiply(var->cam.delta_u, x));
-            //var->pixel_center = tuple_add(var->pixel_center, tuple_multiply(var->cam.delta_v, y));
+            // Calculate the pixel center and ray direction
             r.px_center = tuple_add(var->cam.loc_00, tuple_multiply(var->cam.delta_u, x));
             r.px_center = tuple_add(r.px_center, tuple_multiply(var->cam.delta_v, y));
             r.direction = normalize(tuple_subtract(r.px_center, var->cam.position));
-            //printf("camera direction: %f %f %f\n", var->cam.forward.x, var->cam.forward.y, var->cam.forward.z);
-            //printf("ray direction: %f %f %f\n", r.direction.x, r.direction.y, r.direction.z);
-           if (dot(r.direction, var->cam.forward) < 0)
+            if (dot(r.direction, var->cam.forward) < 0)
                 r.direction = tuple_multiply(r.direction, -1.0);
-            //r = generate_ray_for_pixel(var, x, y);
             r = ray(var->pixel_center, r.direction);
-            //printf("ray direction: %f %f %f\n", r.direction.x, r.direction.y, r.direction.z);
+
+            // Initialize pixel color to ambient light
             pixel_color = var->ambientl;
-            hit = false;
             closest_object = NULL;
-            if (find_closest_intersection(var, &r, &closest_object, &closest_t))
+
+            // Find the closest intersection
+            if (find_closest_intersection(var, &r, &closest_object, &hit))
             {
-                intersection_point = tuple_add(r.origin, tuple_multiply(r.direction, closest_t));
-                normal = calculate_normal(closest_object, &intersection_point);
+                // Calculate the intersection point and normal
+                hit.point = tuple_add(r.origin, tuple_multiply(r.direction, hit.t));
+                hit.normal = calculate_normal(closest_object, &hit.point);
+
+                // Assign color based on object type
                 if (closest_object->type == SPHERE)
                 {
-                    object_color = closest_object->data.sphere.color;
+                    hit.color = closest_object->data.sphere.color;
                 }
                 else if (closest_object->type == CYLINDER)
                 {
-                    object_color = closest_object->data.cylinder.color;
+                    hit.color = closest_object->data.cylinder.color;
                 }
                 else if (closest_object->type == PLANE)
                 {
-                    object_color = closest_object->data.plane.color;
+                    hit.color = closest_object->data.plane.color;
                 }
-                view_dir = normalize(tuple_subtract(var->cam.position, intersection_point));
-                var->temp_color = object_color;
-                pixel_color = calculate_phong_lighting(var, &intersection_point, &normal, &view_dir);
+
+                // Calculate view direction
+                view_dir = normalize(tuple_subtract(var->cam.position, hit.point));
+
+                // Calculate lighting
+                pixel_color = calculate_phong_lighting(var, &hit, &view_dir);
             }
+
+            // Write the pixel color to the image buffer
             write_color(pixel_color, var, x, y);
             x++;
         }

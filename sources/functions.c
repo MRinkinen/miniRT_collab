@@ -6,7 +6,7 @@
 /*   By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/16 09:33:18 by mrinkine          #+#    #+#             */
-/*   Updated: 2024/10/24 12:53:52 by tvalimak         ###   ########.fr       */
+/*   Updated: 2024/10/24 13:22:03 by tvalimak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,10 +21,10 @@ void initialize_camera(t_var *var, t_cam *camera, t_map *map)
 	var->cam.viewp_h = var->cam.view_w / var->aspect_ratio;
 	var->cam.forward = normalize(vector(map->camera->nx, map->camera->ny, map->camera->nz));
 	if (magnitude(cross(vector(0, 1, 0), var->cam.forward)) != 0)
-		var->cam.right = cross(vector(0, 1, 0), var->cam.forward);
+		var->cam.right = normalize(cross(var->cam.forward, vector(0, 1, 0)));
 	else
-		var->cam.right = cross(vector(0, 1, -0.00001), var->cam.forward);
-	var->cam.up = cross(var->cam.forward, var->cam.right);
+        var->cam.right = normalize(cross(var->cam.forward, vector(0, 1, -0.00001)));
+	var->cam.up = cross(var->cam.right, var->cam.forward);
 	var->cam.view_u = tuple_multiply(var->cam.right, var->cam.view_w);
 	var->cam.view_v = tuple_multiply(var->cam.up, var->cam.viewp_h);
 	var->cam.delta_u = tuple_divide(var->cam.view_u, WIDTH);
@@ -48,6 +48,44 @@ void initialize_camera(t_var *var, t_cam *camera, t_map *map)
 	printf("camera v_up_left_c: %f %f %f %f\n", var->cam.v_up_left_c.x, var->cam.v_up_left_c.y, var->cam.v_up_left_c.z, var->cam.v_up_left_c.w);
 	printf("camera loc_00: %f %f %f %f\n", var->cam.loc_00.x, var->cam.loc_00.y, var->cam.loc_00.z, var->cam.loc_00.w);
 }
+
+/*
+void initialize_camera(t_var *var, t_cam *camera, t_map *map)
+{
+	var->cam.position = point(map->camera->x, map->camera->y, map->camera->z);
+	var->aspect_ratio = (float) WIDTH / HEIGHT;
+	var->cam.focal_length = (WIDTH / 2) / (tanf((map->camera->fov * (PI / 180)) / 2));
+	var->cam.view_w = WIDTH * 2;
+	var->cam.viewp_h = var->cam.view_w / var->aspect_ratio;
+	var->cam.forward = normalize(vector(map->camera->nx, map->camera->ny, map->camera->nz));
+	if (magnitude(cross(vector(0, 1, 0), var->cam.forward)) != 0)
+		var->cam.right = normalize(cross(vector(0, 1, 0), var->cam.forward));
+	else
+		var->cam.right = normalize(cross(vector(0, 1, -0.00001), var->cam.forward));
+	var->cam.up = cross(var->cam.forward, var->cam.right);
+	var->cam.view_u = tuple_multiply(var->cam.right, var->cam.view_w);
+	var->cam.view_v = tuple_multiply(var->cam.up, var->cam.viewp_h);
+	var->cam.delta_u = tuple_divide(var->cam.view_u, WIDTH);
+	var->cam.delta_v = tuple_divide(var->cam.view_v, HEIGHT);
+	var->cam.focal = tuple_multiply(var->cam.forward, var->cam.focal_length);
+	var->cam.v_up_left_c = tuple_subtract(point(map->camera->x, map->camera->y, map->camera->z), var->cam.focal);
+	var->cam.v_up_left_c = tuple_subtract(var->cam.v_up_left_c, tuple_divide(var->cam.view_u, 2));
+	var->cam.v_up_left_c = tuple_subtract(var->cam.v_up_left_c, tuple_divide(var->cam.view_v, 2));
+	var->cam.loc_00 = tuple_multiply(tuple_add(var->cam.delta_u, var->cam.delta_v), 0.5);
+	var->cam.loc_00 = tuple_add(var->cam.loc_00, var->cam.v_up_left_c);
+	// add printf's to all values with te w component
+	printf("camera position: %f %f %f %f\n", var->cam.position.x, var->cam.position.y, var->cam.position.z, var->cam.position.w);
+	printf("camera forward: %f %f %f %f\n", var->cam.forward.x, var->cam.forward.y, var->cam.forward.z, var->cam.forward.w);
+	printf("camera right: %f %f %f %f\n", var->cam.right.x, var->cam.right.y, var->cam.right.z, var->cam.right.w);
+	printf("camera up: %f %f %f %f\n", var->cam.up.x, var->cam.up.y, var->cam.up.z, var->cam.up.w);
+	printf("camera view_u: %f %f %f %f\n", var->cam.view_u.x, var->cam.view_u.y, var->cam.view_u.z, var->cam.view_u.w);
+	printf("camera view_v: %f %f %f %f\n", var->cam.view_v.x, var->cam.view_v.y, var->cam.view_v.z, var->cam.view_v.w);
+	printf("camera delta_u: %f %f %f %f\n", var->cam.delta_u.x, var->cam.delta_u.y, var->cam.delta_u.z, var->cam.delta_u.w);
+	printf("camera delta_v: %f %f %f %f\n", var->cam.delta_v.x, var->cam.delta_v.y, var->cam.delta_v.z, var->cam.delta_v.w);
+	printf("camera focal: %f %f %f %f\n", var->cam.focal.x, var->cam.focal.y, var->cam.focal.z, var->cam.focal.w);
+	printf("camera v_up_left_c: %f %f %f %f\n", var->cam.v_up_left_c.x, var->cam.v_up_left_c.y, var->cam.v_up_left_c.z, var->cam.v_up_left_c.w);
+	printf("camera loc_00: %f %f %f %f\n", var->cam.loc_00.x, var->cam.loc_00.y, var->cam.loc_00.z, var->cam.loc_00.w);
+}*/
 
 /*
 void initialize_camera(t_var *var, t_cam *camera, t_map *map)

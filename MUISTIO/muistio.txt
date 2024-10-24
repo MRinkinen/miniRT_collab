@@ -26,4 +26,5 @@ scene, as seen from a specific angle and position,
 defined by simple geometric objects, and each with
 its own lighting system.
 
-Jos varin kaikissa numeroissa yli 0, tulee valkoinen vari
+eval9.rt kameran katsoessa alas kuva flippaa
+complex.rt +x orientoituneen sylinterin specular pitkin helvettiä

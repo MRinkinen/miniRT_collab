@@ -12,7 +12,7 @@ OBJECTS = $(SOURCES:.c=.o)
 
 SRC_DIR	= ./sources
 #SRC_BON_DIR = ./sources_bonus
-USERNAME = mattirinkinen
+USERNAME = tvalimak
 LIBFTNAME = libft.a
 LIBFTDIR = ./libft/
 INCLUDEDIR = ./includes/

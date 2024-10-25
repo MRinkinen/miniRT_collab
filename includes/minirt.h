@@ -195,7 +195,7 @@ void ft_hook(void *param);
 void hooks(t_var *var);
 int mlxinit(t_var *var);
 void printimage(void *param);
-int32_t ft_pixel(int32_t r, int32_t g, int32_t b, int32_t a);
+uint32_t ft_pixel(uint32_t r, uint32_t g, uint32_t b, uint32_t a);
 void write_color(t_color col, t_var *var, int x, int y);
 
 /*Init*/

@@ -17,11 +17,14 @@ LIBFTNAME = libft.a
 LIBFTDIR = ./libft/
 INCLUDEDIR = ./includes/
 CC = cc
-CFLAGS = -Wall -Wextra #-Werror
+CFLAGS = -Wall -Wextra
 LIBFT = $(LIBFTDIR)$(LIBFTNAME)
 MLX = MLX42/build/libmlx42.a
 
 MLX_HEADER = MLX42/include/MLX42/MLX42.h
+
+target asan: CFLAGS += -fsanitize=address,undefined -g
+export CFLAGS
 
 all: $(NAME)
 
@@ -32,7 +35,7 @@ $(MLX) :
 	cd MLX42 &&	cmake -B build && cmake --build build -j4
 
 $(NAME) : $(OBJECTS) $(MLX) $(LIBFT)
-	$(CC) $(OBJECTS) $(MLX) $(LIBFT) -ldl -pthread -lm -L"/Users/$(USERNAME)/.brew/opt/glfw/lib/" -lglfw -I $(MLX_HEADER) -o $(NAME)
+	$(CC) $(CFLAGS) $(OBJECTS) $(MLX) $(LIBFT) -ldl -pthread -lm -L"/Users/$(USERNAME)/.brew/opt/glfw/lib/" -lglfw -I $(MLX_HEADER) -o $(NAME)
 
 #bonus: .bonus
 
@@ -54,5 +57,7 @@ fclean: clean
 	rm -f $(NAME)
 
 re: fclean all
+asan: fclean all
 
-.PHONY: all clean fclean re bonus
+
+.PHONY: all clean fclean re bonus asan

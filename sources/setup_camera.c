@@ -6,7 +6,7 @@
 /*   By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/18 21:05:48 by tvalimak          #+#    #+#             */
-/*   Updated: 2024/10/14 17:28:49 by tvalimak         ###   ########.fr       */
+/*   Updated: 2024/10/25 14:15:16 by tvalimak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,6 +28,8 @@ static t_camera	*setup_camera_helper(t_map *map)
 	{
 		printf("inside setup_camera_helper 2\n");
 		temp = map->camera;
+		if (!temp)
+			return NULL;
 		while (temp->next)
 			temp = temp->next;
 		temp->next = malloc(sizeof(t_camera));

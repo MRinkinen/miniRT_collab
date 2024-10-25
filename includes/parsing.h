@@ -6,7 +6,7 @@
 /*   By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/10 19:39:44 by tvalimak          #+#    #+#             */
-/*   Updated: 2024/10/15 18:53:26 by tvalimak         ###   ########.fr       */
+/*   Updated: 2024/10/25 13:36:38 by tvalimak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -174,7 +174,8 @@ int		setup_light(char **split, t_map *map);
 int		setup_spheres(char **split, t_map *map);
 int		setup_plane(char **split, t_map *map);
 int		setup_cylinder(char **split, t_map *map);
-int 	terminate_data(t_map *map, t_var *var, char *error);
+int		terminate_map_data(t_map *map, t_var *var, char *error);
+void	terminate_var_data(t_var *var, char *error);
 
 /* ************************************************************************** */
 /*                                 	util functions                            */

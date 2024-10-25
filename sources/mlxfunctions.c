@@ -6,13 +6,13 @@
 /*   By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/16 09:33:08 by mrinkine          #+#    #+#             */
-/*   Updated: 2024/10/24 12:21:13 by tvalimak         ###   ########.fr       */
+/*   Updated: 2024/10/25 16:11:15 by tvalimak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/minirt.h"
 
-int32_t ft_pixel(int32_t r, int32_t g, int32_t b, int32_t a)
+uint32_t ft_pixel(uint32_t r, uint32_t g, uint32_t b, uint32_t a)
 {
     return (r << 24 | g << 16 | b << 8 | a);
 }

@@ -54,8 +54,11 @@ void initialize_scene(t_var *var, t_map *map)
 
         printf("Inside cylinder loop 3 \n");
         // Combine transformations into one matrix
-        var->objects[obj_index].data.cylinder.transform = t_matrix_multiply(t_matrix_multiply(var->objects[obj_index].data.cylinder.scaling_matrix, var->objects[obj_index].data.cylinder.rotation_matrix), var->objects[obj_index].data.cylinder.translation_matrix);
-        //var->objects[obj_index].data.cylinder.transform = t_matrix_multiply(t_matrix_multiply(var->objects[obj_index].data.cylinder.translation_matrix, var->objects[obj_index].data.cylinder.rotation_matrix), var->objects[obj_index].data.cylinder.scaling_matrix);
+        t_matrix *temp = t_matrix_multiply(var->objects[obj_index].data.cylinder.scaling_matrix, var->objects[obj_index].data.cylinder.rotation_matrix);
+        var->objects[obj_index].data.cylinder.transform = t_matrix_multiply(temp, var->objects[obj_index].data.cylinder.translation_matrix);
+        free(temp);
+
+        //var->objects[obj_index].data.cylinder.transform = t_matrix_multiply(t_matrix_multiply(var->objects[obj_index].data.cylinder.scaling_matrix, var->objects[obj_index].data.cylinder.rotation_matrix), var->objects[obj_index].data.cylinder.translation_matrix);
 
         printf("Inside cylinder loop 5 \n");
         // Calculate the inverse transform for ray-cylinder intersection calculations

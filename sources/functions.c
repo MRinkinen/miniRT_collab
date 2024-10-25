@@ -6,7 +6,7 @@
 /*   By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/16 09:33:18 by mrinkine          #+#    #+#             */
-/*   Updated: 2024/10/25 17:16:45 by tvalimak         ###   ########.fr       */
+/*   Updated: 2024/10/25 19:58:48 by tvalimak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,6 +55,7 @@ void initialize_camera(t_var *var, t_cam *camera, t_map *map)
     printf("camera delta_u: %f %f %f %f\n", var->cam.delta_u.x, var->cam.delta_u.y, var->cam.delta_u.z, var->cam.delta_u.w);
     printf("camera delta_v: %f %f %f %f\n", var->cam.delta_v.x, var->cam.delta_v.y, var->cam.delta_v.z, var->cam.delta_v.w);
     printf("camera focal: %f %f %f %f\n", var->cam.focal.x, var->cam.focal.y, var->cam.focal.z, var->cam.focal.w);
+    printf("camera focal length: %f\n", var->cam.focal_length);
     printf("camera v_up_left_c: %f %f %f %f\n", var->cam.v_up_left_c.x, var->cam.v_up_left_c.y, var->cam.v_up_left_c.z, var->cam.v_up_left_c.w);
     printf("camera loc_00: %f %f %f %f\n", var->cam.loc_00.x, var->cam.loc_00.y, var->cam.loc_00.z, var->cam.loc_00.w);
 }

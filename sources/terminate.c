@@ -1,21 +1,20 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   structs_n_lists.c                                  :+:      :+:    :+:   */
+/*   terminate.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/08/20 11:10:02 by tvalimak          #+#    #+#             */
-/*   Updated: 2024/10/26 17:27:37 by tvalimak         ###   ########.fr       */
+/*   Created: 2024/10/26 17:29:43 by tvalimak          #+#    #+#             */
+/*   Updated: 2024/10/26 17:33:52 by tvalimak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/minirt.h"
 #include "../includes/parsing.h"
 
-void	free_cylinder(t_cylinder *cylinder)
+static void	free_cylinder(t_cylinder *cylinder)
 {
-	printf("in free cylinder\n");
 	if (cylinder)
 	{
 		free(cylinder->inverse_transform);
@@ -77,67 +76,7 @@ int	free_scene(t_var *var)
 	return (1);
 }
 
-void free_cameras(t_camera *camera)
-{
-	t_camera	*next_camera;
-
-	while (camera)
-	{
-		next_camera = camera->next;
-		free(camera);
-		camera = next_camera;
-	}
-}
-
-void free_lights(t_lights *lights)
-{
-	t_lights	*next_light;
-
-	while (lights)
-	{
-		next_light = lights->next;
-		free(lights);
-		lights = next_light;
-	}
-}
-
-void free_spheres(t_spheres *sphere)
-{
-	t_spheres	*next_sphere;
-
-	while (sphere)
-	{
-		next_sphere = sphere->next;
-		free(sphere);
-		sphere = next_sphere;
-	}
-}
-
-void free_planes(t_planes *plane)
-{
-	t_planes	*next_plane;
-
-	while (plane)
-	{
-		next_plane = plane->next;
-		free(plane);
-		plane = next_plane;
-	}
-}
-
-void free_cylinders(t_cylinders *cylinder)
-{
-	t_cylinders	*next_cylinder;
-
-	while (cylinder)
-	{
-		next_cylinder = cylinder->next;
-		free(cylinder);
-		cylinder = next_cylinder;
-	}
-}
-
-int terminate_map_data(t_map *map, t_var *var, char *error)
+int	terminate_map_data(t_map *map, t_var *var, char *error)
 {
 	if (error)
 		printf("%s\n", error);

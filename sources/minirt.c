@@ -6,7 +6,7 @@
 /*   By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/15 12:02:26 by mrinkine          #+#    #+#             */
-/*   Updated: 2024/10/26 17:26:58 by tvalimak         ###   ########.fr       */
+/*   Updated: 2024/10/26 17:30:04 by tvalimak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,7 +39,6 @@ int	parse_file(t_element_count *element_count, t_map **map, char **argv)
 		return (EXIT_FAILURE);
 	ft_bzero(*map, sizeof(t_map));
 	(*map)->element_count = element_count;
-	//setup_data(element_count, *map);
 	if (read_to_parse(element_count, *map, argv) == 0)
 		return (EXIT_FAILURE);
 	return (EXIT_SUCCESS);

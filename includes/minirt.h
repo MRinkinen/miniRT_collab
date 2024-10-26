@@ -6,7 +6,7 @@
 /*   By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/26 02:47:01 by tvalimak          #+#    #+#             */
-/*   Updated: 2024/10/26 15:10:51 by tvalimak         ###   ########.fr       */
+/*   Updated: 2024/10/26 18:10:16 by tvalimak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,6 +36,7 @@
 
 typedef struct s_map	t_map;
 typedef struct s_cylinders t_cylinders;
+typedef struct s_cylinder t_cylinder;
 
 typedef struct s_rotation_params
 {
@@ -70,6 +71,27 @@ typedef struct s_tuple
     double x, y, z, w;
 }         t_tuple;
 
+typedef struct s_ray
+{
+    t_tuple origin;
+    t_tuple direction;
+	t_tuple px_center;
+} t_ray;
+
+typedef struct s_t_values
+{
+	float	t0;
+	float	t1;
+}	t_t_values;
+
+typedef struct s_cap_params
+{
+	const t_ray			*ray;
+	const t_cylinder	*cylinder;
+	float				*t;
+	bool				hit;
+}	t_cap_params;
+
 typedef struct s_cylinder_params
 {
     t_tuple oc;
@@ -80,13 +102,6 @@ typedef struct s_cylinder_params
     float b;
     float c;
 } t_cylinder_params;
-
-typedef struct s_ray
-{
-    t_tuple origin;
-    t_tuple direction;
-	t_tuple px_center;
-} t_ray;
 
 typedef struct s_color
 {

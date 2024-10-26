@@ -6,7 +6,7 @@
 /*   By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/26 03:13:17 by tvalimak          #+#    #+#             */
-/*   Updated: 2024/10/26 03:14:23 by tvalimak         ###   ########.fr       */
+/*   Updated: 2024/10/26 21:24:46 by tvalimak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,7 +60,7 @@ int	init_ambient_color(t_var *var, t_map *map)
 {
 	t_color	ambient;
 
-	ambient = t_color_create(map->ambient->r, map->ambient->b, map->ambient->g);
+	ambient = t_color_create(map->ambient->r, map->ambient->g, map->ambient->b);
 	var->ambientl = multiply_color_scalar(ambient, map->ambient->ratio);
 	return (EXIT_SUCCESS);
 }

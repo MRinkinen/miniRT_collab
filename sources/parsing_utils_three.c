@@ -6,7 +6,7 @@
 /*   By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/26 18:55:07 by tvalimak          #+#    #+#             */
-/*   Updated: 2024/10/26 18:55:40 by tvalimak         ###   ########.fr       */
+/*   Updated: 2024/10/26 21:36:37 by tvalimak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,10 +16,19 @@ double	ft_atof(const char *str)
 {
 	double	res;
 	double	res2;
-	char	*c;
 	int		len;
+	int		sign;
+	char	*c;
 
 	c = (char *)str;
+	sign = 1;
+	if (*c == '-')
+	{
+		sign = -1;
+		c++;
+	}
+	else if (*c == '+')
+		c++;
 	res = (double)ft_atoi(c);
 	while (*c && *c != '.')
 		c++;
@@ -29,10 +38,7 @@ double	ft_atof(const char *str)
 	len = ft_strlen(c);
 	while (len--)
 		res2 /= 10;
-	if (res >= 0)
-		return (res + res2);
-	else
-		return (res + -res2);
+	return (sign * (res + res2));
 }
 
 int	decimal_check(char *str, int min, int max)

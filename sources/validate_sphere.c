@@ -6,16 +6,9 @@
 /*   By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/15 12:59:22 by tvalimak          #+#    #+#             */
-/*   Updated: 2024/10/26 18:18:15 by tvalimak         ###   ########.fr       */
+/*   Updated: 2024/10/26 19:00:25 by tvalimak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
-
-#include "../includes/parsing.h"
-
-/*∗ identifier: sp
-∗ x,y,z coordinates of the sphere center: 0.0,0.0,20.6
-∗ the sphere diameter: 12.6
-∗ R,G,B colors in range [0-255]: 10, 0, 255*/
 
 #include "../includes/parsing.h"
 

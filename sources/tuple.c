@@ -6,7 +6,7 @@
 /*   By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/26 17:17:01 by tvalimak          #+#    #+#             */
-/*   Updated: 2024/10/26 17:18:57 by tvalimak         ###   ########.fr       */
+/*   Updated: 2024/10/26 18:59:01 by tvalimak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,16 +51,4 @@ t_tuple	tuple_add(t_tuple t1, t_tuple t2)
 t_tuple	tuple_subtract(t_tuple t1, t_tuple t2)
 {
 	return (tuple(t1.x - t2.x, t1.y - t2.y, t1.z - t2.z, t1.w - t2.w));
-}
-
-// Function to create a point (w = 1.0)
-t_tuple	point(double x, double y, double z)
-{
-	return (tuple(x, y, z, 1.0));
-}
-
-// Function to create a vector (w = 0.0)
-t_tuple vector(double x, double y, double z)
-{
-	return (tuple(x, y, z, 0.0));
 }

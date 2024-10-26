@@ -6,11 +6,23 @@
 /*   By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/26 18:32:05 by tvalimak          #+#    #+#             */
-/*   Updated: 2024/10/26 18:45:04 by tvalimak         ###   ########.fr       */
+/*   Updated: 2024/10/26 18:59:19 by tvalimak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/minirt.h"
+
+// Function to create a point (w = 1.0)
+t_tuple	point(double x, double y, double z)
+{
+	return (tuple(x, y, z, 1.0));
+}
+
+// Function to create a vector (w = 0.0)
+t_tuple	vector(double x, double y, double z)
+{
+	return (tuple(x, y, z, 0.0));
+}
 
 t_matrix	*handle_special_case(t_tuple v2)
 {

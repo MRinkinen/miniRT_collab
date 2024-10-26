@@ -6,7 +6,7 @@
 /*   By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/16 09:33:08 by mrinkine          #+#    #+#             */
-/*   Updated: 2024/10/26 18:47:44 by tvalimak         ###   ########.fr       */
+/*   Updated: 2024/10/26 19:03:26 by tvalimak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,6 +57,5 @@ int	mlxinit(t_var *var)
 		return (EXIT_FAILURE);
 	}
 	mlx_loop_hook(var->mlx, &close_hook, var->mlx);
-	printf("mlxinit success\n");
 	return (EXIT_SUCCESS);
 }

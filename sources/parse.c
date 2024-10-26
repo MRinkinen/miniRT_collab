@@ -6,7 +6,7 @@
 /*   By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/16 18:26:47 by tvalimak          #+#    #+#             */
-/*   Updated: 2024/10/26 17:00:32 by tvalimak         ###   ########.fr       */
+/*   Updated: 2024/10/26 19:03:12 by tvalimak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,7 +41,6 @@ int	read_to_parse(t_element_count *element_count, t_map *map, char **file)
 	fd = check_filename(file[1]);
 	if (fd == -1)
 		return (0);
-	printf("%d\n", fd);
 	line = get_next_line(fd);
 	while (line)
 	{
@@ -56,7 +55,6 @@ int	read_to_parse(t_element_count *element_count, t_map *map, char **file)
 		line = get_next_line(fd);
 	}
 	free(line);
-	printf("File was valid\n");
 	close(fd);
 	return (1);
 }

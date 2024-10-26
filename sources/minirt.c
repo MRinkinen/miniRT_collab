@@ -6,7 +6,7 @@
 /*   By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/15 12:02:26 by mrinkine          #+#    #+#             */
-/*   Updated: 2024/10/26 17:30:04 by tvalimak         ###   ########.fr       */
+/*   Updated: 2024/10/26 19:04:57 by tvalimak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,7 +68,7 @@ int	main(int argc, char **argv)
 	printimage(&var);
 	hooks(&var);
 	mlx_loop(var.mlx);
-	terminate_var_data(&var, "program ended successfully\n");
-	terminate_map_data(map, &var, "program ended successfully\n");
+	terminate_var_data(&var, NULL);
+	terminate_map_data(map, &var, NULL);
 	return (EXIT_SUCCESS);
 }

@@ -6,7 +6,7 @@
 /*   By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/26 02:47:01 by tvalimak          #+#    #+#             */
-/*   Updated: 2024/10/26 02:50:52 by tvalimak         ###   ########.fr       */
+/*   Updated: 2024/10/26 15:10:51 by tvalimak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,15 +58,6 @@ typedef struct
     float data[4][4]; // This can hold up to a 4x4 matrix, adjust the size if necessary
 } t_matrix;
 
-// typedef struct
-// {
-//     double red;
-//     double green;
-//     double blue;
-// } t_color;
-
-/* Above is all test_functions.h definitions*/
-
 typedef enum e_objecttype
 {
     SPHERE,
@@ -78,6 +69,17 @@ typedef struct s_tuple
 {
     double x, y, z, w;
 }         t_tuple;
+
+typedef struct s_cylinder_params
+{
+    t_tuple oc;
+    t_tuple direction;
+    t_tuple axis;
+    float radius;
+    float a;
+    float b;
+    float c;
+} t_cylinder_params;
 
 typedef struct s_ray
 {

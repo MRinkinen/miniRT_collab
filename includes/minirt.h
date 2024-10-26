@@ -1,4 +1,16 @@
-#ifndef MINIRT_H
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   minirt.h                                           :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/10/26 02:47:01 by tvalimak          #+#    #+#             */
+/*   Updated: 2024/10/26 02:50:52 by tvalimak         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+#ifndef  MINIRT_H
 # define MINIRT_H
 
 # include <stdbool.h>
@@ -201,15 +213,15 @@ void write_color(t_color col, t_var *var, int x, int y);
 /*Init*/
 
 void initialize_scene(t_var *var, t_map *map);
-void init_light(t_var *var, t_map *map);
-void init_ambient_color(t_var *var, t_map *map);
+int init_light(t_var *var, t_map *map);
+int init_ambient_color(t_var *var, t_map *map);
 
 /*Free*/
 int free_scene(t_var *var);
 
 /*Camera*/
 
-void initialize_camera(t_var *var, t_cam *camera, t_map *map);
+int initialize_camera(t_var *var, t_cam *camera, t_map *map);
 
 /*Color*/
 
@@ -236,7 +248,7 @@ bool intersect_cylinder(const t_ray *ray, const t_cylinder *cylinder, float *t);
 /*Plane*/
 t_plane plane_create(t_tuple center, t_color color, t_tuple orientation);
 //double intersect_plane(const t_ray *ray, const t_plane *plane, float *t);
-bool intersect_plane(const t_ray *ray, const t_plane *plane, float *t);
+int	intersect_plane(t_ray *ray, t_plane *plane, float *t);
 
 
 /*Light*/

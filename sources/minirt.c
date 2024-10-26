@@ -6,7 +6,7 @@
 /*   By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/15 12:02:26 by mrinkine          #+#    #+#             */
-/*   Updated: 2024/10/26 01:54:39 by tvalimak         ###   ########.fr       */
+/*   Updated: 2024/10/26 03:08:26 by tvalimak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -94,7 +94,7 @@ t_object *closest_object, float closest_t)
 	&intersection_point, &normal, &view_dir));
 }
 
-void process_pixel(t_var *var, int x, int y)
+void	process_pixel(t_var *var, int x, int y)
 {
 	t_ray		r;
 	t_color		pixel_color;
@@ -258,6 +258,55 @@ void printimage(void *param)
 
 // valgrind --leak-check=full ./miniRT complex; 
 
+int init_scene(t_var *var, t_map *map)
+{
+	if (mlxinit(var) == EXIT_FAILURE)
+		return (EXIT_FAILURE);
+	if (init_ambient_color(var, map) == EXIT_FAILURE)
+		return (EXIT_FAILURE);
+	if (initialize_camera(var, &var->cam, map) == EXIT_FAILURE)
+		return (EXIT_FAILURE);
+	if (init_objects(var, map) == EXIT_FAILURE)
+		return (EXIT_FAILURE);
+	if (init_light(var, map) == EXIT_FAILURE)
+		return (EXIT_FAILURE);
+	if (var->objects == NULL == EXIT_FAILURE)
+		return (EXIT_FAILURE);
+	return (EXIT_SUCCESS);
+}
+
+int main(int argc, char **argv)
+{
+	t_var var;
+	t_element_count element_count;
+	t_map *map;
+
+	if (argc != 2)
+	{
+		ft_printf("Error in arguments, just give a map filename\n");
+		return (0);
+	}
+	ft_memset(&element_count, 0, sizeof(t_element_count));
+	map = malloc(sizeof(t_map));
+	if (!map)
+		return (EXIT_FAILURE);
+	ft_bzero(map, sizeof(t_map));
+	setup_data(&element_count, map);
+	if (read_to_parse(&element_count, map, argv) == 0)
+		return (EXIT_FAILURE);
+	if (init_scene(&var, map) == EXIT_FAILURE)
+	{
+		terminate_map_data(map, &var, "program ended not successfully\n");
+		return (EXIT_FAILURE);
+	}
+	printimage(&var);
+	hooks(&var);
+	mlx_loop(var.mlx);
+	terminate_var_data(&var, "program ended successfully\n");
+	terminate_map_data(map, &var, "program ended successfully\n");
+	return (EXIT_SUCCESS);
+}
+/*
 int main(int argc, char **argv)
 {
 	t_var var;
@@ -291,6 +340,5 @@ int main(int argc, char **argv)
 	mlx_loop(var.mlx);
 	terminate_var_data(&var, "program ended successfully\n");
 	terminate_map_data(map, &var, "program ended successfully\n");
-	//free_scene(&var);
 	return (EXIT_SUCCESS);
-}
+}*/

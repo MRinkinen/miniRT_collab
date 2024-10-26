@@ -1,22 +1,20 @@
 NAME = miniRT
+SRC_DIR = ./sources
+OBJ_DIR = ./obj
+INCLUDEDIR = ./includes/
+
 SOURCES = $(addprefix $(SRC_DIR)/, \
 minirt.c functions.c functions_two.c functions_three.c functions_four.c functions_five.c functions_six.c functions_seven.c\
 ray.c color.c mlxfunctions.c mlxfunctions_two.c parsing_utils_two.c parsing_utils.c parsing_utils_three.c setup_ambient.c setup_camera.c \
 setup_cylinder.c setup_light.c setup_plane.c setup_sphere.c terminate.c terminate_two.c \
 validate_ambient.c validate_camera.c validate_cylinder.c validate_light.c validate_plane.c validate_sphere.c \
 plane.c cylinder.c cylinder_two.c intersect_cylinder.c sphere.c light.c init.c parse.c render.c renderhelper.c camera.c tuple.c math.c)
-#SOURCES_BONUS = $(addprefix $(SRC_BON_DIR)/, \
-#sz_long_bonus.c checkfunctions_bonus.c enemy_bonus.c enemymove_bonus.c vortex_bonus.c input_bonus.c moveplayer_bonus.c world_functions_bonus.c help_functions_bonus.c player_functions_bonus.c wall_functions_bonus.c collectable_functions_bonus.c ground_functions_bonus.c levelend_functions_bonus.c)
 
-OBJECTS = $(SOURCES:.c=.o)
-#BONUS_OBJECTS = $(SOURCES_BONUS:.c=.o)
+OBJECTS = $(addprefix $(OBJ_DIR)/, $(notdir $(SOURCES:.c=.o)))
 
-SRC_DIR	= ./sources
-#SRC_BON_DIR = ./sources_bonus
 USERNAME = $(USER)
 LIBFTNAME = libft.a
 LIBFTDIR = ./libft/
-INCLUDEDIR = ./includes/
 CC = cc
 CFLAGS = -Wall -Wextra
 LIBFT = $(LIBFTDIR)$(LIBFTNAME)
@@ -33,25 +31,24 @@ $(LIBFT) :
 	make -C ./libft
 
 $(MLX) :
-	cd MLX42 &&	cmake -B build && cmake --build build -j4
+	cd MLX42 && cmake -B build && cmake --build build -j4
 
-$(NAME) : $(OBJECTS) $(MLX) $(LIBFT)
+# Create the obj directory if it doesn't exist
+$(OBJ_DIR):
+	mkdir -p $(OBJ_DIR)
+
+# Link the executable
+$(NAME) : $(OBJ_DIR) $(OBJECTS) $(MLX) $(LIBFT)
 	$(CC) $(CFLAGS) $(OBJECTS) $(MLX) $(LIBFT) -ldl -pthread -lm -L"/Users/$(USERNAME)/.brew/opt/glfw/lib/" -lglfw -I $(MLX_HEADER) -o $(NAME)
 
-#bonus: .bonus
-
-#.bonus : $(BONUS_OBJECTS) $(MLX) $(LIBFT)
-#	cc $(BONUS_OBJECTS) $(MLX) $(LIBFT) -ldl -pthread -lm -L"/Users/$(USERNAME)/.brew/opt/glfw/lib/" -lglfw -I $(MLX_HEADER) -o $(NAME)
-#	@touch .bonus
-
-%.o: %.c
-	$(CC) $(CFLAGS) -c $< -o $@
+# Compile each .c file into an object file in the obj directory
+$(OBJ_DIR)/%.o: $(SRC_DIR)/%.c | $(OBJ_DIR)
+	$(CC) $(CFLAGS) -I $(INCLUDEDIR) -c $< -o $@
 
 clean:
 	rm -f $(OBJECTS)
-#$(BONUS_OBJECTS)
+	rm -rf $(OBJ_DIR)
 	rm -rf MLX42/build
-#	@rm -f .bonus
 	make fclean -C ./libft
 
 fclean: clean
@@ -60,5 +57,4 @@ fclean: clean
 re: fclean all
 asan: fclean all
 
-
-.PHONY: all clean fclean re bonus asan
+.PHONY: all clean fclean re asan

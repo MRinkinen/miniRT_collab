@@ -1,7 +1,8 @@
 NAME = miniRT
 SOURCES = $(addprefix $(SRC_DIR)/, \
-minirt.c functions.c ray.c color.c mlxfunctions.c parsing_utils_2.c parsing_utils.c \
-setup_ambient.c setup_camera.c setup_cylinder.c setup_light.c setup_plane.c setup_sphere.c terminate.c terminate_two.c\
+minirt.c functions.c functions_two.c functions_three.c functions_four.c functions_five.c functions_six.c functions_seven.c\
+ray.c color.c mlxfunctions.c parsing_utils_2.c parsing_utils.c setup_ambient.c setup_camera.c \
+setup_cylinder.c setup_light.c setup_plane.c setup_sphere.c terminate.c terminate_two.c \
 validate_ambient.c validate_camera.c validate_cylinder.c validate_light.c validate_plane.c validate_sphere.c \
 plane.c cylinder.c cylinder_two.c intersect_cylinder.c sphere.c light.c init.c parse.c render.c renderhelper.c camera.c tuple.c math.c)
 #SOURCES_BONUS = $(addprefix $(SRC_BON_DIR)/, \

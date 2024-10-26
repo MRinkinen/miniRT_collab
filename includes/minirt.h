@@ -6,7 +6,7 @@
 /*   By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/26 02:47:01 by tvalimak          #+#    #+#             */
-/*   Updated: 2024/10/26 18:10:16 by tvalimak         ###   ########.fr       */
+/*   Updated: 2024/10/26 18:44:55 by tvalimak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -283,8 +283,16 @@ void		printimage(void *param);
 
 
 /*Matrix*/
+void		initialize_identity(t_matrix *m);
+void		fill_submatrix(t_matrix *sub_m, const t_matrix *m, int remove_row, int remove_col);
+t_matrix	*allocate_submatrix(int new_rows, int new_cols);
+t_matrix	*allocate_matrix(int rows, int cols);
+void		multiply_elements(t_matrix *result, t_matrix *a, t_matrix *b);
 t_matrix    *tuple_to_matrix(t_tuple *t);
 t_matrix    *shearing(float xy, float xz, float yx, float yz, float zx, float zy);
+t_matrix	*handle_axis_length_case(t_tuple v1, t_tuple v2);
+t_matrix	*handle_special_case(t_tuple v2);
+t_matrix	*rotation_around_axis(t_tuple axis, float angle);
 t_matrix    *rotation_z(float radians);
 t_matrix    *rotation_x(float radians);
 t_matrix    *rotation_y(float radians);
@@ -292,11 +300,14 @@ t_matrix    *scaling(float x, float y, float z);
 t_matrix    *inverse_scaling(float x, float y, float z);
 t_matrix    *reflective_scaling(float x, float y, float z);
 t_matrix    *submatrix(const t_matrix *m, int remove_row, int remove_col);
+void		fill_inverse(t_matrix *inverse_m, t_matrix *adjugate_m, float det);
+void		fill_rotation_values(float *values, t_tuple axis, \
+			t_rotation_params params);
 t_matrix    *inverse(t_matrix *m);
 t_matrix    *inverse_translation(t_matrix *transform);
 t_matrix    *translation(float x, float y, float z);
 t_matrix*   cofactor_matrix(const t_matrix *m);
-t_matrix*   identity_matrix();
+t_matrix*   identity_matrix(void);
 t_matrix*   transpose(t_matrix *m);
 t_matrix*   t_matrix_multiply(t_matrix *a, t_matrix *b);
 t_matrix    *create_2x2_matrix(float a, float b, float c, float d);
@@ -323,6 +334,8 @@ t_tuple       vector(double x, double y, double z);
 t_tuple       tuple(double x, double y, double z, double w);
 t_tuple       normalize(t_tuple v);
 t_tuple       cross(t_tuple a, t_tuple b);
+t_tuple			get_default_normal(void);
+t_tuple			get_arbitrary_axis(t_tuple v1);
 float cofactor(const t_matrix *m, int row, int col);
 
 float minor(const t_matrix *m, int row, int col);
@@ -342,11 +355,13 @@ float       minor(const t_matrix *m, int row, int col);
 float       determinant(const t_matrix *m);
 float       determinant_2x2(const t_matrix *m);
 float       determinant_3x3(const t_matrix *m);
+float		determinant_4x4(const t_matrix *m);
 float       t_matrix_get(t_matrix *m, int row, int col);
 float      magnitude(t_tuple v);
 bool        magnitude_equal(t_tuple v, double expected_magnitude);
 float      dot(t_tuple a, t_tuple b);
 float       cofactor(const t_matrix *m, int row, int col);
 bool        is_invertible(t_matrix *m);
+bool		check_special_case(t_tuple v2);
 
 #endif

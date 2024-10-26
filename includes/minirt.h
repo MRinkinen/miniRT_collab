@@ -6,32 +6,29 @@
 /*   By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/26 02:47:01 by tvalimak          #+#    #+#             */
-/*   Updated: 2024/10/26 18:44:55 by tvalimak         ###   ########.fr       */
+/*   Updated: 2024/10/26 19:15:49 by tvalimak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef  MINIRT_H
+#ifndef MINIRT_H
 # define MINIRT_H
 
 # include <stdbool.h>
-# include <stdio.h> // DELETE BEFORE RETURN!!
+# include <stdio.h>
 # include <stdlib.h>
 # include <fcntl.h>
 # include <math.h>
 # include <limits.h>
 # include <float.h>
-# include <assert.h> // Only for testing purposes, remove from final version
+# include <assert.h>
 # include "../libft/libft.h"
 # include "../MLX42/include/MLX42/MLX42.h"
 # include "./parsing.h"
-//#include "./test_functions.h"
 
 # define WIDTH 1500
 # define HEIGHT 600
 # define MAX_OBJECTS 100
 # define PI 3.1415927f
-//# define PI 3.141592653589793
-//#define EPSILON 0.9
 # define EPSILON 0.00001
 
 typedef struct s_map	t_map;

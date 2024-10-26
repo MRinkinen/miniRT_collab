@@ -6,7 +6,7 @@
 /*   By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/26 17:07:42 by tvalimak          #+#    #+#             */
-/*   Updated: 2024/10/26 17:07:45 by tvalimak         ###   ########.fr       */
+/*   Updated: 2024/10/26 19:10:23 by tvalimak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,15 +50,11 @@ void	process_pixel(t_var *var, int x, int y)
 	tuple_multiply(var->cam.delta_u, x));
 	r.px_center = tuple_add(r.px_center, tuple_multiply(var->cam.delta_v, y));
 	r.direction = normalize(tuple_subtract(r.px_center, var->cam.position));
-
 	if (dot(r.direction, var->cam.forward) < 0)
 		r.direction = tuple_multiply(r.direction, -1.0);
-
 	r = ray(var->cam.position, r.direction);
-
 	if (find_closest_intersection(var, &r, &closest_object, &closest_t))
 		pixel_color = shade_pixel(var, &r, closest_object, closest_t);
-
 	write_color(pixel_color, var, x, y);
 }
 

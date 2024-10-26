@@ -6,7 +6,7 @@
 /*   By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/26 18:30:50 by tvalimak          #+#    #+#             */
-/*   Updated: 2024/10/26 18:31:32 by tvalimak         ###   ########.fr       */
+/*   Updated: 2024/10/26 19:08:40 by tvalimak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -88,9 +88,7 @@ t_matrix	*rotation_around_axis(t_tuple axis, float angle)
 	params.cos_theta = cos(angle);
 	params.sin_theta = sin(angle);
 	params.one_minus_cos = 1.0f - params.cos_theta;
-
 	fill_rotation_values(values, axis, params);
-
 	rotation = create_4x4_matrix(values);
 	return (rotation);
 }

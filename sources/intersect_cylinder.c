@@ -6,7 +6,7 @@
 /*   By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/26 18:01:28 by tvalimak          #+#    #+#             */
-/*   Updated: 2024/10/26 18:08:49 by tvalimak         ###   ########.fr       */
+/*   Updated: 2024/10/26 19:09:59 by tvalimak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,7 +85,6 @@ bool	intersect_cylinder_caps(const t_ray *ray, const t_cylinder \
 	tuple_multiply(cylinder->orientation, cylinder->height / 2.0));
 	params.hit = check_cap_intersection(&params, cap_center_top);
 	params.hit = check_cap_intersection(&params, cap_center_bottom);
-
 	return (params.hit);
 }
 
@@ -99,7 +98,6 @@ const t_cylinder *cylinder, float *t)
 	apply_transformation(cylinder->inverse_transform, &ray->origin);
 	transformed_ray.direction = \
 	apply_transformation(cylinder->inverse_transform, &ray->direction);
-
 	hit = intersect_cylinder_body(ray, cylinder, t);
 	hit = intersect_cylinder_caps(ray, cylinder, t, hit) || hit;
 	return (hit);

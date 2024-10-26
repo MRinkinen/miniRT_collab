@@ -6,7 +6,7 @@
 /*   By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/10 19:39:44 by tvalimak          #+#    #+#             */
-/*   Updated: 2024/10/25 13:36:38 by tvalimak         ###   ########.fr       */
+/*   Updated: 2024/10/26 19:13:11 by tvalimak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -137,7 +137,7 @@ int		vectors_check(char *str);
 int		degree_check(char *str, int min, int max);
 int		xyz_check(char *str);
 int		decimal_check(char *str, int min, int max);
-int 	read_to_parse(t_element_count *element_count, t_map *map, char **file);
+int		read_to_parse(t_element_count *element_count, t_map *map, char **file);
 
 /* ************************************************************************** */
 /*                                 validate_camera                            */

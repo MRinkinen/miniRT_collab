@@ -6,7 +6,7 @@
 /*   By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/16 09:33:18 by mrinkine          #+#    #+#             */
-/*   Updated: 2024/10/26 18:32:29 by tvalimak         ###   ########.fr       */
+/*   Updated: 2024/10/26 19:07:38 by tvalimak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,7 +53,6 @@ float	determinant(const t_matrix *m)
 		return (determinant_3x3(m));
 	if (m->rows == 4 && m->cols == 4)
 		return (determinant_4x4(m));
-
 	printf("Determinant calculation not implemented \
 	for matrices larger than 4x4.\n");
 	return (0.0f);

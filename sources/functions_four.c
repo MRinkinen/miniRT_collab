@@ -6,7 +6,7 @@
 /*   By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/26 18:27:36 by tvalimak          #+#    #+#             */
-/*   Updated: 2024/10/26 18:28:41 by tvalimak         ###   ########.fr       */
+/*   Updated: 2024/10/26 19:09:40 by tvalimak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,7 +48,6 @@ t_matrix	*translation(float x, float y, float z)
 	transform->data[0][3] = x;
 	transform->data[1][3] = y;
 	transform->data[2][3] = z;
-
 	return (transform);
 }
 

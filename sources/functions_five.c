@@ -6,7 +6,7 @@
 /*   By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/26 18:29:04 by tvalimak          #+#    #+#             */
-/*   Updated: 2024/10/26 18:29:55 by tvalimak         ###   ########.fr       */
+/*   Updated: 2024/10/26 19:08:56 by tvalimak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,7 +34,6 @@ int remove_row, int remove_col)
 				col_offset = 1;
 			else
 				col_offset = 0;
-
 			sub_m->data[i][j] = m->data[i + row_offset][j + col_offset];
 			j++;
 		}

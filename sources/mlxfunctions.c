@@ -6,7 +6,7 @@
 /*   By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/16 09:33:08 by mrinkine          #+#    #+#             */
-/*   Updated: 2024/10/26 19:03:26 by tvalimak         ###   ########.fr       */
+/*   Updated: 2024/10/26 19:07:52 by tvalimak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,6 @@ void	ft_hook(void *param)
 	t_var	*var;
 
 	var = param;
-
 	if (mlx_is_key_down(var->mlx, MLX_KEY_ESCAPE))
 		mlx_close_window(var->mlx);
 }

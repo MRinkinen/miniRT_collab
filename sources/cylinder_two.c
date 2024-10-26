@@ -6,7 +6,7 @@
 /*   By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/26 17:37:24 by tvalimak          #+#    #+#             */
-/*   Updated: 2024/10/26 18:04:56 by tvalimak         ###   ########.fr       */
+/*   Updated: 2024/10/26 19:08:19 by tvalimak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,7 +32,6 @@ float *t, const t_t_values *t_vals)
 	float	half_height;
 
 	half_height = cylinder->height / 2.0;
-
 	point = tuple_add(ray->origin, tuple_multiply(ray->direction, t_vals->t0));
 	dist = calculate_distance(&point, cylinder);
 	if (is_within_height(dist, half_height))

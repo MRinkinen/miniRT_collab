@@ -6,13 +6,12 @@
 /*   By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/26 02:11:54 by tvalimak          #+#    #+#             */
-/*   Updated: 2024/10/26 16:54:39 by tvalimak         ###   ########.fr       */
+/*   Updated: 2024/10/26 19:09:21 by tvalimak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/minirt.h"
 #include "../includes/parsing.h"
-
 
 t_light	light_create(t_tuple position, t_color intensity, float brightness)
 {

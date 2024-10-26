@@ -6,7 +6,7 @@
 /*   By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/20 11:19:13 by tvalimak          #+#    #+#             */
-/*   Updated: 2024/10/26 18:55:31 by tvalimak         ###   ########.fr       */
+/*   Updated: 2024/10/26 19:09:04 by tvalimak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -73,14 +73,11 @@ int	vectors_check(char *str)
 	len = ft_strlen(str);
 	if (str[len - 1] == ',')
 		return (0);
-
 	split = ft_split(str, ',');
 	if (!split[0] || !split[1] || !split[2] || split[3])
 		return (free_split(split));
-
 	if (!validate_vector_values(split))
 		return (0);
-
 	free_split(split);
 	return (1);
 }

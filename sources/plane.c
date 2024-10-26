@@ -13,13 +13,13 @@
 #include "../includes/minirt.h"
 #include "../includes/parsing.h"
 
-void create_planes(t_var *var, t_map *map, int *obj_index)
+void    create_planes(t_var *var, t_map *map, int *obj_index)
 {
-    t_planes *current_plane;
-    t_tuple orientation;
-    t_tuple center;
-    t_tuple normal;
-    t_color color;
+    t_planes    *current_plane;
+    t_tuple     orientation;
+    t_tuple     center;
+    t_tuple     normal;
+    t_color     color;
 
     current_plane = map->planes;
     while (current_plane != NULL)
@@ -39,17 +39,16 @@ void create_planes(t_var *var, t_map *map, int *obj_index)
     }
 }
 
-t_tuple	vector_subtract(t_tuple a, t_tuple b)
+t_tuple vector_subtract(t_tuple a, t_tuple b)
 {
-	// Subtract x, y, z components, and handle w based on the types of a and b
-	return ((t_tuple){
+    return ((t_tuple){
 		a.x - b.x,
 		a.y - b.y,
 		a.z - b.z
 	});
 }
 
-int	intersect_plane(t_ray *ray, t_plane *plane, float *t)
+int intersect_plane(t_ray *ray, t_plane *plane, float *t)
 {
 	float		denominator;
 	float		numerator;
@@ -63,16 +62,3 @@ int	intersect_plane(t_ray *ray, t_plane *plane, float *t)
 	*t = numerator / denominator;
 	return (*t > 0.0);
 }
-
-/*
-bool intersect_plane(const t_ray *ray, const t_plane *plane, float *t)
-{
-    float denom = dot(plane->normal, ray->direction);
-    if (fabs(denom) > EPSILON)
-    {
-        t_tuple p0l0 = tuple_subtract(plane->point, ray->origin);
-        *t = dot(p0l0, plane->normal) / denom;
-        return (*t >= 0);
-    }
-    return false;
-}*/

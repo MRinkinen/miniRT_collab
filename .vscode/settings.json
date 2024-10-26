@@ -3,7 +3,12 @@
 		"minirt.h": "c",
 		"mlx42.h": "c",
 		"parsing.h": "c",
-		"libft.h": "c"
+		"libft.h": "c",
+		"__config": "c",
+		"iosfwd": "c",
+		"queue": "c",
+		"vector": "c",
+		"version": "c"
 	},
 	"makefile.configureOnOpen": false
 }

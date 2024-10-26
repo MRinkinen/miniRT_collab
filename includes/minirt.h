@@ -212,9 +212,10 @@ void write_color(t_color col, t_var *var, int x, int y);
 
 /*Init*/
 
-void initialize_scene(t_var *var, t_map *map);
+//void initialize_scene(t_var *var, t_map *map);
 int init_light(t_var *var, t_map *map);
 int init_ambient_color(t_var *var, t_map *map);
+int	init_objects(t_var *var, t_map *map);
 
 /*Free*/
 int free_scene(t_var *var);
@@ -230,24 +231,22 @@ t_color t_color_create(int r, int g, int b);
 t_color subtract_colors(t_color c1, t_color c2);
 t_color multiply_color_scalar(t_color color, float scalar);
 t_color multiply_colors(t_color a, t_color b);
-bool intersect_object(const t_ray *ray, const t_object *object, float *t);
 
 /*Sphere*/
-t_sphere sphere_create(t_tuple center, float radius, t_color col);
+void	create_spheres(t_var *var, t_map *map, int *obj_index);
 t_tuple calculate_sphere_normal(const t_sphere *sphere, const t_tuple *point);
 bool intersect_sphere(const t_ray *ray, const t_sphere *sphere, float *t);
 
 
 /*Cylinder*/
-t_cylinder cylinder_create(t_var *var, t_map *map, int obj_index, t_cylinders *current_cylinder);
+void	create_cylinders(t_var *var, t_map *map, int *obj_index);
 //t_cylinder cylinder_create(t_tuple center, float radius, float height, t_color color, t_tuple orientation);
 //t_tuple calculate_cylinder_normal(const t_cylinder *cylinder, const t_tuple *point);
 t_tuple calculate_cylinder_normal(t_cylinder *cylinder, t_tuple *point);
 bool intersect_cylinder(const t_ray *ray, const t_cylinder *cylinder, float *t);
 
 /*Plane*/
-t_plane plane_create(t_tuple center, t_color color, t_tuple orientation);
-//double intersect_plane(const t_ray *ray, const t_plane *plane, float *t);
+void create_planes(t_var *var, t_map *map, int *obj_index);
 int	intersect_plane(t_ray *ray, t_plane *plane, float *t);
 
 
@@ -255,6 +254,16 @@ int	intersect_plane(t_ray *ray, t_plane *plane, float *t);
 t_light light_create(t_tuple position, t_color intensity, float brightness);
 bool is_in_shadow(const t_tuple *point, const t_light *light, const t_object *objects, int num_objects) ;
 t_color calculate_phong_lighting(t_var *var, const t_tuple *point, const t_tuple *normal, const t_tuple *view_dir);
+
+
+/*Render*/
+bool		intersect_object(t_ray *ray, t_object *object, float *t);
+bool		find_closest_intersection(t_var *var, t_ray *ray, t_object **closest_object, float *closest_t);
+t_tuple		calculate_normal(t_object *object, t_tuple *point);
+t_color		shade_pixel(t_var *var, t_ray *r, t_object *closest_object, float closest_t);
+void		process_pixel(t_var *var, int x, int y);
+void		printimage(void *param);
+
 
 /*Matrix*/
 t_matrix    *tuple_to_matrix(t_tuple *t);
@@ -297,6 +306,10 @@ t_tuple       vector(double x, double y, double z);
 t_tuple       tuple(double x, double y, double z, double w);
 t_tuple       normalize(t_tuple v);
 t_tuple       cross(t_tuple a, t_tuple b);
+float cofactor(const t_matrix *m, int row, int col);
+
+float minor(const t_matrix *m, int row, int col);
+
 
 /*Ray*/
 t_ray         ray(t_tuple origin, t_tuple direction);

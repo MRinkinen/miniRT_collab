@@ -6,7 +6,7 @@
 /*   By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/12 19:18:40 by tvalimak          #+#    #+#             */
-/*   Updated: 2024/10/26 18:53:15 by tvalimak         ###   ########.fr       */
+/*   Updated: 2024/10/27 01:22:09 by tvalimak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -96,11 +96,11 @@ int	check_element_count(t_element_count *element_count, int flag)
 		return (0);
 	if (element_count->light > 1)
 		return (0);
-	if (element_count->sphere > 50)
+	if (element_count->sphere > 500)
 		return (0);
-	if (element_count->plane > 50)
+	if (element_count->plane > 500)
 		return (0);
-	if (element_count->cylinder > 50)
+	if (element_count->cylinder > 500)
 		return (0);
 	if (flag == 1)
 	{

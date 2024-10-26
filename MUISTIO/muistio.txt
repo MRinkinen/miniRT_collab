@@ -27,3 +27,5 @@ defined by simple geometric objects, and each with
 its own lighting system.
 
 Kameran FOVi onko ok?
+
+Parser segfault jos perus elementit puuttuu "A, C, L"

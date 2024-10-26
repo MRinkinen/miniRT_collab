@@ -6,7 +6,7 @@
 /*   By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/20 11:10:02 by tvalimak          #+#    #+#             */
-/*   Updated: 2024/10/26 17:16:29 by tvalimak         ###   ########.fr       */
+/*   Updated: 2024/10/26 17:27:37 by tvalimak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,12 +65,6 @@ int	free_split(char **split)
 	free(split);
 	split = NULL;
 	return (0);
-}
-
-int	setup_data(t_element_count *element_count, t_map *map)
-{
-	map->element_count = element_count;
-	return (1);
 }
 
 int	free_scene(t_var *var)

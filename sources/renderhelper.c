@@ -1,5 +1,16 @@
-#include "../includes/minirt.h"
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   renderhelper.c                                     :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/10/26 17:07:53 by tvalimak          #+#    #+#             */
+/*   Updated: 2024/10/26 17:07:55 by tvalimak         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
+#include "../includes/minirt.h"
 
 bool	intersect_object(t_ray *ray, t_object *object, float *t)
 {

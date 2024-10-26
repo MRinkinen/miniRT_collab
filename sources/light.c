@@ -6,7 +6,7 @@
 /*   By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/26 02:11:54 by tvalimak          #+#    #+#             */
-/*   Updated: 2024/10/26 02:17:07 by tvalimak         ###   ########.fr       */
+/*   Updated: 2024/10/26 16:54:39 by tvalimak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,32 +72,3 @@ const t_tuple *normal, const t_tuple *view_dir)
 	}
 	return (final_color);
 }
-
-/*
-t_color calculate_phong_lighting(t_var *var, const t_tuple *point, const t_tuple *normal, const t_tuple *view_dir)
-{
-	float spec;
-	float diff_amount;
-	t_tuple light_dir;
-	t_tuple reflect_dir;
-	t_color ambient;
-	t_color diffuse;
-	t_color specular;
-	t_color final_color;
-
-	// Use global ambient settings
-	ambient = var->ambientl; // Adjusted Ambient component
-	light_dir = normalize(tuple_subtract(var->pointlights[0].position, *point));
-	diff_amount = fmax(dot(*normal, light_dir), 0.0f);
-	diffuse = multiply_color_scalar(var->pointlights[0].color, diff_amount); // Diffuse component
-	reflect_dir = tuple_subtract(tuple_multiply(*normal, 2 * dot(*normal, light_dir)), light_dir);
-	spec = pow(fmax(dot(*view_dir, reflect_dir), 0.0f), 32); // Use var->shininess for flexibility
-	specular = multiply_color_scalar(var->pointlights[0].color, spec); // Specular component
-	final_color = multiply_colors(var->temp_color, ambient);
-	if (!is_in_shadow(point, &var->pointlights[0], var->objects, var->num_objects))
-	{
-		final_color = color_add(final_color, multiply_colors(var->temp_color, diffuse));
-		final_color = color_add(final_color, specular);
-	}
-	return (final_color);
-}*/

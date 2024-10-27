@@ -6,7 +6,7 @@
 /*   By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/26 03:13:17 by tvalimak          #+#    #+#             */
-/*   Updated: 2024/10/26 21:24:46 by tvalimak         ###   ########.fr       */
+/*   Updated: 2024/10/27 19:55:42 by tvalimak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,13 +19,18 @@ int	init_objects(t_var *var, t_map *map)
 
 	obj_index = 0;
 	var->num_objects = map->element_count->sphere + \
-	map->element_count->cylinder + map->element_count->plane;
+	map->element_count->cylinder + map->element_count->plane \
+	+ map->element_count->hyperboloid;
+	printf("hyperboloids: %d\n", map->element_count->hyperboloid);
 	var->objects = malloc(var->num_objects * sizeof(t_object));
 	if (var->objects == NULL)
 		return (EXIT_FAILURE);
+	printf("elements in map: %d, %d, %d, %d\n" , map->element_count->cylinder, map->element_count->hyperboloid, map->element_count->plane, map->element_count->sphere);
 	create_spheres(var, map, &obj_index);
+	create_hyperboloids(var, map, &obj_index);
 	create_cylinders(var, map, &obj_index);
 	create_planes(var, map, &obj_index);
+	printf("object in var: %d\n", var->objects->type);
 	return (EXIT_SUCCESS);
 }
 

@@ -6,7 +6,7 @@
 /*   By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/26 02:47:01 by tvalimak          #+#    #+#             */
-/*   Updated: 2024/10/27 16:30:12 by tvalimak         ###   ########.fr       */
+/*   Updated: 2024/10/27 19:45:08 by tvalimak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,14 +33,15 @@
 
 // light sphere plane
 
-typedef struct s_map		t_map;
-typedef struct s_cylinders	t_cylinders;
-typedef struct s_spheres	t_spheres;
-typedef struct s_lights		t_lights;
-typedef struct s_planes		t_planes;
-typedef struct s_cameras	t_cameras;
-typedef struct s_cylinder	t_cylinder;
-typedef struct s_camera		t_camera;
+typedef struct s_map			t_map;
+typedef struct s_cylinders		t_cylinders;
+typedef struct s_spheres		t_spheres;
+typedef struct s_lights			t_lights;
+typedef struct s_planes			t_planes;
+typedef struct s_cameras		t_cameras;
+typedef struct s_cylinder		t_cylinder;
+typedef struct s_hyperboloids	t_hyperboloids;
+typedef struct s_camera			t_camera;
 
 typedef struct s_rotation_params
 {
@@ -66,6 +67,7 @@ typedef struct s_matrix
 typedef enum g_objecttype
 {
 	SPHERE,
+	HYPERBOLOID,
 	CYLINDER,
 	PLANE
 }	t_objecttype;
@@ -109,6 +111,17 @@ typedef struct s_cylinder_params
 	float	b;
 	float	c;
 }	t_cylinder_params;
+
+typedef struct s_hyperboloid_params
+{
+	t_tuple	oc;
+	t_tuple	direction;
+	t_tuple	axis;
+	float	radius;
+	float	a;
+	float	b;
+	float	c;
+}	t_hyperboloid_params;
 
 typedef struct s_color
 {
@@ -155,6 +168,26 @@ typedef struct s_cylinder
 	float		maximum;
 }	t_cylinder;
 
+typedef struct s_hyperboloid
+{
+	t_tuple		normal;
+	t_matrix	*transform;
+	t_matrix	*inverse_transform;
+	t_matrix	*translation_matrix;
+	t_matrix	*rotation_matrix;
+	t_matrix	*scaling_matrix;
+	t_matrix	*shearing_matrix;
+	t_tuple		center;
+	t_tuple		orientation;
+	double		a;
+	double		b;
+	double		c;
+	double		height;
+	t_color		color;
+	float		minimum;
+	float		maximum;
+}	t_hyperboloid;
+
 typedef struct s_sphere
 {
 	t_tuple		center;
@@ -188,9 +221,10 @@ typedef struct s_cam
 
 typedef union u_objectdata
 {
-	t_sphere	sphere;
-	t_cylinder	cylinder;
-	t_plane		plane;
+	t_sphere		sphere;
+	t_hyperboloid	hyperboloid;
+	t_cylinder		cylinder;
+	t_plane			plane;
 }	t_objectdata;
 
 typedef struct s_object
@@ -254,6 +288,11 @@ t_color		t_color_create(int r, int g, int b);
 t_color		subtract_colors(t_color c1, t_color c2);
 t_color		multiply_color_scalar(t_color color, float scalar);
 t_color		multiply_colors(t_color a, t_color b);
+
+/*Hyperboloid*/
+void	create_hyperboloids(t_var *var, t_map *map, int *obj_index);
+t_tuple		calculate_hyperboloid_normal(t_hyperboloid *hyperboloid, t_tuple *point);
+bool		intersect_hyperboloid(t_ray *ray, t_hyperboloid *hyperboloid, float *t);
 
 /*Sphere*/
 void		create_spheres(t_var *var, t_map *map, int *obj_index);

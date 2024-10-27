@@ -6,7 +6,7 @@
 /*   By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/25 00:20:42 by tvalimak          #+#    #+#             */
-/*   Updated: 2024/10/26 17:42:56 by tvalimak         ###   ########.fr       */
+/*   Updated: 2024/10/27 19:43:53 by tvalimak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,6 +40,7 @@ void	create_cylinders(t_var *var, t_map *map, int *obj_index)
 	t_tuple		center;
 	float		radius;
 
+	printf("in create clys\n");
 	current_cylinder = map->cylinders;
 	while (current_cylinder != NULL)
 	{

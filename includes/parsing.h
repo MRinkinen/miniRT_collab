@@ -6,7 +6,7 @@
 /*   By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/10 19:39:44 by tvalimak          #+#    #+#             */
-/*   Updated: 2024/10/27 16:14:52 by tvalimak         ###   ########.fr       */
+/*   Updated: 2024/10/27 19:33:10 by tvalimak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -102,6 +102,25 @@ typedef struct s_cylinders
 	t_map				*map;
 }				t_cylinders;
 
+typedef struct s_hyperboloids
+{
+	float					x;
+	float					y;
+	float					z;
+	float					nx;
+	float					ny;
+	float					nz;
+	float					aa;
+	float					bb;
+	float					cc;
+	float					height;
+	int						r;
+	int						g;
+	int						b;
+	struct s_hyperboloids	*next;
+	t_map					*map;
+}				t_hyperboloids;
+
 typedef struct s_element_count
 {
 	int		ambient;
@@ -110,6 +129,7 @@ typedef struct s_element_count
 	int		sphere;
 	int		plane;
 	int		cylinder;
+	int		hyperboloid;
 }				t_element_count;
 
 typedef struct s_map
@@ -120,6 +140,7 @@ typedef struct s_map
 	t_spheres		*spheres;
 	t_planes		*planes;
 	t_cylinders		*cylinders;
+	t_hyperboloids	*hyperboloids;
 	t_element_count	*element_count;
 }				t_map;
 
@@ -153,6 +174,8 @@ int		validate_camera(char *line, t_element_count *element_count, t_map *map);
 int		validate_sphere(char *line, t_element_count *element_count, t_map *map);
 int		validate_plane(char *line, t_element_count *element_count, t_map *map);
 int		validate_cylinder(char *line, t_element_count *element_count, \
+		t_map *map);
+int		validate_hyperboloid(char *line, t_element_count *element_count, \
 		t_map *map);
 
 /* ************************************************************************** */

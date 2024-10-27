@@ -6,7 +6,7 @@
 /*   By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/26 17:07:42 by tvalimak          #+#    #+#             */
-/*   Updated: 2024/10/26 21:24:19 by tvalimak         ###   ########.fr       */
+/*   Updated: 2024/10/27 19:51:23 by tvalimak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,6 +28,8 @@ t_object *closest_object, float closest_t)
 		object_color = closest_object->data.sphere.color;
 	else if (closest_object->type == CYLINDER)
 		object_color = closest_object->data.cylinder.color;
+	else if (closest_object->type == HYPERBOLOID)
+		object_color = closest_object->data.hyperboloid.color;
 	else if (closest_object->type == PLANE)
 		object_color = closest_object->data.plane.color;
 	else
@@ -64,6 +66,7 @@ void	printimage(void *param)
 	int		y;
 	int		x;
 
+	printf("object type in var:%d\n", var->objects->type);
 	y = -1;
 	var = param;
 	while (++y < HEIGHT)

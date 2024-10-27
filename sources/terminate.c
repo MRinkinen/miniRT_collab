@@ -6,7 +6,7 @@
 /*   By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/26 17:29:43 by tvalimak          #+#    #+#             */
-/*   Updated: 2024/10/27 16:13:41 by tvalimak         ###   ########.fr       */
+/*   Updated: 2024/10/27 17:19:41 by tvalimak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -87,6 +87,7 @@ int	terminate_map_data(t_map *map, char *error)
 	free_spheres(map->spheres);
 	free_planes(map->planes);
 	free_cylinders(map->cylinders);
+	free_hyperboloids(map->hyperboloids);
 	free(map);
 	return (1);
 }

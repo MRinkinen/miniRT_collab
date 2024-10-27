@@ -6,7 +6,7 @@
 #    By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/10/27 16:28:29 by tvalimak          #+#    #+#              #
-#    Updated: 2024/10/27 16:30:02 by tvalimak         ###   ########.fr        #
+#    Updated: 2024/10/27 18:30:21 by tvalimak         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -20,7 +20,8 @@ minirt.c functions.c functions_two.c functions_three.c functions_four.c function
 ray.c color.c mlxfunctions.c mlxfunctions_two.c parsing_utils_two.c parsing_utils.c parsing_utils_three.c setup_ambient.c setup_camera.c \
 setup_cylinder.c setup_light.c setup_plane.c setup_sphere.c terminate.c terminate_two.c \
 validate_ambient.c validate_camera.c validate_cylinder.c validate_light.c validate_plane.c validate_sphere.c \
-plane.c cylinder.c cylinder_two.c intersect_cylinder.c sphere.c light.c init.c parse.c render.c renderhelper.c camera.c tuple.c math.c)
+plane.c cylinder.c cylinder_two.c intersect_cylinder.c sphere.c light.c init.c parse.c render.c renderhelper.c camera.c tuple.c math.c \
+hyperboloid.c intersect_hyperboloid.c validate_hyperboloid.c setup_hyperboloid.c)
 
 OBJECTS = $(addprefix $(OBJ_DIR)/, $(notdir $(SOURCES:.c=.o)))
 
@@ -28,7 +29,8 @@ USERNAME = $(USER)
 LIBFTNAME = libft.a
 LIBFTDIR = ./libft/
 CC = cc
-CFLAGS = -Wall -Wextra -Werror
+CFLAGS = -Wall -Wextra
+#CFLAGS = -Wall -Wextra -Werror
 LIBFT = $(LIBFTDIR)$(LIBFTNAME)
 MLX = MLX42/build/libmlx42.a
 

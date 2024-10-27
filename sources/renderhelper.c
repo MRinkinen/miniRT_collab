@@ -6,7 +6,7 @@
 /*   By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/26 17:07:53 by tvalimak          #+#    #+#             */
-/*   Updated: 2024/10/26 17:07:55 by tvalimak         ###   ########.fr       */
+/*   Updated: 2024/10/27 19:47:04 by tvalimak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,14 +16,22 @@ bool	intersect_object(t_ray *ray, t_object *object, float *t)
 {
 	if (object->type == SPHERE)
 	{
+		//printf("intersect with sphere\n");
 		return (intersect_sphere(ray, &object->data.sphere, t));
+	}
+	else if (object->type == HYPERBOLOID)
+	{
+		//printf("intersect with hyper\n");
+		return (intersect_hyperboloid(ray, &object->data.hyperboloid, t));
 	}
 	else if (object->type == CYLINDER)
 	{
+		//printf("intersect with cyl\n");
 		return (intersect_cylinder(ray, &object->data.cylinder, t));
 	}
 	else if (object->type == PLANE)
 	{
+		//printf("intersect with plane\n");
 		return (intersect_plane(ray, &object->data.plane, t));
 	}
 	else
@@ -61,9 +69,31 @@ t_tuple	calculate_normal(t_object *object, t_tuple *point)
 	if (object->type == SPHERE)
 		return (calculate_sphere_normal(&object->data.sphere, point));
 	else if (object->type == CYLINDER)
+	{
+		printf("caclulating normal for cyl\n");
 		return (calculate_cylinder_normal(&object->data.cylinder, point));
+	}
+	else if (object->type == HYPERBOLOID)
+	{
+		printf("caclulating normal for hyper\n");
+		return (calculate_hyperboloid_normal(&object->data.hyperboloid, point));
+	}
 	else if (object->type == PLANE)
 		return (object->data.plane.normal);
 	else
 		return (vector(0, 0, 0));
 }
+/*
+t_tuple	calculate_normal(t_object *object, t_tuple *point)
+{
+	if (object->type == SPHERE)
+		return (calculate_sphere_normal(&object->data.sphere, point));
+	else if (object->type == CYLINDER)
+		return (calculate_cylinder_normal(&object->data.cylinder, point));
+	else if (object->type == HYPERBOLOID)
+		return (calculate_hyperboloid_normal(&object->data.hyperboloid, point));
+	else if (object->type == PLANE)
+		return (object->data.plane.normal);
+	else
+		return (vector(0, 0, 0));
+}*/

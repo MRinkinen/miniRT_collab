@@ -6,7 +6,7 @@
 /*   By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/26 17:31:18 by tvalimak          #+#    #+#             */
-/*   Updated: 2024/10/26 17:32:14 by tvalimak         ###   ########.fr       */
+/*   Updated: 2024/10/27 17:21:06 by tvalimak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,5 +70,17 @@ void	free_cylinders(t_cylinders *cylinder)
 		next_cylinder = cylinder->next;
 		free(cylinder);
 		cylinder = next_cylinder;
+	}
+}
+
+void	free_hyperboloids(t_hyperboloids *hyperboloid)
+{
+	t_hyperboloids	*next_hyperboloid;
+
+	while (hyperboloid)
+	{
+		next_hyperboloid = hyperboloid->next;
+		free(hyperboloid);
+		hyperboloid = hyperboloid->next;
 	}
 }

@@ -6,7 +6,7 @@
 /*   By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/26 02:11:54 by tvalimak          #+#    #+#             */
-/*   Updated: 2024/10/26 19:09:21 by tvalimak         ###   ########.fr       */
+/*   Updated: 2024/10/27 16:26:18 by tvalimak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,8 +23,8 @@ t_light	light_create(t_tuple position, t_color intensity, float brightness)
 	return (light);
 }
 
-bool	is_in_shadow(const t_tuple *point, const t_light *light, \
-const t_object *objects, int num_objects)
+bool	is_in_shadow(const t_tuple *point, t_light *light, \
+t_object *objects, int num_objects)
 {
 	t_tuple	light_dir;
 	t_tuple	point_offset;
@@ -38,8 +38,9 @@ const t_object *objects, int num_objects)
 	light_distance = magnitude(tuple_subtract(light->position, point_offset));
 	while (i < num_objects)
 	{
-		if (intersect_object(&(t_ray){point_offset, light_dir}, &objects[i], \
-		&threshold) && threshold > 0.001f && threshold < light_distance)
+		if (intersect_object(&(t_ray){point_offset, light_dir, \
+		light->position}, &objects[i], &threshold) && \
+		threshold > 0.001f && threshold < light_distance)
 			return (true);
 		i++;
 	}

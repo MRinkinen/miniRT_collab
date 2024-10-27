@@ -6,7 +6,7 @@
 /*   By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/25 00:43:32 by tvalimak          #+#    #+#             */
-/*   Updated: 2024/10/26 17:01:46 by tvalimak         ###   ########.fr       */
+/*   Updated: 2024/10/27 16:15:54 by tvalimak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,7 +32,6 @@ void	create_planes(t_var *var, t_map *map, int *obj_index)
 		color = t_color_create(current_plane->r, \
 		current_plane->g, current_plane->b);
 		var->objects[*obj_index].type = PLANE;
-		var->objects[*obj_index].data.plane.center;
 		var->objects[*obj_index].data.plane.point = center;
 		var->objects[*obj_index].data.plane.normal = normal;
 		var->objects[*obj_index].data.plane.color = color;
@@ -47,7 +46,8 @@ t_tuple	vector_subtract(t_tuple a, t_tuple b)
 	return ((t_tuple){
 		a.x - b.x,
 		a.y - b.y,
-		a.z - b.z
+		a.z - b.z,
+		a.w = b.w
 	});
 }
 

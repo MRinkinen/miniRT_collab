@@ -6,7 +6,7 @@
 /*   By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/16 18:26:47 by tvalimak          #+#    #+#             */
-/*   Updated: 2024/10/27 02:50:44 by tvalimak         ###   ########.fr       */
+/*   Updated: 2024/10/27 13:56:56 by tvalimak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,25 +15,10 @@
 int	check_filename(char *file)
 {
 	int		fd;
-	char	*path;
-	size_t	len;
 
-	path = ft_strjoin(file, ".rt");
-	fd = open(path, O_RDONLY);
+	fd = open(file, O_RDONLY);
 	if (fd != -1)
-	{
-		free(path);
 		return (fd);
-	}
-	free(path);
-	len = ft_strlen(file);
-	if (len > 3 && ft_strncmp(file + len - 3, ".rt", len) == 0)
-	{
-		fd = open(file, O_RDONLY);
-		if (fd != -1)
-			return (fd);
-	}
-	printf("Invalid filename or error in open\n");
 	return (-1);
 }
 

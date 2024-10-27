@@ -1,3 +1,15 @@
+# **************************************************************************** #
+#                                                                              #
+#                                                         :::      ::::::::    #
+#    Makefile                                           :+:      :+:    :+:    #
+#                                                     +:+ +:+         +:+      #
+#    By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+         #
+#                                                 +#+#+#+#+#+   +#+            #
+#    Created: 2024/10/27 16:28:29 by tvalimak          #+#    #+#              #
+#    Updated: 2024/10/27 16:30:02 by tvalimak         ###   ########.fr        #
+#                                                                              #
+# **************************************************************************** #
+
 NAME = miniRT
 SRC_DIR = ./sources
 OBJ_DIR = ./obj
@@ -16,7 +28,7 @@ USERNAME = $(USER)
 LIBFTNAME = libft.a
 LIBFTDIR = ./libft/
 CC = cc
-CFLAGS = -Wall -Wextra
+CFLAGS = -Wall -Wextra -Werror
 LIBFT = $(LIBFTDIR)$(LIBFTNAME)
 MLX = MLX42/build/libmlx42.a
 

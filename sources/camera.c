@@ -6,7 +6,7 @@
 /*   By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/26 16:29:08 by tvalimak          #+#    #+#             */
-/*   Updated: 2024/10/26 16:29:21 by tvalimak         ###   ########.fr       */
+/*   Updated: 2024/10/27 16:26:43 by tvalimak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,7 @@ void	set_world_up(t_var *var, t_tuple *world_up, t_tuple forward)
 	var->cam.right = normalize(cross(var->cam.forward, *world_up));
 }
 
-int	initialize_camera(t_var *var, t_cam *camera, t_map *map)
+int	initialize_camera(t_var *var, t_map *map)
 {
 	t_tuple	world_up;
 

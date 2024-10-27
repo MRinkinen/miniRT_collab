@@ -6,7 +6,7 @@
 /*   By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/15 12:02:26 by mrinkine          #+#    #+#             */
-/*   Updated: 2024/10/26 19:04:57 by tvalimak         ###   ########.fr       */
+/*   Updated: 2024/10/27 16:27:52 by tvalimak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,7 @@ int	init_scene(t_var *var, t_map *map)
 		return (EXIT_FAILURE);
 	if (init_ambient_color(var, map) == EXIT_FAILURE)
 		return (EXIT_FAILURE);
-	if (initialize_camera(var, &var->cam, map) == EXIT_FAILURE)
+	if (initialize_camera(var, map) == EXIT_FAILURE)
 		return (EXIT_FAILURE);
 	if (init_objects(var, map) == EXIT_FAILURE)
 		return (EXIT_FAILURE);
@@ -41,6 +41,8 @@ int	parse_file(t_element_count *element_count, t_map **map, char **argv)
 	(*map)->element_count = element_count;
 	if (read_to_parse(element_count, *map, argv) == 0)
 		return (EXIT_FAILURE);
+	if (check_element_count(element_count, 1) == 0)
+		return (EXIT_FAILURE);
 	return (EXIT_SUCCESS);
 }
 
@@ -57,18 +59,18 @@ int	main(int argc, char **argv)
 	}
 	if (parse_file(&element_count, &map, argv) == EXIT_FAILURE)
 	{
-		terminate_map_data(map, &var, "Error while parsing data\n");
+		terminate_map_data(map, "Error while parsing data\n");
 		return (EXIT_FAILURE);
 	}
 	if (init_scene(&var, map) == EXIT_FAILURE)
 	{
-		terminate_map_data(map, &var, "Error in init scene\n");
+		terminate_map_data(map, "Error in init scene\n");
 		return (EXIT_FAILURE);
 	}
 	printimage(&var);
 	hooks(&var);
 	mlx_loop(var.mlx);
 	terminate_var_data(&var, NULL);
-	terminate_map_data(map, &var, NULL);
+	terminate_map_data(map, NULL);
 	return (EXIT_SUCCESS);
 }

@@ -6,7 +6,7 @@
 /*   By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/26 17:29:43 by tvalimak          #+#    #+#             */
-/*   Updated: 2024/10/26 17:33:52 by tvalimak         ###   ########.fr       */
+/*   Updated: 2024/10/27 16:13:41 by tvalimak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -76,7 +76,7 @@ int	free_scene(t_var *var)
 	return (1);
 }
 
-int	terminate_map_data(t_map *map, t_var *var, char *error)
+int	terminate_map_data(t_map *map, char *error)
 {
 	if (error)
 		printf("%s\n", error);

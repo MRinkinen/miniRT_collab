@@ -58,20 +58,20 @@ void	process_pixel(t_var *var, int x, int y)
 	write_color(pixel_color, var, x, y);
 }
 
-void	printimage(void *param)
+void printimage(void *param, int resolution_scale)
 {
-	t_var	*var;
-	int		y;
-	int		x;
+    t_var *var;
+    int y;
+    int x;
 
-	y = -1;
-	var = param;
-	while (++y < HEIGHT)
+    y = -1;
+    var = param;
+    while (++y < HEIGHT / resolution_scale)
 	{
-		x = -1;
-		while (++x < WIDTH)
+        x = -1;
+        while (++x < WIDTH / resolution_scale)
 		{
-			process_pixel(var, x, y);
-		}
-	}
+            process_pixel(var, x * resolution_scale, y * resolution_scale);
+        }
+    }
 }

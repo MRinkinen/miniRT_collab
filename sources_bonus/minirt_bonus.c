@@ -67,7 +67,7 @@ int	main(int argc, char **argv)
 		terminate_map_data(map, "Error in init scene\n");
 		return (EXIT_FAILURE);
 	}
-	printimage(&var);
+	printimage(&var, 1);
 	hooks(&var);
 	mlx_loop(var.mlx);
 	terminate_var_data(&var, NULL);

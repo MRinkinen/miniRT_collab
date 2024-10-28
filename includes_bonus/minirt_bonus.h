@@ -225,9 +225,12 @@ void		print_matrix(t_matrix *matrix);
 void		ft_hook(void *param);
 void		hooks(t_var *var);
 int			mlxinit(t_var *var);
-void		printimage(void *param);
+void		printimage(void *param, int resolution_scale);
+void		printimage_low(void *param, int resolution_scale);
 uint32_t	ft_pixel(uint32_t r, uint32_t g, uint32_t b, uint32_t a);
 void		write_color(t_color col, t_var *var, int x, int y);
+int			count_resolution_scale(t_var *var);
+
 
 /*Init*/
 
@@ -291,7 +294,6 @@ t_tuple		calculate_normal(t_object *object, t_tuple *point);
 t_color		shade_pixel(t_var *var, t_ray *r, \
 			t_object *closest_object, float closest_t);
 void		process_pixel(t_var *var, int x, int y);
-void		printimage(void *param);
 
 /*Matrix*/
 void		initialize_identity(t_matrix *m);

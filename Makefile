@@ -29,7 +29,7 @@ plane.c cylinder.c cylinder_two.c intersect_cylinder.c sphere.c light.c init.c p
 SOURCES_BONUS = $(addprefix $(SRC_BON_DIR)/, \
 minirt_bonus.c functions_bonus.c functions_two_bonus.c functions_three_bonus.c functions_four_bonus.c functions_five_bonus.c functions_six_bonus.c functions_seven_bonus.c\
 ray_bonus.c color_bonus.c mlxfunctions_bonus.c mlxfunctions_two_bonus.c parsing_utils_two_bonus.c parsing_utils_bonus.c parsing_utils_three_bonus.c setup_ambient_bonus.c setup_camera_bonus.c \
-setup_cylinder_bonus.c setup_light_bonus.c setup_plane_bonus.c setup_sphere_bonus.c terminate_bonus.c terminate_two_bonus.c \
+setup_cylinder_bonus.c setup_light_bonus.c setup_plane_bonus.c setup_sphere_bonus.c terminate_bonus.c terminate_two_bonus.c render_low_bonus.c\
 validate_ambient_bonus.c validate_camera_bonus.c validate_cylinder_bonus.c validate_light_bonus.c validate_plane_bonus.c validate_sphere_bonus.c \
 plane_bonus.c cylinder_bonus.c cylinder_two_bonus.c intersect_cylinder_bonus.c sphere_bonus.c light_bonus.c init_bonus.c parse_bonus.c render_bonus.c renderhelper_bonus.c camera_bonus.c tuple_bonus.c math_bonus.c)
 

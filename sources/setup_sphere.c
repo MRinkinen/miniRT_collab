@@ -6,7 +6,7 @@
 /*   By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/19 09:59:52 by tvalimak          #+#    #+#             */
-/*   Updated: 2024/10/22 12:37:22 by tvalimak         ###   ########.fr       */
+/*   Updated: 2024/10/24 00:14:23 by tvalimak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,8 +46,8 @@ int	setup_spheres(char **split, t_map *map)
 	new_sphere = setup_spheres_helper(map);
 	rgb = ft_split(split[3], ',');
 	xyz = ft_split(split[1], ',');
-	new_sphere->x = -ft_atof(xyz[0]);
-	new_sphere->y = -ft_atof(xyz[1]);
+	new_sphere->x = ft_atof(xyz[0]);
+	new_sphere->y = ft_atof(xyz[1]);
 	new_sphere->z = ft_atof(xyz[2]);
 	new_sphere->diameter = ft_atof(split[2]);
 	new_sphere->r = ft_atoi(rgb[0]);

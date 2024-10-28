@@ -6,7 +6,7 @@
 /*   By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/10 19:39:44 by tvalimak          #+#    #+#             */
-/*   Updated: 2024/10/22 13:15:47 by tvalimak         ###   ########.fr       */
+/*   Updated: 2024/10/27 16:14:52 by tvalimak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -127,7 +127,6 @@ typedef struct s_map
 /*                                 parsing_utils.c                            */
 /* ************************************************************************** */
 
-void	replace_tabs_with_spaces(char *line);
 int		validate_lines(char *line, t_element_count *element_count, t_map *map);
 int		check_element_count(t_element_count *element_count, int flag);
 int		free_split(char **split);
@@ -175,12 +174,14 @@ int		setup_light(char **split, t_map *map);
 int		setup_spheres(char **split, t_map *map);
 int		setup_plane(char **split, t_map *map);
 int		setup_cylinder(char **split, t_map *map);
-int 	terminate_data(t_map *map, t_var *var, char *error);
+int		terminate_map_data(t_map *map, char *error);
+void	terminate_var_data(t_var *var, char *error);
 
 /* ************************************************************************** */
 /*                                 	util functions                            */
 /* ************************************************************************** */
 
 int		print_data(t_map *map);
+void	replace_tabs_with_spaces(char *line);
 
 #endif

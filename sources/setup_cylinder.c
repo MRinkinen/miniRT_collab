@@ -6,7 +6,7 @@
 /*   By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/19 10:33:48 by tvalimak          #+#    #+#             */
-/*   Updated: 2024/10/22 12:29:38 by tvalimak         ###   ########.fr       */
+/*   Updated: 2024/10/26 21:35:15 by tvalimak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,8 +47,8 @@ void	assign_cylinder_rgb(t_cylinders *cylinder, char **rgb)
 void	assign_cylinder_coordinates(t_cylinders *cylinder, \
 char **xyz, char **nxyz)
 {
-	cylinder->x = -ft_atof(xyz[0]);
-	cylinder->y = -ft_atof(xyz[1]);
+	cylinder->x = ft_atof(xyz[0]);
+	cylinder->y = ft_atof(xyz[1]);
 	cylinder->z = ft_atof(xyz[2]);
 	cylinder->nx = ft_atof(nxyz[0]);
 	cylinder->ny = ft_atof(nxyz[1]);

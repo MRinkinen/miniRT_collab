@@ -6,9 +6,10 @@
 #    By: mrinkine <mrinkine@student.hive.fi>        +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/11/07 17:27:26 by mrinkine          #+#    #+#              #
-#    Updated: 2023/11/07 17:27:40 by mrinkine         ###   ########.fr        #
+#    Updated: 2024/10/25 14:25:53 by tvalimak         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
+MAKEFLAGS += -j8
 NAME = libft.a
 SOURCES = \
 			ft_isalpha.c ft_isdigit.c ft_isalnum.c ft_isascii.c ft_isprint.c \
@@ -27,7 +28,7 @@ BOBJECTS = $(BSOURCES:.c=.o)
 PRINTGNLOBJECTS = $(PRINTGNLSOURCES:.c=.o)
 
 CC = cc
-CFLAGS = -Wall -Wextra -Werror
+#CFLAGS = -Wall -Wextra -Werror -fsanitize=addr
 AR = ar -rcs
 
 all: $(NAME)

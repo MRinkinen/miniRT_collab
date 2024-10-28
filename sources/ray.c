@@ -3,39 +3,37 @@
 /*                                                        :::      ::::::::   */
 /*   ray.c                                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mrinkine <mrinkine@student.42.fr>          +#+  +:+       +#+        */
+/*   By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/15 12:02:02 by mrinkine          #+#    #+#             */
-/*   Updated: 2024/10/17 17:13:59 by mrinkine         ###   ########.fr       */
+/*   Updated: 2024/10/26 17:06:57 by tvalimak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/minirt.h"
 
 // Function to create a new ray given an origin and a direction
-t_ray ray(t_tuple origin, t_tuple direction)
+t_ray	ray(t_tuple origin, t_tuple direction)
 {
-    t_ray ray;
+	t_ray	ray;
 
-    ray.origin = origin;
-    ray.direction = direction;
-    return (ray);
+	ray.origin = origin;
+	ray.direction = direction;
+	return (ray);
 }
 
-// Function to generate a ray for a given pixel
-t_ray generate_ray_for_pixel(t_var *var, int x, int y)
+t_ray	generate_ray_for_pixel(t_var *var, int x, int y)
 {
-    float u;
-    float v;
-    t_tuple ray_direction;
+	float		u;
+	float		v;
+	t_tuple		pixel_point;
+	t_tuple		ray_direction;
 
-    u = (float)x / (float)(SCREEN_WIDTH - 1);
-    v = (float)y / (float)(var->image_height - 1);
-    ray_direction = normalize(tuple_subtract(
-        tuple_add(var->cam.lower_left_corner,
-                  tuple_add(tuple_multiply(var->cam.horizontal, u),
-                            tuple_multiply(var->cam.vertical, v))),
-        var->cam.position));
-
-    return (ray(var->cam.position, ray_direction));
+	u = (double)x / (double)(WIDTH - 1);
+	v = (double)y / (double)(HEIGHT - 1);
+	pixel_point = tuple_add(var->cam.v_up_left_c, \
+	tuple_add(tuple_multiply(var->cam.view_u, \
+	u), tuple_multiply(var->cam.view_v, v)));
+	ray_direction = normalize(tuple_subtract(pixel_point, var->cam.position));
+	return (ray(var->cam.position, ray_direction));
 }

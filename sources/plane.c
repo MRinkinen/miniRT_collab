@@ -1,40 +1,53 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   plane.c                                            :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/10/25 00:43:32 by tvalimak          #+#    #+#             */
+/*   Updated: 2024/10/27 16:15:54 by tvalimak         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "../includes/minirt.h"
 #include "../includes/parsing.h"
 
-
-void create_planes(t_var *var, t_map *map, int *obj_index)
+void	create_planes(t_var *var, t_map *map, int *obj_index)
 {
-    t_planes *current_plane;
-    t_tuple orientation;
-    t_tuple center;
-    t_tuple normal;
-    t_color color;
+	t_planes	*current_plane;
+	t_tuple		orientation;
+	t_tuple		center;
+	t_tuple		normal;
+	t_color		color;
 
-    current_plane = map->planes;
-    while (current_plane != NULL)
-    {
-        orientation = normalize(vector(current_plane->nx, current_plane->ny, current_plane->nz));
-        center = point(current_plane->x, current_plane->y, current_plane->z);
-        normal = vector(current_plane->nx, current_plane->ny, current_plane->nz);
-        color = t_color_create(current_plane->r, current_plane->g, current_plane->b);
-        var->objects[*obj_index].type = PLANE;
-        var->objects[*obj_index].data.plane.center;
-        var->objects[*obj_index].data.plane.point = center;
-        var->objects[*obj_index].data.plane.normal = normal;
-        var->objects[*obj_index].data.plane.color = color;
+	current_plane = map->planes;
+	while (current_plane != NULL)
+	{
+		orientation = normalize(vector(current_plane->nx, \
+		current_plane->ny, current_plane->nz));
+		center = point(current_plane->x, current_plane->y, current_plane->z);
+		normal = vector(current_plane->nx, current_plane->ny, \
+		current_plane->nz);
+		color = t_color_create(current_plane->r, \
+		current_plane->g, current_plane->b);
+		var->objects[*obj_index].type = PLANE;
+		var->objects[*obj_index].data.plane.point = center;
+		var->objects[*obj_index].data.plane.normal = normal;
+		var->objects[*obj_index].data.plane.color = color;
 		var->objects[*obj_index].data.plane.orientation = orientation;
-        current_plane = current_plane->next;
-        (*obj_index)++;
-    }
+		current_plane = current_plane->next;
+		(*obj_index)++;
+	}
 }
 
 t_tuple	vector_subtract(t_tuple a, t_tuple b)
 {
-	// Subtract x, y, z components, and handle w based on the types of a and b
 	return ((t_tuple){
 		a.x - b.x,
 		a.y - b.y,
-		a.z - b.z
+		a.z - b.z,
+		a.w = b.w
 	});
 }
 
@@ -52,19 +65,3 @@ int	intersect_plane(t_ray *ray, t_plane *plane, float *t)
 	*t = numerator / denominator;
 	return (*t > 0.0);
 }
-
-
-// original plane intersect solution below
-/*
-bool intersect_plane(const t_ray *ray, const t_plane *plane, float *t)
-{
-    float denom = dot(plane->normal, ray->direction);
-    if (fabs(denom) > EPSILON)
-    {
-        t_tuple p0l0 = tuple_subtract(plane->point, ray->origin);
-        *t = dot(p0l0, plane->normal) / denom;
-        return (*t > 0.0);
-        //return (*t >= 0);
-    }
-    return false;
-}*/

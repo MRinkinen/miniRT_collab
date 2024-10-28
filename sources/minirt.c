@@ -3,178 +3,74 @@
 /*                                                        :::      ::::::::   */
 /*   minirt.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mrinkine <mrinkine@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/15 12:02:26 by mrinkine          #+#    #+#             */
-/*   Updated: 2024/10/22 14:48:16 by tvalimak         ###   ########.fr       */
+/*   Updated: 2024/10/28 13:55:32 by mrinkine         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/minirt.h"
 #include "../includes/parsing.h"
 
-
-bool intersect_object(const t_ray *ray, const t_object *object, float *t)
+int	init_scene(t_var *var, t_map *map)
 {
-    if (object->type == SPHERE)
-    {
-        return (intersect_sphere(ray, &object->data.sphere, t));
-    }
-    else if (object->type == CYLINDER)
-    {
-        return (intersect_cylinder(ray, &object->data.cylinder, t));
-    }
-    else if (object->type == PLANE)
-    {
-        return (intersect_plane(ray, &object->data.plane, t));
-    }
-    else
-    {
-        return (false);
-    }
-}
-
-bool find_closest_intersection(t_var *var, const t_ray *ray, t_object **closest_object, float *closest_t)
-{
-    bool hit;
-    float t;
-    int i;
-
-    i = 0;
-    hit = false;
-    *closest_t = FLT_MAX;
-    while (i < var->num_objects)
-    {
-        if (intersect_object(ray, &var->objects[i], &t) && t < *closest_t && t > 0.001f)
-        {
-            *closest_t = t;
-            *closest_object = &var->objects[i];
-            hit = true;
-        }
-        i++;
-    }
-    return (hit);
-}
-
-t_tuple calculate_normal(const t_object *object, const t_tuple *point)
-{
-    if (object->type == SPHERE)
-    {
-        return (calculate_sphere_normal(&object->data.sphere, point));
-    }
-    else if (object->type == CYLINDER)
-    {
-        return (calculate_cylinder_normal(&object->data.cylinder, point));
-    }
-    else if (object->type == PLANE)
-    {
-        return (object->data.plane.normal);
-    }
-    else
-    {
-        return (vector(0, 0, 0));
-    }
-}
-
-void printimage(void *param)
-{
-    t_var *var;
-    t_ray r;
-    t_color pixel_color;
-    t_tuple intersection_point;
-    t_tuple normal;
-    t_tuple view_dir;
-    t_color object_color;
-    t_object *closest_object;
-    bool hit;
-    float closest_t;
-    int y;
-    int x;
-
-    y = 0;
-    x = 0;
-    var = param;
-    while (y < (int)var->image_height)
-    {
-        x = 0;
-        while (x < SCREEN_WIDTH)
-        {
-            r = generate_ray_for_pixel(var, x, y);
-            pixel_color = var->ambientl;
-            hit = false;
-            closest_object = NULL;
-            if (find_closest_intersection(var, &r, &closest_object, &closest_t))
-            {
-                intersection_point = tuple_add(r.origin, tuple_multiply(r.direction, closest_t));
-                normal = calculate_normal(closest_object, &intersection_point);
-                if (closest_object->type == SPHERE)
-                {
-                    object_color = closest_object->data.sphere.color;
-                }
-                else if (closest_object->type == CYLINDER)
-                {
-                    object_color = closest_object->data.cylinder.color;
-                }
-                else if (closest_object->type == PLANE)
-                {
-                    object_color = closest_object->data.plane.color;
-                }
-                view_dir = normalize(tuple_subtract(var->cam.position, intersection_point));
-                var->temp_color = object_color;
-                pixel_color = calculate_phong_lighting(var, &intersection_point, &normal, &view_dir);
-            }
-            write_color(pixel_color, var, x, y);
-            x++;
-        }
-        y++;
-    }
-}
-
-int init_scene(t_var *var, t_map *map)
-{
-    if (mlxinit(var) == EXIT_FAILURE)
+	if (mlxinit(var) == EXIT_FAILURE)
 		return (EXIT_FAILURE);
-    if (init_ambient_color(var, map) == EXIT_FAILURE)
-        return (EXIT_FAILURE);
-    if (initialize_camera(var, &var->cam, map) == EXIT_FAILURE)
-        return (EXIT_FAILURE);
-    if (init_objects(var, map) == EXIT_FAILURE)
-        return (EXIT_FAILURE);
-    if (init_light(var, map) == EXIT_FAILURE)
-        return (EXIT_FAILURE);
-    if (var->objects == NULL == EXIT_FAILURE)
-        return (EXIT_FAILURE);
-    return (EXIT_SUCCESS);
+	if (init_ambient_color(var, map) == EXIT_FAILURE)
+		return (EXIT_FAILURE);
+	if (initialize_camera(var, map) == EXIT_FAILURE)
+		return (EXIT_FAILURE);
+	if (init_objects(var, map) == EXIT_FAILURE)
+		return (EXIT_FAILURE);
+	if (init_light(var, map) == EXIT_FAILURE)
+		return (EXIT_FAILURE);
+	if (var->objects == NULL == EXIT_FAILURE)
+		return (EXIT_FAILURE);
+	return (EXIT_SUCCESS);
 }
 
-int main(int argc, char **argv)
+int	parse_file(t_element_count *element_count, t_map **map, char **argv)
 {
-	t_var var;
-	t_element_count element_count;
-	t_map *map;
+	*map = NULL;
+	ft_memset(element_count, 0, sizeof(t_element_count));
+	*map = malloc(sizeof(t_map));
+	if (!*map)
+		return (EXIT_FAILURE);
+	ft_bzero(*map, sizeof(t_map));
+	(*map)->element_count = element_count;
+	if (read_to_parse(element_count, *map, argv) == 0)
+		return (EXIT_FAILURE);
+	if (check_element_count(element_count, 1) == 0)
+		return (EXIT_FAILURE);
+	return (EXIT_SUCCESS);
+}
+
+int	main(int argc, char **argv)
+{
+	t_var			var;
+	t_element_count	element_count;
+	t_map			*map;
 
 	if (argc != 2)
 	{
 		ft_printf("Error in arguments, just give a map filename\n");
 		return (0);
 	}
-	ft_memset(&element_count, 0, sizeof(t_element_count));
-	map = malloc(sizeof(t_map));
-	if (!map)
+	if (parse_file(&element_count, &map, argv) == EXIT_FAILURE)
+	{
+		terminate_map_data(map, "Error while parsing data\n");
 		return (EXIT_FAILURE);
-	setup_data(&element_count, map);
-	if (read_to_parse(&element_count, map, argv) == 0)
+	}
+	if (init_scene(&var, map) == EXIT_FAILURE)
+	{
+		terminate_map_data(map, "Error in init scene\n");
 		return (EXIT_FAILURE);
-	if(init_scene(&var, map) == EXIT_FAILURE)
-    {
-        terminate_data(map, &var, "program ended not successfully\n");
-        return (EXIT_FAILURE);
-    }
+	}
 	printimage(&var);
 	hooks(&var);
 	mlx_loop(var.mlx);
-	mlx_terminate(var.mlx);
-	terminate_data(map, &var, "program ended successfully\n");
-    free_scene(&var);
+	terminate_var_data(&var, NULL);
+	terminate_map_data(map, NULL);
 	return (EXIT_SUCCESS);
 }

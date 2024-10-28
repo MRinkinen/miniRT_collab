@@ -3,17 +3,21 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+         #
+#    By: mrinkine <mrinkine@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/10/27 16:28:29 by tvalimak          #+#    #+#              #
-#    Updated: 2024/10/27 16:30:02 by tvalimak         ###   ########.fr        #
+#    Updated: 2024/10/28 13:53:43 by mrinkine         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 NAME = miniRT
-SRC_DIR = ./sources
+BONUS_NAME = miniRT_bonus
 OBJ_DIR = ./obj
+OBJ_BONUS_DIR = ./objbonus
 INCLUDEDIR = ./includes/
+
+SRC_DIR = ./sources
+SRC_BON_DIR = ./sources_bonus
 
 SOURCES = $(addprefix $(SRC_DIR)/, \
 minirt.c functions.c functions_two.c functions_three.c functions_four.c functions_five.c functions_six.c functions_seven.c\
@@ -22,7 +26,15 @@ setup_cylinder.c setup_light.c setup_plane.c setup_sphere.c terminate.c terminat
 validate_ambient.c validate_camera.c validate_cylinder.c validate_light.c validate_plane.c validate_sphere.c \
 plane.c cylinder.c cylinder_two.c intersect_cylinder.c sphere.c light.c init.c parse.c render.c renderhelper.c camera.c tuple.c math.c)
 
+SOURCES_BONUS = $(addprefix $(SRC_BON_DIR)/, \
+minirt_bonus.c functions_bonus.c functions_two_bonus.c functions_three_bonus.c functions_four_bonus.c functions_five_bonus.c functions_six_bonus.c functions_seven_bonus.c\
+ray_bonus.c color_bonus.c mlxfunctions_bonus.c mlxfunctions_two_bonus.c parsing_utils_two_bonus.c parsing_utils_bonus.c parsing_utils_three_bonus.c setup_ambient_bonus.c setup_camera_bonus.c \
+setup_cylinder_bonus.c setup_light_bonus.c setup_plane_bonus.c setup_sphere_bonus.c terminate_bonus.c terminate_two_bonus.c \
+validate_ambient_bonus.c validate_camera_bonus.c validate_cylinder_bonus.c validate_light_bonus.c validate_plane_bonus.c validate_sphere_bonus.c \
+plane_bonus.c cylinder_bonus.c cylinder_two_bonus.c intersect_cylinder_bonus.c sphere_bonus.c light_bonus.c init_bonus.c parse_bonus.c render_bonus.c renderhelper_bonus.c camera_bonus.c tuple_bonus.c math_bonus.c)
+
 OBJECTS = $(addprefix $(OBJ_DIR)/, $(notdir $(SOURCES:.c=.o)))
+BONUS_OBJECTS = $(addprefix $(OBJ_BONUS_DIR)/, $(notdir $(SOURCES_BONUS:.c=.o)))
 
 USERNAME = $(USER)
 LIBFTNAME = libft.a
@@ -37,7 +49,19 @@ MLX_HEADER = MLX42/include/MLX42/MLX42.h
 target asan: CFLAGS += -fsanitize=address,undefined -g
 export CFLAGS
 
-all: $(NAME)
+all: $(NAME) clean_name_bonus
+
+bonus: $(BONUS_NAME) clean_name
+
+clean_name:
+	@rm -f $(OBJECTS)
+	@rm -rf $(OBJ_DIR)
+	@rm -rf $(NAME)
+
+clean_name_bonus:
+	@rm -f $(BONUS_OBJECTS)
+	@rm -rf $(OBJ_BONUS_DIR)
+	@rm -rf $(BONUS_NAME)
 
 $(LIBFT) :
 	make -C ./libft
@@ -49,24 +73,34 @@ $(MLX) :
 $(OBJ_DIR):
 	mkdir -p $(OBJ_DIR)
 
+$(OBJ_BONUS_DIR):
+	mkdir -p $(OBJ_BONUS_DIR)
+
 # Link the executable
 $(NAME) : $(OBJ_DIR) $(OBJECTS) $(MLX) $(LIBFT)
 	$(CC) $(CFLAGS) $(OBJECTS) $(MLX) $(LIBFT) -ldl -pthread -lm -L"/Users/$(USERNAME)/.brew/opt/glfw/lib/" -lglfw -I $(MLX_HEADER) -o $(NAME)
 
-# Compile each .c file into an object file in the obj directory
+
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c | $(OBJ_DIR)
 	$(CC) $(CFLAGS) -I $(INCLUDEDIR) -c $< -o $@
 
+$(BONUS_NAME): $(OBJ_BONUS_DIR) $(BONUS_OBJECTS) $(MLX) $(LIBFT)
+	$(CC) $(CFLAGS) $(BONUS_OBJECTS) $(MLX) $(LIBFT) -ldl -pthread -lm -L"/Users/$(USERNAME)/.brew/opt/glfw/lib/" -lglfw -I $(MLX_HEADER) -o $(BONUS_NAME)
+
+
+$(OBJ_BONUS_DIR)/%.o: $(SRC_BON_DIR)/%.c | $(OBJ_BONUS_DIR)
+	$(CC) $(CFLAGS) -I $(INCLUDEDIR) -c $< -o $@
+
 clean:
-	rm -f $(OBJECTS)
+	rm -f $(OBJECTS) $(BONUS_OBJECTS)
 	rm -rf $(OBJ_DIR)
+	rm -rf $(OBJ_BONUS_DIR)
 	rm -rf MLX42/build
+	rm -f .bonus
 	make fclean -C ./libft
 
-fclean: clean
-	rm -f $(NAME)
+fclean: clean clean_name clean_name_bonus
 
 re: fclean all
-asan: fclean all
 
-.PHONY: all clean fclean re asan
+.PHONY: all clean fclean re bonus clean_name clean_name_bonus

@@ -1,16 +1,16 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   parsing_utils.c                                    :+:      :+:    :+:   */
+/*   parsing_utils_bonus.c                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: mrinkine <mrinkine@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/12 19:18:40 by tvalimak          #+#    #+#             */
-/*   Updated: 2024/10/28 11:33:47 by mrinkine         ###   ########.fr       */
+/*   Updated: 2024/10/28 11:34:17 by mrinkine         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../includes/parsing.h"
+#include "../includes_bonus/parsing_bonus.h"
 
 int	is_rgb_number(char **split)
 {

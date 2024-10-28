@@ -1,17 +1,17 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   minirt.c                                           :+:      :+:    :+:   */
+/*   minirt_bonus.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: mrinkine <mrinkine@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/15 12:02:26 by mrinkine          #+#    #+#             */
-/*   Updated: 2024/10/28 13:55:32 by mrinkine         ###   ########.fr       */
+/*   Updated: 2024/10/28 11:32:01 by mrinkine         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../includes/minirt.h"
-#include "../includes/parsing.h"
+#include "../includes_bonus/minirt_bonus.h"
+#include "../includes_bonus/parsing_bonus.h"
 
 int	init_scene(t_var *var, t_map *map)
 {

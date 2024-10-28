@@ -8,7 +8,9 @@
 		"iosfwd": "c",
 		"queue": "c",
 		"vector": "c",
-		"version": "c"
+		"version": "c",
+		"minirt_bonus.h": "c",
+		"parsing_bonus.h": "c"
 	},
 	"makefile.configureOnOpen": false
 }

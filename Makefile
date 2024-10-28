@@ -6,7 +6,7 @@
 #    By: mrinkine <mrinkine@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/10/27 16:28:29 by tvalimak          #+#    #+#              #
-#    Updated: 2024/10/28 13:53:43 by mrinkine         ###   ########.fr        #
+#    Updated: 2024/10/28 14:27:04 by mrinkine         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -49,19 +49,9 @@ MLX_HEADER = MLX42/include/MLX42/MLX42.h
 target asan: CFLAGS += -fsanitize=address,undefined -g
 export CFLAGS
 
-all: $(NAME) clean_name_bonus
+all: $(NAME)
 
-bonus: $(BONUS_NAME) clean_name
-
-clean_name:
-	@rm -f $(OBJECTS)
-	@rm -rf $(OBJ_DIR)
-	@rm -rf $(NAME)
-
-clean_name_bonus:
-	@rm -f $(BONUS_OBJECTS)
-	@rm -rf $(OBJ_BONUS_DIR)
-	@rm -rf $(BONUS_NAME)
+bonus: $(BONUS_NAME)
 
 $(LIBFT) :
 	make -C ./libft
@@ -78,6 +68,9 @@ $(OBJ_BONUS_DIR):
 
 # Link the executable
 $(NAME) : $(OBJ_DIR) $(OBJECTS) $(MLX) $(LIBFT)
+	@rm -f $(BONUS_OBJECTS)
+	@rm -rf $(OBJ_BONUS_DIR)
+	@rm -rf $(BONUS_NAME)
 	$(CC) $(CFLAGS) $(OBJECTS) $(MLX) $(LIBFT) -ldl -pthread -lm -L"/Users/$(USERNAME)/.brew/opt/glfw/lib/" -lglfw -I $(MLX_HEADER) -o $(NAME)
 
 
@@ -85,6 +78,9 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c | $(OBJ_DIR)
 	$(CC) $(CFLAGS) -I $(INCLUDEDIR) -c $< -o $@
 
 $(BONUS_NAME): $(OBJ_BONUS_DIR) $(BONUS_OBJECTS) $(MLX) $(LIBFT)
+	@rm -f $(OBJECTS)
+	@rm -rf $(OBJ_DIR)
+	@rm -rf $(NAME)
 	$(CC) $(CFLAGS) $(BONUS_OBJECTS) $(MLX) $(LIBFT) -ldl -pthread -lm -L"/Users/$(USERNAME)/.brew/opt/glfw/lib/" -lglfw -I $(MLX_HEADER) -o $(BONUS_NAME)
 
 
@@ -99,7 +95,9 @@ clean:
 	rm -f .bonus
 	make fclean -C ./libft
 
-fclean: clean clean_name clean_name_bonus
+fclean: clean
+	rm -f $(NAME)
+	rm -f $(BONUS_NAME)
 
 re: fclean all
 

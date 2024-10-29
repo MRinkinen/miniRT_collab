@@ -6,7 +6,7 @@
 /*   By: mrinkine <mrinkine@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/26 02:47:01 by tvalimak          #+#    #+#             */
-/*   Updated: 2024/10/29 10:13:43 by mrinkine         ###   ########.fr       */
+/*   Updated: 2024/10/29 12:31:45 by mrinkine         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -230,6 +230,7 @@ void		printimage_low(void *param, int resolution_scale);
 uint32_t	ft_pixel(uint32_t r, uint32_t g, uint32_t b, uint32_t a);
 void		write_color(t_color col, t_var *var, int x, int y);
 int			count_resolution_scale(t_var *var);
+void		print_black(t_var *var);
 
 /*Init*/
 

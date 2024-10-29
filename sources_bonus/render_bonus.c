@@ -6,7 +6,7 @@
 /*   By: mrinkine <mrinkine@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/26 17:07:42 by tvalimak          #+#    #+#             */
-/*   Updated: 2024/10/28 11:34:54 by mrinkine         ###   ########.fr       */
+/*   Updated: 2024/10/29 10:12:39 by mrinkine         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,20 +58,20 @@ void	process_pixel(t_var *var, int x, int y)
 	write_color(pixel_color, var, x, y);
 }
 
-void printimage(void *param, int resolution_scale)
+void	printimage(void *param, int resolution_scale)
 {
-    t_var *var;
-    int y;
-    int x;
+	t_var	*var;
+	int		y;
+	int		x;
 
-    y = -1;
-    var = param;
-    while (++y < HEIGHT / resolution_scale)
+	y = -1;
+	var = param;
+	while (++y < HEIGHT / resolution_scale)
 	{
-        x = -1;
-        while (++x < WIDTH / resolution_scale)
+		x = -1;
+		while (++x < WIDTH / resolution_scale)
 		{
-            process_pixel(var, x * resolution_scale, y * resolution_scale);
-        }
-    }
+			process_pixel(var, x * resolution_scale, y * resolution_scale);
+		}
+	}
 }

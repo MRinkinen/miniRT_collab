@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   render_low_bonus.c                                 :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: mrinkine <mrinkine@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/10/29 09:20:55 by mrinkine          #+#    #+#             */
+/*   Updated: 2024/10/29 10:10:23 by mrinkine         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "../includes_bonus/minirt_bonus.h"
 
 t_color	shade_pixel_low(t_var *var, t_object *closest_object)
@@ -37,18 +49,20 @@ void	process_pixel_low(t_var *var, int x, int y)
 	write_color(pixel_color, var, x, y);
 }
 
-void printimage_low(void *param, int resolution_scale)
+void	printimage_low(void *param, int resolution_scale)
 {
-    t_var *var;
-    int y;
-    int x;
+	t_var	*var;
+	int		y;
+	int		x;
 
-    y = -1;
-    var = param;
-    while (++y < HEIGHT / resolution_scale) {
-        x = -1;
-        while (++x < WIDTH / resolution_scale) {
-            process_pixel_low(var, x * resolution_scale, y * resolution_scale);
-        }
-    }
+	y = -1;
+	var = param;
+	while (++y < HEIGHT / resolution_scale)
+	{
+		x = -1;
+		while (++x < WIDTH / resolution_scale)
+		{
+			process_pixel_low(var, x * resolution_scale, y * resolution_scale);
+		}
+	}
 }

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   intersect_cylinder.c                               :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mrinkine <mrinkine@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/26 18:01:28 by tvalimak          #+#    #+#             */
-/*   Updated: 2024/10/27 16:30:45 by tvalimak         ###   ########.fr       */
+/*   Updated: 2024/10/29 12:57:45 by mrinkine         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -91,13 +91,8 @@ bool	intersect_cylinder_caps(const t_ray *ray, const t_cylinder \
 bool	intersect_cylinder(t_ray *ray, \
 const t_cylinder *cylinder, float *t)
 {
-	t_ray	transformed_ray;
 	bool	hit;
 
-	transformed_ray.origin = \
-	apply_transformation(cylinder->inverse_transform, &ray->origin);
-	transformed_ray.direction = \
-	apply_transformation(cylinder->inverse_transform, &ray->direction);
 	hit = intersect_cylinder_body(ray, cylinder, t);
 	hit = intersect_cylinder_caps(ray, cylinder, t, hit);
 	return (hit);

@@ -3,17 +3,17 @@
 /*                                                        :::      ::::::::   */
 /*   cylinder.c                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mrinkine <mrinkine@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/25 00:20:42 by tvalimak          #+#    #+#             */
-/*   Updated: 2024/10/26 17:42:56 by tvalimak         ###   ########.fr       */
+/*   Updated: 2024/10/29 12:08:58 by mrinkine         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/minirt.h"
 #include "../includes/parsing.h"
 
-void	cylinder_helper(t_object *object, t_tuple center, \
+int	cylinder_helper(t_object *object, t_tuple center, \
 t_tuple orientation, float radius)
 {
 	t_matrix	*temp;
@@ -25,40 +25,45 @@ t_tuple orientation, float radius)
 	object->data.cylinder.scaling_matrix = scaling(radius, 1.0f, radius);
 	temp = t_matrix_multiply(object->data.cylinder.scaling_matrix, \
 	object->data.cylinder.rotation_matrix);
+	if (!temp)
+		return (EXIT_FAILURE);
 	object->data.cylinder.transform = t_matrix_multiply(temp, \
 	object->data.cylinder.translation_matrix);
 	free(temp);
 	object->data.cylinder.inverse_transform = \
 	inverse(object->data.cylinder.transform);
+	if (!object->data.cylinder.inverse_transform)
+		return (EXIT_FAILURE);
+	return (EXIT_SUCCESS);
 }
 
-void	create_cylinders(t_var *var, t_map *map, int *obj_index)
+int	create_cylinders(t_var *var, t_map *map, int *obj_index)
 {
-	t_cylinders	*current_cylinder;
+	t_cylinders	*current_cyl;
 	t_object	*object;
 	t_tuple		orientation;
 	t_tuple		center;
-	float		radius;
 
-	current_cylinder = map->cylinders;
-	while (current_cylinder != NULL)
+	current_cyl = map->cylinders;
+	while (current_cyl != NULL)
 	{
 		object = &var->objects[*obj_index];
-		orientation = normalize(vector(current_cylinder->nx, \
-		current_cylinder->ny, current_cylinder->nz));
-		center = point(current_cylinder->x, current_cylinder->y, \
-		current_cylinder->z);
-		radius = current_cylinder->diameter / 2.0f;
+		orientation = normalize(vector(current_cyl->nx, \
+		current_cyl->ny, current_cyl->nz));
+		center = point(current_cyl->x, current_cyl->y, current_cyl->z);
 		object->data.cylinder.center = center;
-		object->data.cylinder.radius = radius;
-		object->data.cylinder.height = current_cylinder->height;
+		object->data.cylinder.radius = current_cyl->diameter / 2.0f;
+		object->data.cylinder.height = current_cyl->height;
 		object->data.cylinder.orientation = orientation;
-		object->data.cylinder.color = t_color_create(current_cylinder->r, \
-		current_cylinder->g, current_cylinder->b);
-		cylinder_helper(object, center, orientation, radius);
-		current_cylinder = current_cylinder->next;
+		object->data.cylinder.color = t_color_create(current_cyl->r, \
+		current_cyl->g, current_cyl->b);
+		if (cylinder_helper(object, center, \
+		orientation, object->data.cylinder.radius))
+			return (EXIT_FAILURE);
+		current_cyl = current_cyl->next;
 		(*obj_index)++;
 	}
+	return (EXIT_SUCCESS);
 }
 
 t_tuple	calculate_cylinder_normal(t_cylinder *cylinder, t_tuple *point)

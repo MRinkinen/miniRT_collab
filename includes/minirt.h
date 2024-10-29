@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minirt.h                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mrinkine <mrinkine@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/26 02:47:01 by tvalimak          #+#    #+#             */
-/*   Updated: 2024/10/27 16:30:12 by tvalimak         ###   ########.fr       */
+/*   Updated: 2024/10/29 11:54:45 by mrinkine         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -256,14 +256,14 @@ t_color		multiply_color_scalar(t_color color, float scalar);
 t_color		multiply_colors(t_color a, t_color b);
 
 /*Sphere*/
-void		create_spheres(t_var *var, t_map *map, int *obj_index);
+int			create_spheres(t_var *var, t_map *map, int *obj_index);
 t_tuple		calculate_sphere_normal(const t_sphere *sphere, \
 			const t_tuple *point);
 bool		intersect_sphere(const t_ray *ray, \
 			const t_sphere *sphere, float *t);
 
 /*Cylinder*/
-void		create_cylinders(t_var *var, t_map *map, int *obj_index);
+int			create_cylinders(t_var *var, t_map *map, int *obj_index);
 t_tuple		calculate_cylinder_normal(t_cylinder *cylinder, t_tuple *point);
 bool		intersect_cylinder(t_ray *ray, \
 			const t_cylinder *cylinder, float *t);

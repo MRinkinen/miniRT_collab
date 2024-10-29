@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   functions_three.c                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mrinkine <mrinkine@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/26 18:22:00 by tvalimak          #+#    #+#             */
-/*   Updated: 2024/10/26 18:22:36 by tvalimak         ###   ########.fr       */
+/*   Updated: 2024/10/29 12:04:37 by mrinkine         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,6 +28,8 @@ t_matrix	*inverse(t_matrix *m)
 	cofactor_m = cofactor_matrix(m);
 	adjugate_m = transpose(cofactor_m);
 	inverse_m = (t_matrix *)malloc(sizeof(t_matrix));
+	if (!inverse_m)
+		return (NULL);
 	inverse_m->rows = m->rows;
 	inverse_m->cols = m->cols;
 	fill_inverse(inverse_m, adjugate_m, det);

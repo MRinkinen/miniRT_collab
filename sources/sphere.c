@@ -3,17 +3,17 @@
 /*                                                        :::      ::::::::   */
 /*   sphere.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mrinkine <mrinkine@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/26 03:14:39 by tvalimak          #+#    #+#             */
-/*   Updated: 2024/10/26 03:14:41 by tvalimak         ###   ########.fr       */
+/*   Updated: 2024/10/29 11:54:10 by mrinkine         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/minirt.h"
 #include "../includes/parsing.h"
 
-void	create_spheres(t_var *var, t_map *map, int *obj_index)
+int	create_spheres(t_var *var, t_map *map, int *obj_index)
 {
 	t_spheres	*current_sphere;
 	t_tuple		center;
@@ -34,6 +34,7 @@ void	create_spheres(t_var *var, t_map *map, int *obj_index)
 		current_sphere = current_sphere->next;
 		(*obj_index)++;
 	}
+	return (EXIT_SUCCESS);
 }
 
 t_tuple	calculate_sphere_normal(const t_sphere *sphere, const t_tuple *point)

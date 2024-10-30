@@ -6,7 +6,7 @@
 /*   By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/26 17:07:42 by tvalimak          #+#    #+#             */
-/*   Updated: 2024/10/28 14:05:21 by tvalimak         ###   ########.fr       */
+/*   Updated: 2024/10/28 16:12:24 by tvalimak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,22 +14,21 @@
 #include <pthread.h>
 
 pthread_mutex_t g_write_color_mutex;
+pthread_mutex_t g_shade_color_mutex;
 
 typedef struct s_thread_data
 {
-    t_var *var;
-    int pixel_x;
-    int pixel_y;
+	t_var *var;
+	int start_y;
+	int end_y;
 } t_thread_data;
 
 void	write_color(t_color col, t_var *var, int x, int y)
 {
 	int	color;
 
-	pthread_mutex_lock(&g_write_color_mutex);
 	color = ft_pixel(col.r, col.g, col.b, 255);
 	mlx_put_pixel(var->screenimage, x, y, color);
-    pthread_mutex_unlock(&g_write_color_mutex);
 }
 
 t_color	shade_pixel(t_var *var, t_ray *r, \
@@ -74,111 +73,62 @@ void	process_pixel(t_var *var, int x, int y)
 		r.direction = tuple_multiply(r.direction, -1.0);
 	r = ray(var->cam.position, r.direction);
 	if (find_closest_intersection(var, &r, &closest_object, &closest_t))
-		pixel_color = shade_pixel(var, &r, closest_object, closest_t);
-	write_color(pixel_color, var, x, y);
-}
-
-void *process_pixel_thread(void *arg)
-{
-    t_thread_data *data = (t_thread_data *)arg;
-    process_pixel(data->var, data->pixel_x, data->pixel_y);
-    return NULL;
-}
-
-void printimage(void *param)
-{
-    t_var *var = (t_var *)param;
-    int num_threads = 8;
-    pthread_t threads[num_threads];
-    t_thread_data thread_data[num_threads];
-    int i = 0;
-    int y = 0;
-    int x = 0;
-
-    pthread_mutex_init(&g_write_color_mutex, NULL);
-    while (i < num_threads && y < HEIGHT)
-    {
-        while (x < WIDTH)
-        {
-            thread_data[i].var = var;
-            thread_data[i].pixel_x = x;
-            thread_data[i].pixel_y = y;
-            pthread_create(&threads[i], NULL, process_pixel_thread, &thread_data[i]);
-            i++;
-            x++;
-            if (i == num_threads)
-            {
-                int j = 0;
-                while (j < num_threads)
-                {
-                    pthread_join(threads[j], NULL);
-                    j++;
-                }
-                i = 0;
-            }
-        }
-        x = 0;
-		y++;
-    }
-    int j = 0;
-    while (j < i)
-    {
-        pthread_join(threads[j], NULL);
-        j++;
-    }
-    pthread_mutex_destroy(&g_write_color_mutex);
-}
-
-/*
-void printimage(void *param)
-{
-    t_var *var = (t_var *)param;
-    int num_threads = 8; // Number of threads to use (adjust based on your system)
-    pthread_t threads[num_threads];
-    t_thread_data thread_data[num_threads];
-    int rows_per_thread = HEIGHT / num_threads;
-    int i;
-
-    // Initialize the mutex
-    pthread_mutex_init(&g_write_color_mutex, NULL);
-
-    // Create threads for rendering
-    i = 0;
-    while (i < num_threads)
-    {
-        thread_data[i].var = var;
-        thread_data[i].start_y = i * rows_per_thread;
-        thread_data[i].end_y = (i == num_threads - 1) ? HEIGHT : (i + 1) * rows_per_thread;
-        pthread_create(&threads[i], NULL, render_section, &thread_data[i]);
-        ++i;
-    }
-
-    // Wait for all threads to complete
-    i = 0;
-    while (i < num_threads)
-    {
-        pthread_join(threads[i], NULL);
-        ++i;
-    }
-
-    // Destroy the mutex
-    pthread_mutex_destroy(&g_write_color_mutex);
-}
-
-void	printimage(void *param)
-{
-	t_var	*var;
-	int		y;
-	int		x;
-
-	y = -1;
-	var = param;
-	while (++y < HEIGHT)
 	{
-		x = -1;
-		while (++x < WIDTH)
+		pthread_mutex_lock(&g_shade_color_mutex);
+		pixel_color = shade_pixel(var, &r, closest_object, closest_t);
+		pthread_mutex_unlock(&g_shade_color_mutex);
+	}
+	pthread_mutex_lock(&g_write_color_mutex);
+	write_color(pixel_color, var, x, y);
+	pthread_mutex_unlock(&g_write_color_mutex);
+}
+
+void *render_section(void *arg)
+{
+	t_thread_data *data = (t_thread_data *)arg;
+	t_var *var = data->var;
+	int y, x;
+
+	y = data->start_y;
+	while (y < data->end_y)
+	{
+		x = 0;
+		while (x < WIDTH)
 		{
 			process_pixel(var, x, y);
+			++x;
 		}
+		++y;
 	}
-}*/
+	return (NULL);
+}
+
+void printimage(void *param)
+{
+	t_var *var = (t_var *)param;
+	int num_threads = 8; // Number of threads to use (adjust based on your system)
+	pthread_t threads[num_threads];
+	t_thread_data thread_data[num_threads];
+	int rows_per_thread = HEIGHT / num_threads;
+	int i;
+
+	pthread_mutex_init(&g_write_color_mutex, NULL);
+	pthread_mutex_init(&g_shade_color_mutex, NULL);
+	i = 0;
+	while (i < num_threads)
+	{
+		thread_data[i].var = var;
+		thread_data[i].start_y = i * rows_per_thread;
+		thread_data[i].end_y = (i == num_threads - 1) ? HEIGHT : (i + 1) * rows_per_thread;
+		pthread_create(&threads[i], NULL, render_section, &thread_data[i]);
+		++i;
+	}
+	i = 0;
+	while (i < num_threads)
+	{
+		pthread_join(threads[i], NULL);
+		++i;
+	}
+	pthread_mutex_destroy(&g_write_color_mutex);
+	pthread_mutex_destroy(&g_shade_color_mutex);
+}

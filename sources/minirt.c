@@ -6,7 +6,7 @@
 /*   By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/15 12:02:26 by mrinkine          #+#    #+#             */
-/*   Updated: 2024/10/27 16:27:52 by tvalimak         ###   ########.fr       */
+/*   Updated: 2024/10/28 16:30:19 by tvalimak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,7 +67,8 @@ int	main(int argc, char **argv)
 		terminate_map_data(map, "Error in init scene\n");
 		return (EXIT_FAILURE);
 	}
-	printimage(&var);
+	var.map = map;
+	//printimage(&var);
 	hooks(&var);
 	mlx_loop(var.mlx);
 	terminate_var_data(&var, NULL);

@@ -6,7 +6,7 @@
 /*   By: tvalimak <tvalimak@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/26 02:47:01 by tvalimak          #+#    #+#             */
-/*   Updated: 2024/10/27 16:30:12 by tvalimak         ###   ########.fr       */
+/*   Updated: 2024/10/28 16:23:53 by tvalimak         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -217,6 +217,7 @@ typedef struct s_var
 	t_object	*objects;
 	t_color		temp_color;
 	t_tuple		pixel_center;
+	t_map		*map;
 }	t_var;
 
 void		print_matrix(t_matrix *matrix);
@@ -290,6 +291,7 @@ bool		find_closest_intersection(t_var *var, t_ray *ray, \
 t_tuple		calculate_normal(t_object *object, t_tuple *point);
 t_color		shade_pixel(t_var *var, t_ray *r, \
 			t_object *closest_object, float closest_t);
+//void		process_pixel(t_var *var, int x, int y);
 void		process_pixel(t_var *var, int x, int y);
 void		printimage(void *param);
 

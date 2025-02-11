@@ -10,4 +10,3 @@ miniRT is a simple Ray Tracing engine implemented as part of the 42 curriculum. 
 - Ray tracing of basic 3D shapes (spheres, planes, cylinders)
 - Lighting and shadows
 - Reflections and basic color handling
-- Output rendered image in PPM format
